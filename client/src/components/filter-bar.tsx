@@ -43,23 +43,23 @@ export default function FilterBar({ filters, onFiltersChange, onApplyFilters, on
             <SelectContent>
               <SelectItem value="all">All Clients</SelectItem>
               <SelectItem value="ŠKODA AUTO">ŠKODA AUTO</SelectItem>
-              <SelectItem value="TESCO CZECH">TESCO CZECH</SelectItem>
-              <SelectItem value="IKEA CZ">IKEA CZ</SelectItem>
-              <SelectItem value="NTB GLOBAL">NTB GLOBAL</SelectItem>
-              <SelectItem value="AUDI AG">AUDI AG</SelectItem>
+              <SelectItem value="TESCO">TESCO</SelectItem>
+              <SelectItem value="IKEA">IKEA</SelectItem>
+              <SelectItem value="NTB">NTB</SelectItem>
+              <SelectItem value="AUDI">AUDI</SelectItem>
               <SelectItem value="VOLKSWAGEN">VOLKSWAGEN</SelectItem>
             </SelectContent>
           </Select>
         </div>
         
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">POD</Label>
-          <Select value={filters.pod || "all"} onValueChange={(value) => updateFilter('pod', value)}>
+          <Label className="text-sm font-medium text-gray-700 mb-1">POD/POL</Label>
+          <Select value={filters.podPol || "all"} onValueChange={(value) => updateFilter('podPol', value)}>
             <SelectTrigger className="focus:ring-2 focus:ring-primary">
-              <SelectValue placeholder="All Destinations" />
+              <SelectValue placeholder="All POD/POL" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Destinations</SelectItem>
+              <SelectItem value="all">All POD/POL</SelectItem>
               <SelectItem value="Hamburg">Hamburg</SelectItem>
               <SelectItem value="Bremerhaven">Bremerhaven</SelectItem>
               <SelectItem value="Koper">Koper</SelectItem>
@@ -70,21 +70,11 @@ export default function FilterBar({ filters, onFiltersChange, onApplyFilters, on
         </div>
         
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">ETA From</Label>
+          <Label className="text-sm font-medium text-gray-700 mb-1">ETA/Closing</Label>
           <Input
             type="date"
-            value={filters.etaFrom || ""}
-            onChange={(e) => updateFilter('etaFrom', e.target.value)}
-            className="focus:ring-2 focus:ring-primary focus:border-transparent"
-          />
-        </div>
-        
-        <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">ETA To</Label>
-          <Input
-            type="date"
-            value={filters.etaTo || ""}
-            onChange={(e) => updateFilter('etaTo', e.target.value)}
+            value={filters.eta || ""}
+            onChange={(e) => updateFilter('eta', e.target.value)}
             className="focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         </div>
@@ -115,10 +105,9 @@ export default function FilterBar({ filters, onFiltersChange, onApplyFilters, on
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Carriers</SelectItem>
-              <SelectItem value="Cargo Partner">Cargo Partner</SelectItem>
-              <SelectItem value="Czech Rail">Czech Rail</SelectItem>
               <SelectItem value="MSC">MSC</SelectItem>
               <SelectItem value="Hapag-Lloyd">Hapag-Lloyd</SelectItem>
+              <SelectItem value="ONE">ONE</SelectItem>
             </SelectContent>
           </Select>
         </div>

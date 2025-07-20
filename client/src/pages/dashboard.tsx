@@ -29,7 +29,7 @@ export default function Dashboard() {
     const matchesFilters = 
       (!filters.blNumber || bl.blNumber.toLowerCase().includes(filters.blNumber.toLowerCase())) &&
       (!filters.client || bl.client === filters.client) &&
-      (!filters.pod || bl.destination === filters.pod) &&
+      (!filters.podPol || bl.podPol === filters.podPol) &&
       (!filters.status || bl.status === filters.status) &&
       (!filters.carrier || bl.carrier === filters.carrier);
 

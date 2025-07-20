@@ -1,9 +1,8 @@
 export interface FilterState {
   blNumber?: string;
   client?: string;
-  pod?: string;
-  etaFrom?: string;
-  etaTo?: string;
+  podPol?: string;
+  eta?: string;
   status?: string;
   carrier?: string;
   container?: string;

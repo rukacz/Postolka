@@ -115,6 +115,7 @@ export default function BLTable({ data, isLoading }: BLTableProps) {
             </TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Consignee</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Destination</TableHead>
+            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">POD/POL</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Containers</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Type</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Carrier</TableHead>
@@ -148,6 +149,7 @@ export default function BLTable({ data, isLoading }: BLTableProps) {
               <TableCell className="px-4 py-3 font-medium">{bl.client}</TableCell>
               <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.consignee}</TableCell>
               <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.destination}</TableCell>
+              <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.podPol}</TableCell>
               <TableCell className="px-4 py-3 text-center">
                 <Badge variant="secondary" className="bg-gray-100 text-gray-900">
                   {bl.containerCount}

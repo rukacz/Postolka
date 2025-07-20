@@ -9,6 +9,7 @@ export const blSummaries = pgTable("bl_summaries", {
   client: text("client").notNull(),
   consignee: text("consignee").notNull(),
   destination: text("destination").notNull(),
+  podPol: text("pod_pol").notNull(), // Port of Discharge/Port of Loading
   containerCount: integer("container_count").notNull(),
   type: text("type").notNull(), // 'Import' | 'Export'
   carrier: text("carrier"),
