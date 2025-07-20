@@ -24,7 +24,8 @@ The application follows a full-stack TypeScript architecture with a clear separa
 - **Runtime**: Node.js with Express.js
 - **Language**: TypeScript with ES modules
 - **API Pattern**: RESTful API design
-- **Storage**: In-memory storage with interface for future database integration
+- **Storage**: PostgreSQL database with Drizzle ORM
+- **Database**: Neon PostgreSQL with automatic seeding
 - **Development**: Hot-reload with Vite integration in development mode
 
 ## Key Components
@@ -90,8 +91,16 @@ The application is designed for containerized deployment with:
 - `NODE_ENV`: Environment mode (development/production)
 - Session management ready with `connect-pg-simple`
 
+### Recent Changes
+- **2025-01-20**: Added PostgreSQL database integration
+  - Replaced in-memory storage with Neon PostgreSQL
+  - Implemented DatabaseStorage class with full CRUD operations
+  - Added automatic database seeding with sample BL and container data
+  - Updated container schema with containerType and transporter fields
+  - Modified BL detail layout: Delivery Information moved to left column
+
 ### Development vs Production
-- **Development**: Vite dev server with HMR, in-memory storage
+- **Development**: Vite dev server with HMR, PostgreSQL database with seeding
 - **Production**: Express serves static files, PostgreSQL database
 - **Replit Integration**: Special handling for Replit development environment
 

@@ -4,6 +4,8 @@ import {
   blDetails, type BLDetail, type InsertBLDetail,
   containers, type Container, type InsertContainer
 } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
   // User methods
@@ -281,4 +283,97 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Database Storage Implementation
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  // BL Summary methods
+  async getAllBLSummaries(): Promise<BLSummary[]> {
+    return await db.select().from(blSummaries);
+  }
+
+  async getBLSummary(blNumber: string): Promise<BLSummary | undefined> {
+    const [summary] = await db.select().from(blSummaries).where(eq(blSummaries.blNumber, blNumber));
+    return summary || undefined;
+  }
+
+  async createBLSummary(bl: InsertBLSummary): Promise<BLSummary> {
+    const [summary] = await db
+      .insert(blSummaries)
+      .values(bl)
+      .returning();
+    return summary;
+  }
+
+  async updateBLSummary(blNumber: string, bl: Partial<BLSummary>): Promise<BLSummary | undefined> {
+    const [summary] = await db
+      .update(blSummaries)
+      .set(bl)
+      .where(eq(blSummaries.blNumber, blNumber))
+      .returning();
+    return summary || undefined;
+  }
+
+  // BL Detail methods
+  async getBLDetail(blNumber: string): Promise<BLDetail | undefined> {
+    const [detail] = await db.select().from(blDetails).where(eq(blDetails.blNumber, blNumber));
+    return detail || undefined;
+  }
+
+  async createBLDetail(bl: InsertBLDetail): Promise<BLDetail> {
+    const [detail] = await db
+      .insert(blDetails)
+      .values(bl)
+      .returning();
+    return detail;
+  }
+
+  async updateBLDetail(blNumber: string, bl: Partial<BLDetail>): Promise<BLDetail | undefined> {
+    const [detail] = await db
+      .update(blDetails)
+      .set(bl)
+      .where(eq(blDetails.blNumber, blNumber))
+      .returning();
+    return detail || undefined;
+  }
+
+  // Container methods
+  async getContainersByBL(blNumber: string): Promise<Container[]> {
+    return await db.select().from(containers).where(eq(containers.blNumber, blNumber));
+  }
+
+  async createContainer(container: InsertContainer): Promise<Container> {
+    const [newContainer] = await db
+      .insert(containers)
+      .values(container)
+      .returning();
+    return newContainer;
+  }
+
+  async updateContainer(id: number, container: Partial<Container>): Promise<Container | undefined> {
+    const [updated] = await db
+      .update(containers)
+      .set(container)
+      .where(eq(containers.id, id))
+      .returning();
+    return updated || undefined;
+  }
+}
+
+export const storage = new DatabaseStorage();
