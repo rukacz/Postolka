@@ -154,23 +154,27 @@ export class MemStorage implements IStorage {
         blNumber: "MEDU123456",
         jobNumber: "MEDU123456-1",
         containerNumber: "COSU1044551",
-        size: "20SL",
+        size: "20",
+        containerType: "DV",
         weight: 24000,
         status: "In Progress",
         routeStep: "D" as const,
         sealNumber: "SEL123456",
-        temperature: null
+        temperature: null,
+        transporter: "Upline"
       },
       {
         blNumber: "MEDU123456", 
         jobNumber: "MEDU123456-2",
         containerNumber: "COSU9004547",
-        size: "20SL", 
+        size: "40",
+        containerType: "HC", 
         weight: 24000,
         status: "In Progress",
         routeStep: "C" as const,
         sealNumber: "SEL789012",
-        temperature: null
+        temperature: null,
+        transporter: "Medlog MEL"
       }
     ];
 

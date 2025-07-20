@@ -118,27 +118,27 @@ export default function BLDetailPage() {
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-3 gap-6 mb-6">
-          {/* Customer & Contact Info */}
+          {/* Delivery Information */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Customer & Contact</CardTitle>
+              <CardTitle className="text-lg">Delivery Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div>
-                <label className="text-sm font-medium text-gray-500">Charge To</label>
-                <p className="text-sm">{blDetail.customerName}</p>
+                <label className="text-sm font-medium text-gray-500">From</label>
+                <p className="text-sm">{blDetail.fromLocation}</p>
+                <p className="text-sm text-gray-600">{blDetail.fromAddress}</p>
+                <p className="text-sm text-gray-600">Zone: {blDetail.fromZone}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">Contact Name</label>
-                <p className="text-sm">{blDetail.contactName}</p>
+                <label className="text-sm font-medium text-gray-500">To</label>
+                <p className="text-sm">{blDetail.toLocation}</p>
+                <p className="text-sm text-gray-600">{blDetail.toAddress}</p>
+                <p className="text-sm text-gray-600">Zone: {blDetail.toZone}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">Contact No</label>
-                <p className="text-sm">{blDetail.contactPhone}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Consignee</label>
-                <p className="text-sm">{blDetail.consigneeName}</p>
+                <label className="text-sm font-medium text-gray-500">Hours of Operation</label>
+                <p className="text-sm">{blDetail.hoursOfOperation}</p>
               </div>
             </CardContent>
           </Card>
@@ -172,27 +172,27 @@ export default function BLDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Delivery Information */}
+          {/* Customer & Contact Info */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Delivery Information</CardTitle>
+              <CardTitle className="text-lg">Customer & Contact</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div>
-                <label className="text-sm font-medium text-gray-500">From</label>
-                <p className="text-sm">{blDetail.fromLocation}</p>
-                <p className="text-sm text-gray-600">{blDetail.fromAddress}</p>
-                <p className="text-sm text-gray-600">Zone: {blDetail.fromZone}</p>
+                <label className="text-sm font-medium text-gray-500">Charge To</label>
+                <p className="text-sm">{blDetail.customerName}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">To</label>
-                <p className="text-sm">{blDetail.toLocation}</p>
-                <p className="text-sm text-gray-600">{blDetail.toAddress}</p>
-                <p className="text-sm text-gray-600">Zone: {blDetail.toZone}</p>
+                <label className="text-sm font-medium text-gray-500">Contact Name</label>
+                <p className="text-sm">{blDetail.contactName}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">Hours of Operation</label>
-                <p className="text-sm">{blDetail.hoursOfOperation}</p>
+                <label className="text-sm font-medium text-gray-500">Contact No</label>
+                <p className="text-sm">{blDetail.contactPhone}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-gray-500">Consignee</label>
+                <p className="text-sm">{blDetail.consigneeName}</p>
               </div>
             </CardContent>
           </Card>

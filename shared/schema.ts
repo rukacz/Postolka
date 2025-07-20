@@ -51,11 +51,13 @@ export const containers = pgTable("containers", {
   jobNumber: text("job_number").notNull(),
   containerNumber: text("container_number").notNull(),
   size: text("size").notNull(),
+  containerType: text("container_type").notNull(),
   weight: integer("weight").notNull(),
   status: text("status").notNull(),
   sealNumber: text("seal_number"),
   temperature: integer("temperature"),
   routeStep: text("route_step").notNull(), // Current step: 'W' | 'D' | 'C' | 'R'
+  transporter: text("transporter").notNull(),
 });
 
 export const insertBLSummarySchema = createInsertSchema(blSummaries).omit({

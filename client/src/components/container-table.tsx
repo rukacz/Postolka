@@ -59,10 +59,11 @@ export default function ContainerTable({ data, isLoading }: ContainerTableProps)
               </TableHead>
               <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Job #</TableHead>
               <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Container #</TableHead>
-              <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Size</TableHead>
+              <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Size/Type</TableHead>
               <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Weight (kg)</TableHead>
               <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Route</TableHead>
               <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Status</TableHead>
+              <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Transporter</TableHead>
               <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Seal</TableHead>
               <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Actions</TableHead>
             </TableRow>
@@ -78,7 +79,7 @@ export default function ContainerTable({ data, isLoading }: ContainerTableProps)
                 </TableCell>
                 <TableCell className="px-4 py-3 font-medium">{container.jobNumber}</TableCell>
                 <TableCell className="px-4 py-3 font-mono text-sm">{container.containerNumber}</TableCell>
-                <TableCell className="px-4 py-3 text-sm">{container.size}</TableCell>
+                <TableCell className="px-4 py-3 text-sm">{container.size}/{(container as any).containerType}</TableCell>
                 <TableCell className="px-4 py-3 text-sm">{container.weight.toLocaleString()}</TableCell>
                 <TableCell className="px-4 py-3">
                   <RouteVisualizer currentStep={container.routeStep as RouteStep} />
@@ -86,6 +87,7 @@ export default function ContainerTable({ data, isLoading }: ContainerTableProps)
                 <TableCell className="px-4 py-3">
                   <StatusBadge status={container.status as BLStatus} />
                 </TableCell>
+                <TableCell className="px-4 py-3 text-sm">{(container as any).transporter}</TableCell>
                 <TableCell className="px-4 py-3 font-mono text-sm">
                   {container.sealNumber || "N/A"}
                 </TableCell>
