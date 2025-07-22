@@ -116,83 +116,62 @@ export default function BLDetailPage() {
           </CardContent>
         </Card>
 
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-3 gap-6 mb-6">
+        {/* Main Content Grid - Compact */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
           {/* Delivery Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Delivery Information</CardTitle>
+          <Card className="h-fit">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Delivery Information</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-2 pt-0">
               <div>
-                <label className="text-sm font-medium text-gray-500">From</label>
+                <label className="text-xs font-medium text-gray-500">From</label>
                 <p className="text-sm">{blDetail.fromLocation}</p>
-                <p className="text-sm text-gray-600">{blDetail.fromAddress}</p>
-                <p className="text-sm text-gray-600">Zone: {blDetail.fromZone}</p>
+                <p className="text-xs text-gray-600">{blDetail.fromZone}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">To</label>
+                <label className="text-xs font-medium text-gray-500">To</label>
                 <p className="text-sm">{blDetail.toLocation}</p>
-                <p className="text-sm text-gray-600">{blDetail.toAddress}</p>
-                <p className="text-sm text-gray-600">Zone: {blDetail.toZone}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Hours of Operation</label>
-                <p className="text-sm">{blDetail.hoursOfOperation}</p>
+                <p className="text-xs text-gray-600">{blDetail.toZone}</p>
               </div>
             </CardContent>
           </Card>
 
           {/* Vessel & Shipping Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Vessel & Shipping</CardTitle>
+          <Card className="h-fit">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Vessel & Shipping</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-2 pt-0">
               <div>
-                <label className="text-sm font-medium text-gray-500">Vessel</label>
+                <label className="text-xs font-medium text-gray-500">Vessel</label>
                 <p className="text-sm">{blDetail.vesselName}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">Shipping Line</label>
+                <label className="text-xs font-medium text-gray-500">Shipping Line</label>
                 <p className="text-sm">{blDetail.shippingLine}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">ETA</label>
+                <label className="text-xs font-medium text-gray-500">ETA</label>
                 <p className="text-sm">{blDetail.eta}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Availability</label>
-                <p className="text-sm">{blDetail.availability}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Storage Start</label>
-                <p className="text-sm">{blDetail.storageStart}</p>
               </div>
             </CardContent>
           </Card>
 
           {/* Customer & Contact Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Customer & Contact</CardTitle>
+          <Card className="h-fit">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Customer & Contact</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-2 pt-0">
               <div>
-                <label className="text-sm font-medium text-gray-500">Charge To</label>
+                <label className="text-xs font-medium text-gray-500">Customer</label>
                 <p className="text-sm">{blDetail.customerName}</p>
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-500">Contact Name</label>
+                <label className="text-xs font-medium text-gray-500">Contact</label>
                 <p className="text-sm">{blDetail.contactName}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Contact No</label>
-                <p className="text-sm">{blDetail.contactPhone}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Consignee</label>
-                <p className="text-sm">{blDetail.consigneeName}</p>
+                <p className="text-xs text-gray-600">{blDetail.contactPhone}</p>
               </div>
             </CardContent>
           </Card>
