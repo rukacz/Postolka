@@ -112,7 +112,7 @@ export default function BLTable({ data, isLoading }: BLTableProps) {
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Type</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Carrier</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Status</TableHead>
-            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Weight</TableHead>
+
             <TableHead className="w-16 px-4 py-3"></TableHead>
           </TableRow>
         </TableHeader>
@@ -158,7 +158,7 @@ export default function BLTable({ data, isLoading }: BLTableProps) {
               <TableCell className="px-4 py-3">
                 <StatusBadge status={bl.status as BLStatus} />
               </TableCell>
-              <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.weight}</TableCell>
+
               <TableCell className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
