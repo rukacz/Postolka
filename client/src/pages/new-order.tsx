@@ -75,6 +75,10 @@ const newOrderSchema = z.object({
   differentDestinations: z.boolean().default(false),
   differentTimes: z.boolean().default(false),
   
+  // Global timing (when differentTimes is false)
+  globalLoadingDateTime: z.string().optional(),
+  globalDischargingDateTime: z.string().optional(),
+  
   // Import specific
   blBookingNumber: z.string().optional(),
   customsClearance: z.enum(["Import", "Inland depot", "At customer", "Metrans"]).optional(),
@@ -116,6 +120,8 @@ export default function NewOrder() {
       containers: [{ containerNumber: "" }],
       differentDestinations: false,
       differentTimes: false,
+      globalLoadingDateTime: "",
+      globalDischargingDateTime: "",
       blBookingNumber: "",
       customsClearance: "Import",
       vgmConfirmation: false,
@@ -598,6 +604,55 @@ export default function NewOrder() {
                     />
                   </div>
                 </div>
+
+                {/* Global Timing Fields - shown when differentTimes is false */}
+                {!watchedDifferentTimes && (
+                  <div className="space-y-6 border-t pt-6">
+                    <h3 className="text-lg font-semibold">
+                      {watchedOrderType === "Export" ? "Loading" : "Discharging"} Schedule
+                    </h3>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {watchedOrderType === "Export" && (
+                        <FormField
+                          control={form.control}
+                          name="globalLoadingDateTime"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Loading Date/Time *</FormLabel>
+                              <FormControl>
+                                <Input type="datetime-local" {...field} />
+                              </FormControl>
+                              <p className="text-xs text-muted-foreground">
+                                This will apply to all containers
+                              </p>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+
+                      {watchedOrderType === "Import" && (
+                        <FormField
+                          control={form.control}
+                          name="globalDischargingDateTime"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Discharging Date/Time</FormLabel>
+                              <FormControl>
+                                <Input type="datetime-local" {...field} />
+                              </FormControl>
+                              <p className="text-xs text-muted-foreground">
+                                This will apply to all containers (optional)
+                              </p>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      )}
+                    </div>
+                  </div>
+                )}
 
                 {/* Container Details */}
                 <div className="space-y-4 border-t pt-6">
