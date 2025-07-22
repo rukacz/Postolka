@@ -92,6 +92,14 @@ The application is designed for containerized deployment with:
 - Session management ready with `connect-pg-simple`
 
 ### Recent Changes
+- **2025-01-22**: Major UI restructure and New Order component
+  - Removed Priority column, added Carrier Status and Medlog Status columns  
+  - Created CarrierStatusBadge, MedlogStatusBadge, and TrainStatusIcon components
+  - Updated database schema with carrierStatus, medlogStatus, trainScheduled fields
+  - Built comprehensive New Order form with dynamic Import/Export functionality
+  - Added ISO 6346 container number validation and accordion-based container management
+  - Implemented "Load from MSC" button with simulated API integration
+  - All UI text converted to English as per user preference
 - **2025-01-20**: Added PostgreSQL database integration
   - Replaced in-memory storage with Neon PostgreSQL
   - Implemented DatabaseStorage class with full CRUD operations
