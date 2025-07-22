@@ -95,15 +95,7 @@ export default function BLTable({ data, isLoading }: BLTableProps) {
                 BL/Booking <ArrowUpDown className="ml-1 h-4 w-4" />
               </Button>
             </TableHead>
-            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
-              <Button
-                variant="ghost"
-                onClick={() => handleSort('date')}
-                className="p-0 h-auto font-semibold hover:bg-gray-100"
-              >
-                ETA <ArrowUpDown className="ml-1 h-4 w-4" />
-              </Button>
-            </TableHead>
+
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
               <Button
                 variant="ghost"
@@ -145,7 +137,7 @@ export default function BLTable({ data, isLoading }: BLTableProps) {
                   {bl.blNumber}
                 </button>
               </TableCell>
-              <TableCell className="px-4 py-3 text-sm text-gray-900">{bl.date}</TableCell>
+
               <TableCell className="px-4 py-3 font-medium">{bl.client}</TableCell>
               <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.consignee}</TableCell>
               <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.destination}</TableCell>
