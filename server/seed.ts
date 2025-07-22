@@ -127,12 +127,12 @@ export async function seedDatabase() {
         containerNumber: "COSU1044551",
         size: "20",
         containerType: "DV",
-        weight: 24000,
+        dateTime: "2025-01-22T10:30:00",
         status: "In Progress",
         routeStep: "D",
         sealNumber: "SEL123456",
         temperature: null,
-        transporter: "Upline"
+        unloadAddress: "Mladá Boleslav Terminal"
       },
       {
         blNumber: "MEDU123456", 
@@ -140,12 +140,12 @@ export async function seedDatabase() {
         containerNumber: "COSU9004547",
         size: "40",
         containerType: "HC", 
-        weight: 24000,
+        dateTime: "2025-01-22T14:45:00",
         status: "In Progress",
         routeStep: "C",
         sealNumber: "SEL789012",
         temperature: null,
-        transporter: "Medlog MEL"
+        unloadAddress: "Prague Distribution Center"
       }
     ];
 

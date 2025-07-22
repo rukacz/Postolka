@@ -54,12 +54,12 @@ export const containers = pgTable("containers", {
   containerNumber: text("container_number").notNull(),
   size: text("size").notNull(),
   containerType: text("container_type").notNull(),
-  weight: integer("weight").notNull(),
+  dateTime: text("date_time"), // Changed from weight to dateTime
   status: text("status").notNull(),
   sealNumber: text("seal_number"),
   temperature: integer("temperature"),
   routeStep: text("route_step").notNull(), // Current step: 'W' | 'D' | 'C' | 'R'
-  transporter: text("transporter").notNull(),
+  unloadAddress: text("unload_address"), // Changed from transporter to unloadAddress
 });
 
 export const insertBLSummarySchema = createInsertSchema(blSummaries).omit({

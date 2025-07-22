@@ -60,10 +60,10 @@ export default function ContainerTable({ data, isLoading }: ContainerTableProps)
               <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Job #</TableHead>
               <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Container #</TableHead>
               <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Size/Type</TableHead>
-              <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Weight (kg)</TableHead>
+              <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Date/Time</TableHead>
               <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Route</TableHead>
               <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Status</TableHead>
-              <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Transporter</TableHead>
+              <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">(Un)Load Address</TableHead>
               <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Seal</TableHead>
               <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Actions</TableHead>
             </TableRow>
@@ -79,15 +79,22 @@ export default function ContainerTable({ data, isLoading }: ContainerTableProps)
                 </TableCell>
                 <TableCell className="px-4 py-3 font-medium">{container.jobNumber}</TableCell>
                 <TableCell className="px-4 py-3 font-mono text-sm">{container.containerNumber}</TableCell>
-                <TableCell className="px-4 py-3 text-sm">{container.size}/{(container as any).containerType}</TableCell>
-                <TableCell className="px-4 py-3 text-sm">{container.weight.toLocaleString()}</TableCell>
+                <TableCell className="px-4 py-3 text-sm">{container.size}/{container.containerType}</TableCell>
+                <TableCell className="px-4 py-3 text-sm">
+                  {container.dateTime ? new Date(container.dateTime).toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  }) : 'N/A'}
+                </TableCell>
                 <TableCell className="px-4 py-3">
                   <RouteVisualizer currentStep={container.routeStep as RouteStep} />
                 </TableCell>
                 <TableCell className="px-4 py-3">
                   <StatusBadge status={container.status as BLStatus} />
                 </TableCell>
-                <TableCell className="px-4 py-3 text-sm">{(container as any).transporter}</TableCell>
+                <TableCell className="px-4 py-3 text-sm">{container.unloadAddress || 'N/A'}</TableCell>
                 <TableCell className="px-4 py-3 font-mono text-sm">
                   {container.sealNumber || "N/A"}
                 </TableCell>
