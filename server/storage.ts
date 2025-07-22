@@ -120,9 +120,8 @@ export class MemStorage implements IStorage {
       }
     ];
 
-    for (const bl of sampleBLSummaries) {
-      await this.createBLSummary(bl);
-    }
+    // Sample data is now handled by seed.ts
+    console.log("MemStorage: Sample data initialization skipped - using DatabaseStorage instead");
 
     // Sample BL Details
     const sampleBLDetail = {
@@ -218,7 +217,8 @@ export class MemStorage implements IStorage {
       ...bl, 
       id, 
       hasChanges: false,
-      carrier: bl.carrier ?? null
+      carrier: bl.carrier ?? null,
+      trainScheduled: bl.trainScheduled ?? false
     };
     this.blSummaries.set(bl.blNumber, blSummary);
     return blSummary;

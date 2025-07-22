@@ -24,8 +24,9 @@ export async function seedDatabase() {
         containerCount: 2,
         type: "Import",
         carrier: "MSC",
-        status: "In Progress",
-        priority: "low",
+        carrierStatus: "MIPS Send",
+        medlogStatus: "Approved",
+        trainScheduled: true,
         weight: "48,000 kg"
       },
       {
@@ -38,8 +39,9 @@ export async function seedDatabase() {
         containerCount: 1,
         type: "Import",
         carrier: "MSC",
-        status: "Attention Required",
-        priority: "medium",
+        carrierStatus: "Pre-Order",
+        medlogStatus: "New",
+        trainScheduled: false,
         weight: "25,400 kg"
       },
       {
@@ -52,8 +54,9 @@ export async function seedDatabase() {
         containerCount: 3,
         type: "Export",
         carrier: "ONE",
-        status: "Draft",
-        priority: "high",
+        carrierStatus: "Do Not Release",
+        medlogStatus: "Rejected",
+        trainScheduled: false,
         weight: "73,950 kg"
       },
       {
@@ -66,8 +69,9 @@ export async function seedDatabase() {
         containerCount: 2,
         type: "Import",
         carrier: "MSC",
-        status: "Delivered",
-        priority: "low",
+        carrierStatus: "MIPS Send",
+        medlogStatus: "Approved",
+        trainScheduled: true,
         weight: "49,400 kg"
       },
       {
@@ -80,8 +84,9 @@ export async function seedDatabase() {
         containerCount: 1,
         type: "Export", 
         carrier: "Hapag-Lloyd",
-        status: "Confirmed",
-        priority: "medium",
+        carrierStatus: "Cancelled",
+        medlogStatus: "Changed",
+        trainScheduled: false,
         weight: "22,300 kg"
       }
     ];

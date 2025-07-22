@@ -13,8 +13,9 @@ export const blSummaries = pgTable("bl_summaries", {
   containerCount: integer("container_count").notNull(),
   type: text("type").notNull(), // 'Import' | 'Export'
   carrier: text("carrier"),
-  status: text("status").notNull(), // 'Draft' | 'In Progress' | 'Delivered' | 'Issues' | 'Confirmed' | 'Attention Required'
-  priority: text("priority").notNull(), // 'high' | 'medium' | 'low'
+  carrierStatus: text("carrier_status").notNull(), // 'Pre-Order' | 'MIPS Send' | 'Do Not Release' | 'Cancelled'
+  medlogStatus: text("medlog_status").notNull(), // 'New' | 'Approved' | 'Rejected' | 'Changed'
+  trainScheduled: boolean("train_scheduled").default(false), // true = zelená ikonka, false = šedá ikonka
   weight: text("weight").notNull(),
   hasChanges: boolean("has_changes").default(false),
 });

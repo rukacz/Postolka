@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Dashboard from "./pages/dashboard";
 import BLDetail from "./pages/bl-detail";
+import NewOrder from "./pages/new-order";
 import NotFound from "./pages/not-found";
 
 function Router() {
@@ -12,6 +13,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/dashboard" component={Dashboard} />
+      <Route path="/new-order" component={NewOrder} />
       <Route path="/bl/:blNumber" component={BLDetail} />
       <Route component={NotFound} />
     </Switch>

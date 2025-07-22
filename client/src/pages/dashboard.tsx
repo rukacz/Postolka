@@ -6,6 +6,7 @@ import BLTable from "@/components/bl-table";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Download, RefreshCw, Plus } from "lucide-react";
+import { Link } from "wouter";
 import { BLSummary } from "@shared/schema";
 import { FilterState } from "@/lib/types";
 
@@ -30,7 +31,8 @@ export default function Dashboard() {
       (!filters.blNumber || bl.blNumber.toLowerCase().includes(filters.blNumber.toLowerCase())) &&
       (!filters.client || bl.client === filters.client) &&
       (!filters.podPol || bl.podPol === filters.podPol) &&
-      (!filters.status || bl.status === filters.status) &&
+      (!filters.medlogStatus || bl.medlogStatus === filters.medlogStatus) &&
+      (!filters.carrierStatus || bl.carrierStatus === filters.carrierStatus) &&
       (!filters.carrier || bl.carrier === filters.carrier);
 
     return matchesSearch && matchesFilters;
@@ -97,10 +99,12 @@ export default function Dashboard() {
             >
               <RefreshCw className="w-4 h-4" />
             </Button>
-            <Button className="bg-primary hover:bg-blue-700">
-              <Plus className="w-4 h-4 mr-2" />
-              New Order
-            </Button>
+            <Link href="/new-order">
+              <Button className="bg-primary hover:bg-blue-700">
+                <Plus className="w-4 h-4 mr-2" />
+                New Order
+              </Button>
+            </Link>
           </div>
         </div>
 

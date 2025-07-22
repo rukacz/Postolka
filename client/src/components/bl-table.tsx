@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowUpDown, MoreVertical } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import PriorityIndicator from "./priority-indicator";
-import StatusBadge from "./status-badge";
-import { Priority, BLStatus, JobType } from "@/lib/types";
+import CarrierStatusBadge from "./carrier-status-badge";
+import MedlogStatusBadge from "./medlog-status-badge";
+import TrainStatusIcon from "./train-status-icon";
+import { CarrierStatus, MedlogStatus, JobType } from "@/lib/types";
 
 interface BLTableProps {
   data: BLSummary[];
@@ -84,7 +85,7 @@ export default function BLTable({ data, isLoading }: BLTableProps) {
               />
             </TableHead>
             <TableHead className="w-8 px-4 py-3 text-left text-sm font-semibold text-gray-900">
-              Priority
+              Train
             </TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
               <Button
@@ -111,7 +112,8 @@ export default function BLTable({ data, isLoading }: BLTableProps) {
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Containers</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Type</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Carrier</TableHead>
-            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Status</TableHead>
+            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Carrier Status</TableHead>
+            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Medlog Status</TableHead>
 
             <TableHead className="w-16 px-4 py-3"></TableHead>
           </TableRow>
@@ -130,7 +132,7 @@ export default function BLTable({ data, isLoading }: BLTableProps) {
                 />
               </TableCell>
               <TableCell className="px-4 py-3">
-                <PriorityIndicator priority={bl.priority as Priority} />
+                <TrainStatusIcon isScheduled={bl.trainScheduled || false} />
               </TableCell>
               <TableCell className="px-4 py-3">
                 <button className="text-primary font-medium hover:underline">
@@ -156,7 +158,10 @@ export default function BLTable({ data, isLoading }: BLTableProps) {
                 {bl.carrier || "Not assigned"}
               </TableCell>
               <TableCell className="px-4 py-3">
-                <StatusBadge status={bl.status as BLStatus} />
+                <CarrierStatusBadge status={bl.carrierStatus as CarrierStatus} />
+              </TableCell>
+              <TableCell className="px-4 py-3">
+                <MedlogStatusBadge status={bl.medlogStatus as MedlogStatus} />
               </TableCell>
 
               <TableCell className="px-4 py-3" onClick={(e) => e.stopPropagation()}>

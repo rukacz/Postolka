@@ -80,19 +80,33 @@ export default function FilterBar({ filters, onFiltersChange, onApplyFilters, on
         </div>
         
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">Status</Label>
-          <Select value={filters.status || "all"} onValueChange={(value) => updateFilter('status', value)}>
+          <Label className="text-sm font-medium text-gray-700 mb-1">Medlog Status</Label>
+          <Select value={filters.medlogStatus || "all"} onValueChange={(value) => updateFilter('medlogStatus', value)}>
             <SelectTrigger className="focus:ring-2 focus:ring-primary">
-              <SelectValue placeholder="All Status" />
+              <SelectValue placeholder="All Medlog Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="Confirmed">Confirmed</SelectItem>
-              <SelectItem value="In Progress">In Progress</SelectItem>
-              <SelectItem value="Attention Required">Attention Required</SelectItem>
-              <SelectItem value="Issues">Issues</SelectItem>
-              <SelectItem value="Draft">Draft</SelectItem>
-              <SelectItem value="Delivered">Delivered</SelectItem>
+              <SelectItem value="all">All Medlog Status</SelectItem>
+              <SelectItem value="New">New</SelectItem>
+              <SelectItem value="Approved">Approved</SelectItem>
+              <SelectItem value="Rejected">Rejected</SelectItem>
+              <SelectItem value="Changed">Changed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div>
+          <Label className="text-sm font-medium text-gray-700 mb-1">Carrier Status</Label>
+          <Select value={filters.carrierStatus || "all"} onValueChange={(value) => updateFilter('carrierStatus', value)}>
+            <SelectTrigger className="focus:ring-2 focus:ring-primary">
+              <SelectValue placeholder="All Carrier Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Carrier Status</SelectItem>
+              <SelectItem value="Pre-Order">Pre-Order</SelectItem>
+              <SelectItem value="MIPS Send">MIPS Send</SelectItem>
+              <SelectItem value="Do Not Release">Do Not Release</SelectItem>
+              <SelectItem value="Cancelled">Cancelled</SelectItem>
             </SelectContent>
           </Select>
         </div>

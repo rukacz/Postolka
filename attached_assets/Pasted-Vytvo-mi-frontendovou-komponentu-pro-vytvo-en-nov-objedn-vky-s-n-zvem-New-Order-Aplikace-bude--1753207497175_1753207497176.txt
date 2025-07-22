@@ -1,0 +1,50 @@
+Vytvoř mi frontendovou komponentu pro vytvoření nové objednávky s názvem „New Order“. Aplikace bude rozlišovat mezi importní a exportní objednávkou a dynamicky upraví formulář podle toho, co uživatel vybere.
+
+Základní požadavky:
+
+1. Uživatel musí na začátku zvolit typ objednávky:
+   - Import
+   - Export
+
+2. Společná pole pro oba typy:
+   - Client (dropdown)
+   - Destination (text input)
+   - POL/POD (text input – přístav)
+   - Vessel (text input)
+   - Carrier (dropdown – výchozí hodnota: MSC)
+   - Status (skryté pole, výchozí hodnota: Draft)
+   - Počet kontejnerů (číselný vstup)
+   - Generuj dynamicky formulář pro každý kontejner podle zadaného počtu
+
+3. U každého kontejneru musí být:
+   - Pole pro container number
+   - Validace čísla kontejneru podle ISO 6346 (kontrolní číslice + formát: 4 písmena + 7 číslic)
+
+4. Volitelné rozšíření kontejnerových údajů pomocí dvou zaškrtávacích polí:
+   - [ ] Zadávat různé destinace pro jednotlivé kontejnery
+     - Pokud zaškrtnuto: zobraz pole `Destination` pouze u každého kontejneru
+   - [ ] Zadávat různé časy nakládky/vykládky pro jednotlivé kontejnery
+     - Pokud zaškrtnuto:
+       - u Exportu: zobraz `DateTime nakládky` u každého kontejneru (povinné)
+       - u Importu: zobraz `DateTime vykládky` u každého kontejneru (nepovinné)
+
+5. Import – navíc:
+   - Pole: BL/Booking number (povinné)
+   - Tlačítko: „Načíst z MSC“ – po kliknutí zavolá Python web scraping funkci (předpokládej existenci skriptu)
+   - Pole: Způsob clení – výběr z hodnot: `Import`, `Inland depot`, `At customer`, `Metrans`
+
+6. Export – navíc:
+   - Checkbox: VGM potvrzení (yes/no)
+   - Výběr: způsob zaslání celních dokladů (`E-mailem`, `Na nakládce`)
+
+7. Tlačítka dole:
+   - Create Order
+   - Save as Draft
+   - Cancel
+
+8. Validace:
+   - Container numbers podle ISO 6346 (včetně kontrolní číslice)
+   - Povinná pole podle typu objednávky
+   - Při aktivaci rozšířených polí musí být všechna vyplněna
+
+Preferuji čistý frontend kód (např. React + Tailwind), komponenty mohou být rozdělené. Klidně použij accordion pro práci s kontejnery. Cílem je čisté, funkční a přehledné UI.
