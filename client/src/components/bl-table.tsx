@@ -84,9 +84,7 @@ export default function BLTable({ data, isLoading }: BLTableProps) {
                 onCheckedChange={toggleAllSelection}
               />
             </TableHead>
-            <TableHead className="w-8 px-4 py-3 text-left text-sm font-semibold text-gray-900">
-              Train
-            </TableHead>
+            <TableHead className="w-8 px-4 py-3 text-left text-sm font-semibold text-gray-900">Type</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
               <Button
                 variant="ghost"
@@ -110,7 +108,9 @@ export default function BLTable({ data, isLoading }: BLTableProps) {
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Destination</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">POD/POL</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Containers</TableHead>
-            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Type</TableHead>
+            <TableHead className="w-8 px-4 py-3 text-left text-sm font-semibold text-gray-900">
+              Train
+            </TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Carrier</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Carrier Status</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Medlog Status</TableHead>
@@ -132,7 +132,9 @@ export default function BLTable({ data, isLoading }: BLTableProps) {
                 />
               </TableCell>
               <TableCell className="px-4 py-3">
-                <TrainStatusIcon isScheduled={bl.trainScheduled || false} />
+                <Badge className={bl.type === 'Import' ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"}>
+                  {bl.type}
+                </Badge>
               </TableCell>
               <TableCell className="px-4 py-3">
                 <button className="text-primary font-medium hover:underline">
@@ -150,9 +152,7 @@ export default function BLTable({ data, isLoading }: BLTableProps) {
                 </Badge>
               </TableCell>
               <TableCell className="px-4 py-3">
-                <Badge className={bl.type === 'Import' ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"}>
-                  {bl.type}
-                </Badge>
+                <TrainStatusIcon isScheduled={bl.trainScheduled || false} />
               </TableCell>
               <TableCell className="px-4 py-3 text-sm text-gray-600">
                 {bl.carrier || "Not assigned"}
