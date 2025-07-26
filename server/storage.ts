@@ -18,6 +18,7 @@ export interface IStorage {
   getBLSummary(blNumber: string): Promise<BLSummary | undefined>;
   createBLSummary(bl: InsertBLSummary): Promise<BLSummary>;
   updateBLSummary(blNumber: string, bl: Partial<BLSummary>): Promise<BLSummary | undefined>;
+  acknowledgeChanges(blNumber: string, userGroup: 'carrier' | 'medlog'): Promise<BLSummary | undefined>;
   
   // BL Detail methods
   getBLDetail(blNumber: string): Promise<BLDetail | undefined>;
@@ -218,7 +219,12 @@ export class MemStorage implements IStorage {
       id, 
       hasChanges: false,
       carrier: bl.carrier ?? null,
-      trainScheduled: bl.trainScheduled ?? false
+      trainScheduled: bl.trainScheduled ?? false,
+      lastChangedBy: null,
+      lastChangedAt: null,
+      unseenChangesCarrier: 0,
+      unseenChangesMedlog: 0,
+      changedFields: []
     };
     this.blSummaries.set(bl.blNumber, blSummary);
     return blSummary;
@@ -229,6 +235,20 @@ export class MemStorage implements IStorage {
     if (!existing) return undefined;
     
     const updated = { ...existing, ...bl };
+    this.blSummaries.set(blNumber, updated);
+    return updated;
+  }
+
+  async acknowledgeChanges(blNumber: string, userGroup: 'carrier' | 'medlog'): Promise<BLSummary | undefined> {
+    const existing = this.blSummaries.get(blNumber);
+    if (!existing) return undefined;
+    
+    const updated = { 
+      ...existing, 
+      unseenChangesCarrier: userGroup === 'carrier' ? 0 : existing.unseenChangesCarrier,
+      unseenChangesMedlog: userGroup === 'medlog' ? 0 : existing.unseenChangesMedlog,
+      hasChanges: userGroup === 'carrier' ? existing.unseenChangesMedlog > 0 : existing.unseenChangesCarrier > 0
+    };
     this.blSummaries.set(blNumber, updated);
     return updated;
   }
@@ -267,7 +287,9 @@ export class MemStorage implements IStorage {
       ...container, 
       id, 
       sealNumber: container.sealNumber ?? null,
-      temperature: container.temperature ?? null
+      temperature: container.temperature ?? null,
+      dateTime: container.dateTime ?? null,
+      unloadAddress: container.unloadAddress ?? null
     };
     this.containers.set(id, newContainer);
     return newContainer;
@@ -325,6 +347,28 @@ export class DatabaseStorage implements IStorage {
     const [summary] = await db
       .update(blSummaries)
       .set(bl)
+      .where(eq(blSummaries.blNumber, blNumber))
+      .returning();
+    return summary || undefined;
+  }
+
+  async acknowledgeChanges(blNumber: string, userGroup: 'carrier' | 'medlog'): Promise<BLSummary | undefined> {
+    const existing = await this.getBLSummary(blNumber);
+    if (!existing) return undefined;
+    
+    const updateData = userGroup === 'carrier' 
+      ? { 
+          unseenChangesCarrier: 0,
+          hasChanges: (existing.unseenChangesMedlog || 0) > 0
+        }
+      : { 
+          unseenChangesMedlog: 0,
+          hasChanges: (existing.unseenChangesCarrier || 0) > 0
+        };
+    
+    const [summary] = await db
+      .update(blSummaries)
+      .set(updateData)
       .where(eq(blSummaries.blNumber, blNumber))
       .returning();
     return summary || undefined;

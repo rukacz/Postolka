@@ -1,19 +1,27 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRoute, useLocation } from "wouter";
 import NavigationHeader from "@/components/navigation-header";
 import ContainerTable from "@/components/container-table";
 import StatusBadge from "@/components/status-badge";
+import ChangeIndicatorDot from "@/components/change-indicator-dot";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Printer, Scissors, Edit } from "lucide-react";
-import { BLDetail, Container } from "@shared/schema";
-import { BLStatus } from "@/lib/types";
+import { ArrowLeft, Printer, Scissors, Edit, CheckCircle } from "lucide-react";
+import { BLDetail, Container, BLSummary } from "@shared/schema";
+import { BLStatus, UserGroup } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { queryClient } from "@/lib/queryClient";
 
 export default function BLDetailPage() {
   const [, params] = useRoute("/bl/:blNumber");
   const [, setLocation] = useLocation();
   const blNumber = params?.blNumber;
+  const { toast } = useToast();
+  
+  // Simulated current user group - in real app this would come from auth context
+  const currentUserGroup: UserGroup = 'medlog';
 
   const { data: blDetail, isLoading: isLoadingDetail } = useQuery<BLDetail>({
     queryKey: ['/api/bl-details', blNumber],
@@ -24,6 +32,41 @@ export default function BLDetailPage() {
     queryKey: ['/api/containers', blNumber],
     enabled: !!blNumber,
   });
+
+  const { data: blSummary } = useQuery<BLSummary>({
+    queryKey: ['/api/bl-summaries', blNumber],
+    enabled: !!blNumber,
+  });
+
+  const acknowledgeChangesMutation = useMutation({
+    mutationFn: async () => {
+      return apiRequest(`/api/bl-summaries/${blNumber}/acknowledge-changes`, {
+        method: 'POST',
+        body: JSON.stringify({ userGroup: currentUserGroup }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+    },
+    onSuccess: () => {
+      toast({
+        title: "Changes acknowledged",
+        description: "All changes have been marked as seen.",
+      });
+      // Invalidate related queries to refresh the data
+      queryClient.invalidateQueries({ queryKey: ['/api/bl-summaries'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/bl-summaries', blNumber] });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to acknowledge changes. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  const handleAcknowledgeChanges = () => {
+    acknowledgeChangesMutation.mutate();
+  };
 
   if (!blNumber) {
     return <div>Invalid BL number</div>;
@@ -72,13 +115,49 @@ export default function BLDetailPage() {
         <Card className="mb-6">
           <CardContent className="p-6">
             <div className="flex justify-between items-start mb-4">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Booking Details - {blDetail.blNumber}
-                </h1>
-                <p className="text-gray-600">{blDetail.customerName}</p>
+              <div className="flex items-center space-x-4">
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    Booking Details - {blDetail.blNumber}
+                  </h1>
+                  <p className="text-gray-600">{blDetail.customerName}</p>
+                </div>
+                {blSummary && (() => {
+                  const unseenChangesCount = currentUserGroup === 'medlog' ? (blSummary.unseenChangesMedlog || 0) : (blSummary.unseenChangesCarrier || 0);
+                  const changedFields = blSummary.changedFields || [];
+                  const hasTimeChanges = changedFields.some(field => 
+                    field.includes('eta') || field.includes('time') || field.includes('date')
+                  );
+                  const changeType = hasTimeChanges ? 'time' : 'other';
+                  
+                  return unseenChangesCount > 0 ? (
+                    <div className="flex items-center space-x-2">
+                      <ChangeIndicatorDot 
+                        count={unseenChangesCount} 
+                        type={changeType}
+                      />
+                      <span className="text-sm text-gray-600">
+                        {unseenChangesCount} unseen change{unseenChangesCount > 1 ? 's' : ''}
+                      </span>
+                    </div>
+                  ) : null;
+                })()}
               </div>
               <div className="flex space-x-3">
+                {blSummary && (() => {
+                  const unseenChangesCount = currentUserGroup === 'medlog' ? (blSummary.unseenChangesMedlog || 0) : (blSummary.unseenChangesCarrier || 0);
+                  return unseenChangesCount > 0 ? (
+                    <Button 
+                      variant="outline" 
+                      onClick={handleAcknowledgeChanges}
+                      disabled={acknowledgeChangesMutation.isPending}
+                      className="border-green-300 text-green-700 hover:bg-green-50"
+                    >
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      {acknowledgeChangesMutation.isPending ? "Acknowledging..." : "Acknowledge Changes"}
+                    </Button>
+                  ) : null;
+                })()}
                 <Button variant="outline">
                   <Printer className="w-4 h-4 mr-2" />
                   Print Connotes

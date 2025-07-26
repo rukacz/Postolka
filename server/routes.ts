@@ -39,6 +39,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/bl-summaries/:blNumber/acknowledge-changes", async (req, res) => {
+    try {
+      const { blNumber } = req.params;
+      const { userGroup } = req.body;
+      
+      if (!userGroup || !['carrier', 'medlog'].includes(userGroup)) {
+        return res.status(400).json({ message: "Invalid user group. Must be 'carrier' or 'medlog'" });
+      }
+      
+      const blSummary = await storage.acknowledgeChanges(blNumber, userGroup);
+      
+      if (!blSummary) {
+        return res.status(404).json({ message: "BL summary not found" });
+      }
+      
+      res.json(blSummary);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to acknowledge changes" });
+    }
+  });
+
   // BL Detail routes
   app.get("/api/bl-details/:blNumber", async (req, res) => {
     try {
