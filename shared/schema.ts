@@ -65,6 +65,10 @@ export const containers = pgTable("containers", {
   temperature: integer("temperature"),
   routeStep: text("route_step").notNull(), // Current step: 'W' | 'D' | 'C' | 'R'
   unloadAddress: text("unload_address"), // Changed from transporter to unloadAddress
+  // Change tracking fields
+  lastChangedBy: text("last_changed_by"),
+  lastChangedAt: text("last_changed_at"),
+  changedFields: text("changed_fields").array(),
 });
 
 export const insertBLSummarySchema = createInsertSchema(blSummaries).omit({

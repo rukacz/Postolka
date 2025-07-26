@@ -208,7 +208,10 @@ export async function seedDatabase() {
         routeStep: "D",
         sealNumber: "SEL123456",
         temperature: null,
-        unloadAddress: "Mladá Boleslav Terminal"
+        unloadAddress: "Mladá Boleslav Terminal",
+        lastChangedBy: "system",
+        lastChangedAt: "2025-01-22 14:30",
+        changedFields: ["size", "containerType"] // Changed from 40HC to 20DV
       },
       {
         blNumber: "MEDU123456", 
@@ -221,7 +224,10 @@ export async function seedDatabase() {
         routeStep: "C",
         sealNumber: "SEL789012",
         temperature: null,
-        unloadAddress: "Prague Distribution Center"
+        unloadAddress: "Prague Distribution Center",
+        lastChangedBy: "carrier",
+        lastChangedAt: "2025-01-22 16:15",
+        changedFields: ["dateTime", "status"]
       },
       {
         blNumber: "TCLU345678",
@@ -234,7 +240,10 @@ export async function seedDatabase() {
         routeStep: "W",
         sealNumber: "SEL445566",
         temperature: null,
-        unloadAddress: "Koper Terminal"
+        unloadAddress: "Koper Terminal",
+        lastChangedBy: null,
+        lastChangedAt: null,
+        changedFields: []
       },
       {
         blNumber: "TCLU345678",
@@ -247,7 +256,10 @@ export async function seedDatabase() {
         routeStep: "W",
         sealNumber: "SEL445567",
         temperature: null,
-        unloadAddress: "Koper Terminal"
+        unloadAddress: "Koper Terminal",
+        lastChangedBy: null,
+        lastChangedAt: null,
+        changedFields: []
       },
       {
         blNumber: "TCLU345678",
@@ -260,7 +272,10 @@ export async function seedDatabase() {
         routeStep: "W",
         sealNumber: "SEL445568",
         temperature: null,
-        unloadAddress: "Koper Terminal"
+        unloadAddress: "Koper Terminal",
+        lastChangedBy: "carrier",
+        lastChangedAt: "2025-01-22 09:45",
+        changedFields: ["status"] // Changed to Issues status
       },
       {
         blNumber: "NTBG456789",
@@ -273,7 +288,10 @@ export async function seedDatabase() {
         routeStep: "R",
         sealNumber: "SEL778899",
         temperature: null,
-        unloadAddress: "Praha Distribution"
+        unloadAddress: "Praha Distribution",
+        lastChangedBy: "medlog",
+        lastChangedAt: "2025-01-22 11:00",
+        changedFields: ["containerNumber", "sealNumber"] // Newly added container
       },
       {
         blNumber: "NTBG456789",
@@ -286,7 +304,10 @@ export async function seedDatabase() {
         routeStep: "R",
         sealNumber: "SEL778900",
         temperature: null,
-        unloadAddress: "Praha Distribution"
+        unloadAddress: "Praha Distribution",
+        lastChangedBy: "medlog",
+        lastChangedAt: "2025-01-22 11:15",
+        changedFields: ["containerNumber", "sealNumber"] // Newly added container
       }
     ];
 

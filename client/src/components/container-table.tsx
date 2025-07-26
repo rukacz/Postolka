@@ -13,6 +13,35 @@ interface ContainerTableProps {
   isLoading?: boolean;
 }
 
+// Helper component for container field change styling
+const ContainerFieldWrapper = ({ fieldName, container, children, className = "" }: { 
+  fieldName: string; 
+  container: Container;
+  children: React.ReactNode; 
+  className?: string;
+}) => {
+  const isChanged = container.changedFields?.includes(fieldName) || false;
+  return (
+    <div className={`${className} ${isChanged ? 'bg-yellow-100 border-l-4 border-yellow-400 pl-2 py-1 rounded' : ''}`}>
+      {children}
+    </div>
+  );
+};
+
+const ContainerFieldLabel = ({ fieldName, container, children }: { 
+  fieldName: string; 
+  container: Container;
+  children: React.ReactNode 
+}) => {
+  const isChanged = container.changedFields?.includes(fieldName) || false;
+  return (
+    <span className="flex items-center gap-1">
+      {children}
+      {isChanged && <span className="text-yellow-500 text-xs">📝</span>}
+    </span>
+  );
+};
+
 export default function ContainerTable({ data, isLoading }: ContainerTableProps) {
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
 
@@ -78,25 +107,57 @@ export default function ContainerTable({ data, isLoading }: ContainerTableProps)
                   />
                 </TableCell>
                 <TableCell className="px-4 py-3 font-medium">{container.jobNumber}</TableCell>
-                <TableCell className="px-4 py-3 font-mono text-sm">{container.containerNumber}</TableCell>
-                <TableCell className="px-4 py-3 text-sm">{container.size}/{container.containerType}</TableCell>
-                <TableCell className="px-4 py-3 text-sm">
-                  {container.dateTime ? new Date(container.dateTime).toLocaleString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  }) : 'N/A'}
+                <TableCell className="px-4 py-3">
+                  <ContainerFieldWrapper fieldName="containerNumber" container={container}>
+                    <ContainerFieldLabel fieldName="containerNumber" container={container}>
+                      <span className="font-mono text-sm">{container.containerNumber}</span>
+                    </ContainerFieldLabel>
+                  </ContainerFieldWrapper>
+                </TableCell>
+                <TableCell className="px-4 py-3">
+                  <ContainerFieldWrapper fieldName="size" container={container}>
+                    <ContainerFieldLabel fieldName="size" container={container}>
+                      <span className="text-sm">{container.size}/{container.containerType}</span>
+                    </ContainerFieldLabel>
+                  </ContainerFieldWrapper>
+                </TableCell>
+                <TableCell className="px-4 py-3">
+                  <ContainerFieldWrapper fieldName="dateTime" container={container}>
+                    <ContainerFieldLabel fieldName="dateTime" container={container}>
+                      <span className="text-sm">
+                        {container.dateTime ? new Date(container.dateTime).toLocaleString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        }) : 'N/A'}
+                      </span>
+                    </ContainerFieldLabel>
+                  </ContainerFieldWrapper>
                 </TableCell>
                 <TableCell className="px-4 py-3">
                   <RouteVisualizer currentStep={container.routeStep as RouteStep} />
                 </TableCell>
                 <TableCell className="px-4 py-3">
-                  <StatusBadge status={container.status as BLStatus} />
+                  <ContainerFieldWrapper fieldName="status" container={container}>
+                    <ContainerFieldLabel fieldName="status" container={container}>
+                      <StatusBadge status={container.status as BLStatus} />
+                    </ContainerFieldLabel>
+                  </ContainerFieldWrapper>
                 </TableCell>
-                <TableCell className="px-4 py-3 text-sm">{container.unloadAddress || 'N/A'}</TableCell>
-                <TableCell className="px-4 py-3 font-mono text-sm">
-                  {container.sealNumber || "N/A"}
+                <TableCell className="px-4 py-3">
+                  <ContainerFieldWrapper fieldName="unloadAddress" container={container}>
+                    <ContainerFieldLabel fieldName="unloadAddress" container={container}>
+                      <span className="text-sm">{container.unloadAddress || 'N/A'}</span>
+                    </ContainerFieldLabel>
+                  </ContainerFieldWrapper>
+                </TableCell>
+                <TableCell className="px-4 py-3">
+                  <ContainerFieldWrapper fieldName="sealNumber" container={container}>
+                    <ContainerFieldLabel fieldName="sealNumber" container={container}>
+                      <span className="font-mono text-sm">{container.sealNumber || "N/A"}</span>
+                    </ContainerFieldLabel>
+                  </ContainerFieldWrapper>
                 </TableCell>
                 <TableCell className="px-4 py-3">
                   <div className="flex space-x-2">

@@ -92,6 +92,14 @@ The application is designed for containerized deployment with:
 - Session management ready with `connect-pg-simple`
 
 ### Recent Changes
+- **2025-01-26**: Complete change notification and field-level visualization system
+  - Implemented comprehensive change tracking with color-coded dots (red for time changes, orange for other changes)
+  - Added "Changes" filter to dashboard with options: All, Only with changes, Only acknowledged
+  - Enhanced database schema with change tracking fields for both BL summaries and containers
+  - Added "Acknowledge Changes" button in booking details with proper API endpoint
+  - Implemented field-level change highlighting with yellow background and 📝 emoji indicators
+  - Enhanced ContainerTable with field-level change visualization for all container fields
+  - Created sample data with realistic change scenarios for comprehensive testing
 - **2025-01-22**: Major UI restructure and New Order component
   - Removed Priority column, added Carrier Status and Medlog Status columns  
   - Created CarrierStatusBadge, MedlogStatusBadge, and TrainStatusIcon components
