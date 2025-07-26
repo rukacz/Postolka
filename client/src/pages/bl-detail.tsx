@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRoute, useLocation } from "wouter";
 import NavigationHeader from "@/components/navigation-header";
-import ContainerTable from "@/components/container-table";
+import ContainerList from "@/components/container-list";
 import StatusBadge from "@/components/status-badge";
 import ChangeIndicatorDot from "@/components/change-indicator-dot";
 import { Button } from "@/components/ui/button";
@@ -351,7 +351,7 @@ export default function BLDetailPage() {
             </div>
 
             <TabsContent value="jobs" className="mt-0">
-              <ContainerTable 
+              <ContainerList 
                 data={containers} 
                 isLoading={isLoadingContainers}
                 currentUserGroup={currentUserGroup}

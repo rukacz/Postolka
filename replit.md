@@ -49,7 +49,8 @@ The application uses Drizzle ORM with PostgreSQL dialect for future database int
 - **BLTable**: Main data table with sorting, selection, and row actions
 - **FilterBar**: Advanced filtering interface with expandable options
 - **NavigationHeader**: Global search and user management
-- **ContainerTable**: Container-specific data display with route tracking
+- **ContainerList**: Card-based container display with individual container blocks
+- **ContainerBlock**: Individual container card with data and integrated notes
 - **StatusBadge**: Dynamic status indicators with color coding
 - **PriorityIndicator**: Visual priority system (high/medium/low)
 
@@ -92,6 +93,13 @@ The application is designed for containerized deployment with:
 - Session management ready with `connect-pg-simple`
 
 ### Recent Changes
+- **2025-01-26**: Complete change notification and field-level visualization system
+- **2025-01-26**: Replaced table-based container display with card-based ContainerBlock components
+  - Implemented ContainerBlock component for individual container display with border, rounded corners, and bg-gray-50
+  - Created ContainerList component to manage multiple container blocks with selection functionality
+  - Integrated container notes directly into each container card with minimal spacing
+  - Maintained field-level change visualization with yellow background and 📝 emoji indicators
+  - Enhanced visual separation with proper border styling for new containers
 - **2025-01-26**: Complete change notification and field-level visualization system
   - Implemented comprehensive change tracking with color-coded dots (red for time changes, orange for other changes)
   - Added "Changes" filter to dashboard with options: All, Only with changes, Only acknowledged
