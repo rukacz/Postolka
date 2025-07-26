@@ -94,7 +94,7 @@ export default function ContainerList({ data, isLoading, currentUserGroup = 'med
       </div>
 
       {/* Container blocks */}
-      <div className="space-y-0">
+      <div>
         {data.map((container) => (
           <ContainerBlock
             key={container.id}
