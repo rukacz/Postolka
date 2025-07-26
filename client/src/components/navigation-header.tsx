@@ -1,6 +1,5 @@
-import { Search, Bell, ChevronDown } from "lucide-react";
+import { Search, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface NavigationHeaderProps {
@@ -33,20 +32,6 @@ export default function NavigationHeader({ searchValue = "", onSearchChange }: N
           </div>
 
           <div className="flex items-center space-x-4">
-            {/* Notifications */}
-            <div className="relative">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="p-2 hover:bg-blue-600 text-white"
-              >
-                <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 bg-error text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                  3
-                </span>
-              </Button>
-            </div>
-            
             {/* User Menu */}
             <div className="flex items-center space-x-2">
               <Avatar className="h-8 w-8">
