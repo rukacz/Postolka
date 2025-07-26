@@ -81,7 +81,7 @@ const newOrderSchema = z.object({
   
   // Export specific
   vgmConfirmation: z.boolean().default(false),
-  customsDocuments: z.enum(["E-mail", "On loading"]).optional(),
+  customsDocuments: z.enum(["By email", "At loading place"]).optional(),
 }).refine((data) => {
   if (data.orderType === "Import") {
     return data.blBookingNumber && data.blBookingNumber.length > 0 && data.customsClearance;
@@ -121,7 +121,7 @@ export default function NewOrder() {
       blBookingNumber: "",
       customsClearance: "In Port",
       vgmConfirmation: false,
-      customsDocuments: "E-mail",
+      customsDocuments: "By email",
     }
   });
 
@@ -511,8 +511,8 @@ export default function NewOrder() {
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="E-mail">E-mail</SelectItem>
-                                <SelectItem value="On loading">On loading</SelectItem>
+                                <SelectItem value="By email">By email</SelectItem>
+                                <SelectItem value="At loading place">At loading place</SelectItem>
                               </SelectContent>
                             </Select>
                           </FormControl>
