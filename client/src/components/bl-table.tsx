@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { BLSummary } from "@shared/schema";
+import { useQuery } from "@tanstack/react-query";
+import { BLSummary, Container } from "@shared/schema";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -18,7 +19,40 @@ interface BLTableProps {
   currentUserGroup?: UserGroup;
 }
 
-export default function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps) {
+// Component to properly calculate and display change indicators including container changes
+const BLChangeIndicator = ({ bl, currentUserGroup, onClick }: { 
+  bl: BLSummary; 
+  currentUserGroup: UserGroup; 
+  onClick: () => void 
+}) => {
+  const { data: containers = [] } = useQuery<Container[]>({
+    queryKey: ['/api/containers', bl.blNumber],
+    enabled: !!bl.blNumber,
+  });
+
+  // Calculate total unseen changes: booking changes + container changes
+  const bookingChangesCount = currentUserGroup === 'medlog' ? (bl.unseenChangesMedlog || 0) : (bl.unseenChangesCarrier || 0);
+  const containerChangesCount = containers.reduce((total, container) => {
+    return total + (container.changedFields?.length || 0);
+  }, 0);
+  const totalUnseenChanges = bookingChangesCount + containerChangesCount;
+
+  const changedFields = bl.changedFields || [];
+  const hasTimeChanges = changedFields.some(field => 
+    field.includes('eta') || field.includes('time') || field.includes('date')
+  );
+  const changeType = hasTimeChanges ? 'time' : 'other';
+
+  return (
+    <ChangeIndicatorDot 
+      count={totalUnseenChanges} 
+      type={changeType}
+      onClick={onClick}
+    />
+  );
+};
+
+function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps) {
   const [, setLocation] = useLocation();
   const [sortConfig, setSortConfig] = useState<{ key: keyof BLSummary | null; direction: 'asc' | 'desc' }>({
     key: null,
@@ -105,22 +139,7 @@ export default function BLTable({ data, isLoading, currentUserGroup = 'medlog' }
               onClick={() => handleRowClick(bl.blNumber)}
             >
               <TableCell className="px-4 py-3 text-center" onClick={(e) => e.stopPropagation()}>
-                {(() => {
-                  const unseenChangesCount = currentUserGroup === 'medlog' ? (bl.unseenChangesMedlog || 0) : (bl.unseenChangesCarrier || 0);
-                  const changedFields = bl.changedFields || [];
-                  const hasTimeChanges = changedFields.some(field => 
-                    field.includes('eta') || field.includes('time') || field.includes('date')
-                  );
-                  const changeType = hasTimeChanges ? 'time' : 'other';
-                  
-                  return (
-                    <ChangeIndicatorDot 
-                      count={unseenChangesCount} 
-                      type={changeType}
-                      onClick={() => handleRowClick(bl.blNumber)}
-                    />
-                  );
-                })()}
+                <BLChangeIndicator bl={bl} currentUserGroup={currentUserGroup} onClick={() => handleRowClick(bl.blNumber)} />
               </TableCell>
               <TableCell className="px-4 py-3">
                 <Badge className={bl.type === 'Import' ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"}>
@@ -176,3 +195,5 @@ export default function BLTable({ data, isLoading, currentUserGroup = 'medlog' }
     </div>
   );
 }
+
+export default BLTable;
