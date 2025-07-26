@@ -164,11 +164,15 @@ export default function BLDetailPage() {
                   
                   const totalUnseenChanges = bookingChangesCount + containerChangesCount;
                   
-                  const changedFields = blSummary.changedFields || [];
-                  const hasTimeChanges = changedFields.some(field => 
-                    field.includes('eta') || field.includes('time') || field.includes('date')
+                  // Red dot (time) should only show for container-level time changes (ETA, delivery times)
+                  // Orange dot (other) for all other changes including booking-level date changes
+                  const containerHasTimeChanges = containers.some(container => 
+                    container.changedFields?.some(field => 
+                      field.includes('eta') || field.includes('time') || field.includes('delivery')
+                    )
                   );
-                  const changeType = hasTimeChanges ? 'time' : 'other';
+                  
+                  const changeType = containerHasTimeChanges ? 'time' : 'other';
                   
                   return totalUnseenChanges > 0 ? (
                     <div className="flex items-center space-x-2">
