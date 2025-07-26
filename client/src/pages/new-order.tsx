@@ -77,7 +77,7 @@ const newOrderSchema = z.object({
   
   // Import specific
   blBookingNumber: z.string().optional(),
-  customsClearance: z.enum(["Import", "Inland depot", "At customer", "Metrans"]).optional(),
+  customsClearance: z.enum(["In Port", "Inland depot", "At customer", "Metrans"]).optional(),
   
   // Export specific
   vgmConfirmation: z.boolean().default(false),
@@ -119,7 +119,7 @@ export default function NewOrder() {
       globalLoadingDateTime: "",
       globalDischargingDateTime: "",
       blBookingNumber: "",
-      customsClearance: "Import",
+      customsClearance: "In Port",
       vgmConfirmation: false,
       customsDocuments: "E-mail",
     }
@@ -485,7 +485,7 @@ export default function NewOrder() {
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="Import">Import</SelectItem>
+                                <SelectItem value="In Port">In Port</SelectItem>
                                 <SelectItem value="Inland depot">Inland depot</SelectItem>
                                 <SelectItem value="At customer">At customer</SelectItem>
                                 <SelectItem value="Metrans">Metrans</SelectItem>
