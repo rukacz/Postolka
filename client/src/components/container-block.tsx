@@ -39,7 +39,7 @@ const ContainerBlock = ({
   const isNewContainer = container.isNewContainer;
 
   return (
-    <div className={`border border-gray-200 bg-gray-50 rounded-lg px-4 py-3 mb-4 shadow-sm ${
+    <div className={`border border-gray-300 bg-gray-50 rounded-lg px-4 py-3 mb-4 shadow-md ${
       isNewContainer ? 'border-l-4 border-l-yellow-400 bg-yellow-50' : ''
     }`}>
       {/* Main container info row */}
