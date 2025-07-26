@@ -41,7 +41,7 @@ const BLChangeIndicator = ({ bl, currentUserGroup, onClick }: {
   // Orange dot (other) for all other changes including booking-level date changes
   const containerHasTimeChanges = containers.some(container => 
     container.changedFields?.some(field => 
-      field.includes('eta') || field.includes('time') || field.includes('delivery')
+      field.includes('eta') || field.includes('time') || field.includes('delivery') || field.includes('dateTime')
     )
   );
   
