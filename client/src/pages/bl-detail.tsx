@@ -149,7 +149,7 @@ export default function BLDetailPage() {
               <div className="flex items-center space-x-4">
                 <div>
                   <h1 className="text-2xl font-bold text-gray-900">
-                    Booking Details - {blDetail.blNumber}
+                    {blDetail.direction === 'Import' ? 'BL Details' : 'Booking Details'} - {blDetail.blNumber}
                   </h1>
                   <p className="text-gray-600">{blDetail.customerName}</p>
                 </div>
@@ -181,7 +181,7 @@ export default function BLDetailPage() {
                         type={changeType}
                       />
                       <span className="text-sm text-gray-600">
-                        {totalUnseenChanges} unseen change{totalUnseenChanges > 1 ? 's' : ''}
+                        unseen change{totalUnseenChanges > 1 ? 's' : ''}
                       </span>
                     </div>
                   ) : null;
@@ -207,10 +207,7 @@ export default function BLDetailPage() {
                     </Button>
                   ) : null;
                 })()}
-                <Button variant="outline">
-                  <Printer className="w-4 h-4 mr-2" />
-                  Print Connotes
-                </Button>
+
                 <Button variant="outline">
                   <Scissors className="w-4 h-4 mr-2" />
                   Split Booking
@@ -222,25 +219,7 @@ export default function BLDetailPage() {
               </div>
             </div>
 
-            {/* Header Info Bar */}
-            <div className="grid grid-cols-4 gap-6 py-4 border-t">
-              <FieldWrapper fieldName="customerRef" className="p-2 rounded">
-                <FieldLabel fieldName="customerRef">Customer Ref</FieldLabel>
-                <p className="text-sm font-semibold">{blDetail.customerRef}</p>
-              </FieldWrapper>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Booking Ref</label>
-                <p className="text-sm font-semibold">{blDetail.blNumber}</p>
-              </div>
-              <FieldWrapper fieldName="jobType" className="p-2 rounded">
-                <FieldLabel fieldName="jobType">Job Type</FieldLabel>
-                <p className="text-sm font-semibold">{blDetail.jobType}</p>
-              </FieldWrapper>
-              <FieldWrapper fieldName="status" className="p-2 rounded">
-                <FieldLabel fieldName="status">Booking Status</FieldLabel>
-                <StatusBadge status={blDetail.status as BLStatus} />
-              </FieldWrapper>
-            </div>
+
           </CardContent>
         </Card>
 
