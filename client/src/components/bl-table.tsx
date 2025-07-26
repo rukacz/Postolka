@@ -30,8 +30,8 @@ const BLChangeIndicator = ({ bl, currentUserGroup, onClick }: {
     enabled: !!bl.blNumber,
   });
 
-  // Calculate total unseen changes: booking changes + container changes
-  const bookingChangesCount = currentUserGroup === 'medlog' ? (bl.unseenChangesMedlog || 0) : (bl.unseenChangesCarrier || 0);
+  // Calculate total changes: booking field changes + container changes
+  const bookingChangesCount = bl.changedFields?.length || 0;
   const containerChangesCount = containers.reduce((total, container) => {
     return total + (container.changedFields?.length || 0);
   }, 0);
