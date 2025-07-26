@@ -20,6 +20,9 @@ export default function Dashboard() {
     queryKey: ['/api/bl-summaries'],
   });
 
+  // Simulated current user group - in real app this would come from auth context
+  const currentUserGroup = 'medlog'; // 'carrier' | 'medlog'
+
   // Filter data based on current filters and search
   const filteredData = blSummaries.filter(bl => {
     const matchesSearch = !searchValue || 
@@ -35,7 +38,15 @@ export default function Dashboard() {
       (!filters.carrierStatus || bl.carrierStatus === filters.carrierStatus) &&
       (!filters.carrier || bl.carrier === filters.carrier);
 
-    return matchesSearch && matchesFilters;
+    // Handle unseen changes filter
+    const unseenChangesCount = currentUserGroup === 'medlog' ? (bl.unseenChangesMedlog || 0) : (bl.unseenChangesCarrier || 0);
+    const matchesUnseenChanges = 
+      !filters.unseenChanges || 
+      filters.unseenChanges === 'all' ||
+      (filters.unseenChanges === 'unseen' && unseenChangesCount > 0) ||
+      (filters.unseenChanges === 'acknowledged' && unseenChangesCount === 0);
+
+    return matchesSearch && matchesFilters && matchesUnseenChanges;
   });
 
   // Calculate pagination
@@ -108,7 +119,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <BLTable data={paginatedData} isLoading={isLoading} />
+        <BLTable data={paginatedData} isLoading={isLoading} currentUserGroup={currentUserGroup} />
 
         {/* Pagination */}
         <div className="flex items-center justify-between mt-6">

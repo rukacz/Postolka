@@ -8,7 +8,10 @@ export interface FilterState {
   carrier?: string;
   container?: string;
   train?: string;
+  unseenChanges?: 'all' | 'unseen' | 'acknowledged';
 }
+
+export type UserGroup = 'carrier' | 'medlog';
 
 export interface NavigationState {
   currentScreen: 'list' | 'detail';

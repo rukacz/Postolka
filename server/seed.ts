@@ -27,7 +27,13 @@ export async function seedDatabase() {
         carrierStatus: "MIPS Send",
         medlogStatus: "Approved",
         trainScheduled: true,
-        weight: "48,000 kg"
+        weight: "48,000 kg",
+        hasChanges: true,
+        lastChangedBy: "carrier",
+        lastChangedAt: new Date('2025-01-22T14:30:00Z'),
+        unseenChangesCarrier: 0,
+        unseenChangesMedlog: 2,
+        changedFields: ["eta", "carrierStatus"]
       },
       {
         blNumber: "MSCU789012",
@@ -42,7 +48,13 @@ export async function seedDatabase() {
         carrierStatus: "Pre-Order",
         medlogStatus: "New",
         trainScheduled: false,
-        weight: "25,400 kg"
+        weight: "25,400 kg",
+        hasChanges: false,
+        lastChangedBy: null,
+        lastChangedAt: null,
+        unseenChangesCarrier: 0,
+        unseenChangesMedlog: 0,
+        changedFields: []
       },
       {
         blNumber: "TCLU345678",
@@ -57,7 +69,13 @@ export async function seedDatabase() {
         carrierStatus: "Do Not Release",
         medlogStatus: "Rejected",
         trainScheduled: false,
-        weight: "73,950 kg"
+        weight: "73,950 kg",
+        hasChanges: true,
+        lastChangedBy: "medlog",
+        lastChangedAt: new Date('2025-01-24T09:15:00Z'),
+        unseenChangesCarrier: 3,
+        unseenChangesMedlog: 0,
+        changedFields: ["medlogStatus", "destination", "date"]
       },
       {
         blNumber: "NTBG456789",
@@ -72,7 +90,13 @@ export async function seedDatabase() {
         carrierStatus: "MIPS Send",
         medlogStatus: "Approved",
         trainScheduled: true,
-        weight: "49,400 kg"
+        weight: "49,400 kg",
+        hasChanges: true,
+        lastChangedBy: "carrier",
+        lastChangedAt: new Date('2025-01-21T16:20:00Z'),
+        unseenChangesCarrier: 0,
+        unseenChangesMedlog: 1,
+        changedFields: ["containers"]
       },
       {
         blNumber: "AUDI567890",
@@ -87,7 +111,13 @@ export async function seedDatabase() {
         carrierStatus: "Cancelled",
         medlogStatus: "Changed",
         trainScheduled: false,
-        weight: "22,300 kg"
+        weight: "22,300 kg",
+        hasChanges: false,
+        lastChangedBy: null,
+        lastChangedAt: null,
+        unseenChangesCarrier: 0,
+        unseenChangesMedlog: 0,
+        changedFields: []
       }
     ];
 

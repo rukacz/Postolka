@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { BLSummary } from "@shared/schema";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowUpDown, MoreVertical } from "lucide-react";
@@ -10,16 +9,17 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import CarrierStatusBadge from "./carrier-status-badge";
 import MedlogStatusBadge from "./medlog-status-badge";
 import TrainStatusIcon from "./train-status-icon";
-import { CarrierStatus, MedlogStatus, JobType } from "@/lib/types";
+import ChangeIndicatorDot from "./change-indicator-dot";
+import { CarrierStatus, MedlogStatus, JobType, UserGroup } from "@/lib/types";
 
 interface BLTableProps {
   data: BLSummary[];
   isLoading?: boolean;
+  currentUserGroup?: UserGroup;
 }
 
-export default function BLTable({ data, isLoading }: BLTableProps) {
+export default function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps) {
   const [, setLocation] = useLocation();
-  const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const [sortConfig, setSortConfig] = useState<{ key: keyof BLSummary | null; direction: 'asc' | 'desc' }>({
     key: null,
     direction: 'asc'
@@ -51,24 +51,6 @@ export default function BLTable({ data, isLoading }: BLTableProps) {
     setLocation(`/bl/${blNumber}`);
   };
 
-  const toggleRowSelection = (blNumber: string) => {
-    const newSelected = new Set(selectedRows);
-    if (newSelected.has(blNumber)) {
-      newSelected.delete(blNumber);
-    } else {
-      newSelected.add(blNumber);
-    }
-    setSelectedRows(newSelected);
-  };
-
-  const toggleAllSelection = () => {
-    if (selectedRows.size === data.length) {
-      setSelectedRows(new Set());
-    } else {
-      setSelectedRows(new Set(data.map(bl => bl.blNumber)));
-    }
-  };
-
   if (isLoading) {
     return <div className="bg-white rounded-lg shadow-sm border p-8 text-center">Loading...</div>;
   }
@@ -78,11 +60,8 @@ export default function BLTable({ data, isLoading }: BLTableProps) {
       <Table>
         <TableHeader>
           <TableRow className="bg-gray-50 border-b">
-            <TableHead className="w-8 px-4 py-3">
-              <Checkbox
-                checked={selectedRows.size === data.length && data.length > 0}
-                onCheckedChange={toggleAllSelection}
-              />
+            <TableHead className="w-8 px-4 py-3 text-center text-sm font-semibold text-gray-900">
+              Changes
             </TableHead>
             <TableHead className="w-8 px-4 py-3 text-left text-sm font-semibold text-gray-900">Type</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
@@ -125,11 +104,23 @@ export default function BLTable({ data, isLoading }: BLTableProps) {
               className="hover:bg-gray-50 cursor-pointer"
               onClick={() => handleRowClick(bl.blNumber)}
             >
-              <TableCell className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                <Checkbox
-                  checked={selectedRows.has(bl.blNumber)}
-                  onCheckedChange={() => toggleRowSelection(bl.blNumber)}
-                />
+              <TableCell className="px-4 py-3 text-center" onClick={(e) => e.stopPropagation()}>
+                {(() => {
+                  const unseenChangesCount = currentUserGroup === 'medlog' ? (bl.unseenChangesMedlog || 0) : (bl.unseenChangesCarrier || 0);
+                  const changedFields = bl.changedFields || [];
+                  const hasTimeChanges = changedFields.some(field => 
+                    field.includes('eta') || field.includes('time') || field.includes('date')
+                  );
+                  const changeType = hasTimeChanges ? 'time' : 'other';
+                  
+                  return (
+                    <ChangeIndicatorDot 
+                      count={unseenChangesCount} 
+                      type={changeType}
+                      onClick={() => handleRowClick(bl.blNumber)}
+                    />
+                  );
+                })()}
               </TableCell>
               <TableCell className="px-4 py-3">
                 <Badge className={bl.type === 'Import' ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"}>

@@ -18,6 +18,11 @@ export const blSummaries = pgTable("bl_summaries", {
   trainScheduled: boolean("train_scheduled").default(false), // true = zelená ikonka, false = šedá ikonka
   weight: text("weight").notNull(),
   hasChanges: boolean("has_changes").default(false),
+  lastChangedBy: text("last_changed_by"), // 'carrier' | 'medlog'
+  lastChangedAt: timestamp("last_changed_at"),
+  unseenChangesCarrier: integer("unseen_changes_carrier").default(0),
+  unseenChangesMedlog: integer("unseen_changes_medlog").default(0),
+  changedFields: text("changed_fields").array().default([]), // Array of field names that were changed
 });
 
 export const blDetails = pgTable("bl_details", {

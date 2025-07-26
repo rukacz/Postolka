@@ -22,7 +22,7 @@ export default function FilterBar({ filters, onFiltersChange, onApplyFilters, on
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
-      <div className="grid grid-cols-8 gap-4 items-end">
+      <div className="grid grid-cols-9 gap-4 items-end">
         <div>
           <Label className="text-sm font-medium text-gray-700 mb-1">BL/Booking</Label>
           <Input
@@ -122,6 +122,20 @@ export default function FilterBar({ filters, onFiltersChange, onApplyFilters, on
               <SelectItem value="MSC">MSC</SelectItem>
               <SelectItem value="Hapag-Lloyd">Hapag-Lloyd</SelectItem>
               <SelectItem value="ONE">ONE</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label className="text-sm font-medium text-gray-700 mb-1">Changes</Label>
+          <Select value={filters.unseenChanges || "all"} onValueChange={(value) => updateFilter('unseenChanges', value)}>
+            <SelectTrigger className="focus:ring-2 focus:ring-primary">
+              <SelectValue placeholder="All" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="unseen">Only with changes</SelectItem>
+              <SelectItem value="acknowledged">Only acknowledged</SelectItem>
             </SelectContent>
           </Select>
         </div>
