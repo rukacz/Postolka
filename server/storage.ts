@@ -29,6 +29,7 @@ export interface IStorage {
   getContainersByBL(blNumber: string): Promise<Container[]>;
   createContainer(container: InsertContainer): Promise<Container>;
   updateContainer(id: number, container: Partial<Container>): Promise<Container | undefined>;
+  updateContainerNote(id: number, group: 'carrier' | 'medlog', note: string): Promise<Container | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -303,6 +304,18 @@ export class MemStorage implements IStorage {
     this.containers.set(id, updated);
     return updated;
   }
+
+  async updateContainerNote(id: number, group: 'carrier' | 'medlog', note: string): Promise<Container | undefined> {
+    const existing = this.containers.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { 
+      ...existing, 
+      [group === 'carrier' ? 'carrierNote' : 'medlogNote']: note 
+    };
+    this.containers.set(id, updated);
+    return updated;
+  }
 }
 
 // Database Storage Implementation
@@ -414,6 +427,19 @@ export class DatabaseStorage implements IStorage {
     const [updated] = await db
       .update(containers)
       .set(container)
+      .where(eq(containers.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async updateContainerNote(id: number, group: 'carrier' | 'medlog', note: string): Promise<Container | undefined> {
+    const updateData = group === 'carrier' 
+      ? { carrierNote: note }
+      : { medlogNote: note };
+      
+    const [updated] = await db
+      .update(containers)
+      .set(updateData)
       .where(eq(containers.id, id))
       .returning();
     return updated || undefined;

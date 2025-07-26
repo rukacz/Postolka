@@ -353,7 +353,8 @@ export default function BLDetailPage() {
             <TabsContent value="jobs" className="mt-0">
               <ContainerTable 
                 data={containers} 
-                isLoading={isLoadingContainers} 
+                isLoading={isLoadingContainers}
+                currentUserGroup={currentUserGroup}
               />
             </TabsContent>
 

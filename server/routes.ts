@@ -123,6 +123,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update container note
+  app.patch("/api/containers/:id/note", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { group, note } = req.body;
+      
+      if (!group || (group !== 'carrier' && group !== 'medlog')) {
+        return res.status(400).json({ error: 'Invalid group. Must be "carrier" or "medlog"' });
+      }
+      
+      const containerId = parseInt(id);
+      const updatedContainer = await storage.updateContainerNote(containerId, group, note);
+      
+      if (!updatedContainer) {
+        return res.status(404).json({ error: 'Container not found' });
+      }
+      
+      res.json(updatedContainer);
+    } catch (error) {
+      console.error('Error updating container note:', error);
+      res.status(500).json({ error: 'Failed to update container note' });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Container } from "@shared/schema";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -6,11 +6,16 @@ import { Button } from "@/components/ui/button";
 import { MapPin, CheckCircle, MoreHorizontal } from "lucide-react";
 import RouteVisualizer from "./route-visualizer";
 import StatusBadge from "./status-badge";
-import { RouteStep, BLStatus } from "@/lib/types";
+import ContainerNotes from "./container-notes";
+import { RouteStep, BLStatus, UserGroup } from "@/lib/types";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface ContainerTableProps {
   data: Container[];
   isLoading?: boolean;
+  currentUserGroup?: UserGroup;
 }
 
 // Helper component for container field change styling
@@ -40,8 +45,44 @@ const ContainerFieldLabel = ({ fieldName, container, children }: {
   );
 };
 
-export default function ContainerTable({ data, isLoading }: ContainerTableProps) {
+export default function ContainerTable({ data, isLoading, currentUserGroup = 'medlog' }: ContainerTableProps) {
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
+  const { toast } = useToast();
+
+  // Mutation for updating container notes
+  const updateNoteMutation = useMutation({
+    mutationFn: async ({ containerId, group, note }: { containerId: number; group: 'carrier' | 'medlog'; note: string }) => {
+      const response = await fetch(`/api/containers/${containerId}/note`, {
+        method: 'PATCH',
+        body: JSON.stringify({ group, note }),
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!response.ok) throw new Error('Failed to update note');
+      return response.json();
+    },
+    onSuccess: (_, { containerId }) => {
+      toast({
+        title: "Note updated",
+        description: "Container note has been saved successfully.",
+      });
+      // Invalidate container queries to refresh the data
+      queryClient.invalidateQueries({ 
+        queryKey: ['/api/containers']
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to update container note. Please try again.",
+        variant: "destructive",
+      });
+    }
+  });
+
+  // Helper function to update container notes
+  const handleUpdateContainerNote = (containerId: number, group: 'carrier' | 'medlog', note: string) => {
+    updateNoteMutation.mutate({ containerId, group, note });
+  };
 
   const toggleRowSelection = (id: number) => {
     const newSelected = new Set(selectedRows);
@@ -104,7 +145,8 @@ export default function ContainerTable({ data, isLoading }: ContainerTableProps)
                 : "hover:bg-gray-50";
               
               return (
-                <TableRow key={container.id} className={rowClassName}>
+                <React.Fragment key={container.id}>
+                  <TableRow className={rowClassName}>
                 <TableCell className="px-4 py-3">
                   <Checkbox
                     checked={selectedRows.has(container.id)}
@@ -177,7 +219,20 @@ export default function ContainerTable({ data, isLoading }: ContainerTableProps)
                     </Button>
                   </div>
                 </TableCell>
-                </TableRow>
+              </TableRow>
+              {/* Container Notes Row */}
+              <TableRow key={`${container.id}-notes`} className="border-b-0">
+                <TableCell colSpan={9} className="px-0 py-0">
+                  <ContainerNotes
+                    carrierNote={container.carrierNote || ""}
+                    medlogNote={container.medlogNote || ""}
+                    onCarrierNoteChange={(note) => handleUpdateContainerNote(container.id, 'carrier', note)}
+                    onMedlogNoteChange={(note) => handleUpdateContainerNote(container.id, 'medlog', note)}
+                    userGroup={currentUserGroup}
+                  />
+                </TableCell>
+              </TableRow>
+                </React.Fragment>
               );
             })}
           </TableBody>

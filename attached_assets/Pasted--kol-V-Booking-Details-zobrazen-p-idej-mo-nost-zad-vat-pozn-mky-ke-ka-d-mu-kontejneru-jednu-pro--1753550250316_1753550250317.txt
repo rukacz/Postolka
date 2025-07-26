@@ -1,0 +1,123 @@
+Úkol: V Booking Details zobrazení přidej možnost zadávat poznámky ke každému kontejneru – jednu pro Medlog, jednu pro Carrier.
+
+Rozvržení: Poznámky se zobrazují vedle sebe přímo pod základními údaji o kontejneru.
+
+Požadavky:
+
+Každá uživatelská skupina může editovat jen svou poznámku.
+
+Pokud je poznámka delší než jeden řádek (např. >80 znaků nebo obsahuje \n), zobrazí se červená šipka ↘️ vedle pole.
+
+Po kliknutí na šipku se zobrazí celá poznámka (např. jako textarea nebo modal).
+
+Backend musí podporovat aktualizaci poznámek odděleně pro každou skupinu.
+
+Design odpovídá stacku React + Tailwind.
+
+🧩 Frontend (React + Tailwind)
+👇 Komponenta pro poznámky:
+jsx
+Copy
+Edit
+const ContainerNotes = ({
+  carrierNote,
+  medlogNote,
+  onCarrierNoteChange,
+  onMedlogNoteChange,
+  userGroup, // "carrier" nebo "medlog"
+}) => {
+  const isCarrier = userGroup === "carrier";
+  const isMedlog = userGroup === "medlog";
+
+  const isLong = (text) => text.length > 80 || text.includes("\n");
+
+  return (
+    <div className="flex gap-4 items-start pl-8 py-2">
+      {/* Carrier Note */}
+      <div className="flex flex-col w-1/2">
+        <label className="text-sm font-semibold">Carrier Note</label>
+        <div className="relative">
+          <input
+            type="text"
+            className={`w-full px-2 py-1 border rounded text-sm ${
+              !isCarrier ? "bg-gray-100 text-gray-600" : ""
+            }`}
+            value={carrierNote}
+            onChange={(e) => onCarrierNoteChange(e.target.value)}
+            readOnly={!isCarrier}
+          />
+          {isLong(carrierNote) && (
+            <span
+              className="absolute right-1 top-1 text-red-500 cursor-pointer"
+              title="Poznámka je delší než 1 řádek"
+              onClick={() => alert(carrierNote)} // může být i modal
+            >
+              ↘️
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Medlog Note */}
+      <div className="flex flex-col w-1/2">
+        <label className="text-sm font-semibold">Medlog Note</label>
+        <div className="relative">
+          <input
+            type="text"
+            className={`w-full px-2 py-1 border rounded text-sm ${
+              !isMedlog ? "bg-gray-100 text-gray-600" : ""
+            }`}
+            value={medlogNote}
+            onChange={(e) => onMedlogNoteChange(e.target.value)}
+            readOnly={!isMedlog}
+          />
+          {isLong(medlogNote) && (
+            <span
+              className="absolute right-1 top-1 text-red-500 cursor-pointer"
+              title="Poznámka je delší než 1 řádek"
+              onClick={() => alert(medlogNote)}
+            >
+              ↘️
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+🔁 Integrace do Booking Details View
+Každý řádek kontejneru by měl renderovat ContainerNotes s props:
+
+jsx
+Copy
+Edit
+<ContainerNotes
+  carrierNote={container.carrierNote}
+  medlogNote={container.medlogNote}
+  onCarrierNoteChange={(newNote) => updateContainerNote(container.id, "carrier", newNote)}
+  onMedlogNoteChange={(newNote) => updateContainerNote(container.id, "medlog", newNote)}
+  userGroup={currentUserGroup}
+/>
+🔧 Backend požadavky
+Datová struktura pro kontejner:
+json
+Copy
+Edit
+{
+  "id": "COSU1234567",
+  "carrier_note": "Zkontrolovat plombu.",
+  "medlog_note": "Uskladnit do 16:00.",
+  "updated_by": "carrier",
+  "updated_at": "2025-07-26T09:00Z"
+}
+API endpoint:
+PATCH /containers/:id/note
+
+Request body:
+json
+Copy
+Edit
+{
+  "group": "carrier", // nebo "medlog"
+  "note": "nový obsah poznámky"
+}
