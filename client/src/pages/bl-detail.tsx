@@ -153,21 +153,30 @@ export default function BLDetailPage() {
                   <p className="text-gray-600">{blDetail.customerName}</p>
                 </div>
                 {blSummary && (() => {
-                  const unseenChangesCount = currentUserGroup === 'medlog' ? (blSummary.unseenChangesMedlog || 0) : (blSummary.unseenChangesCarrier || 0);
+                  // Calculate total unseen changes: booking changes + container changes
+                  const bookingChangesCount = currentUserGroup === 'medlog' ? (blSummary.unseenChangesMedlog || 0) : (blSummary.unseenChangesCarrier || 0);
+                  
+                  // Count container-level changes for this user group
+                  const containerChangesCount = containers.reduce((total, container) => {
+                    return total + (container.changedFields?.length || 0);
+                  }, 0);
+                  
+                  const totalUnseenChanges = bookingChangesCount + containerChangesCount;
+                  
                   const changedFields = blSummary.changedFields || [];
                   const hasTimeChanges = changedFields.some(field => 
                     field.includes('eta') || field.includes('time') || field.includes('date')
                   );
                   const changeType = hasTimeChanges ? 'time' : 'other';
                   
-                  return unseenChangesCount > 0 ? (
+                  return totalUnseenChanges > 0 ? (
                     <div className="flex items-center space-x-2">
                       <ChangeIndicatorDot 
-                        count={unseenChangesCount} 
+                        count={totalUnseenChanges} 
                         type={changeType}
                       />
                       <span className="text-sm text-gray-600">
-                        {unseenChangesCount} unseen change{unseenChangesCount > 1 ? 's' : ''}
+                        {totalUnseenChanges} unseen change{totalUnseenChanges > 1 ? 's' : ''}
                       </span>
                     </div>
                   ) : null;
@@ -175,8 +184,13 @@ export default function BLDetailPage() {
               </div>
               <div className="flex space-x-3">
                 {blSummary && (() => {
-                  const unseenChangesCount = currentUserGroup === 'medlog' ? (blSummary.unseenChangesMedlog || 0) : (blSummary.unseenChangesCarrier || 0);
-                  return unseenChangesCount > 0 ? (
+                  const bookingChangesCount = currentUserGroup === 'medlog' ? (blSummary.unseenChangesMedlog || 0) : (blSummary.unseenChangesCarrier || 0);
+                  const containerChangesCount = containers.reduce((total, container) => {
+                    return total + (container.changedFields?.length || 0);
+                  }, 0);
+                  const totalUnseenChanges = bookingChangesCount + containerChangesCount;
+                  
+                  return totalUnseenChanges > 0 ? (
                     <Button 
                       variant="outline" 
                       onClick={handleAcknowledgeChanges}
