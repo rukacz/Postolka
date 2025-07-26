@@ -98,8 +98,15 @@ export default function ContainerTable({ data, isLoading }: ContainerTableProps)
             </TableRow>
           </TableHeader>
           <TableBody>
-            {data.map((container) => (
-              <TableRow key={container.id} className="hover:bg-gray-50">
+            {data.map((container) => {
+              // Check if this container is newly added (when BL has "containers" in changedFields)
+              const isNewContainer = container.isNewContainer;
+              const rowClassName = isNewContainer 
+                ? "hover:bg-yellow-100 bg-yellow-50 border-l-4 border-l-yellow-400" 
+                : "hover:bg-gray-50";
+              
+              return (
+                <TableRow key={container.id} className={rowClassName}>
                 <TableCell className="px-4 py-3">
                   <Checkbox
                     checked={selectedRows.has(container.id)}
@@ -115,8 +122,8 @@ export default function ContainerTable({ data, isLoading }: ContainerTableProps)
                   </ContainerFieldWrapper>
                 </TableCell>
                 <TableCell className="px-4 py-3">
-                  <ContainerFieldWrapper fieldName="size" container={container}>
-                    <ContainerFieldLabel fieldName="size" container={container}>
+                  <ContainerFieldWrapper fieldName="sizeType" container={container}>
+                    <ContainerFieldLabel fieldName="sizeType" container={container}>
                       <span className="text-sm">{container.size}/{container.containerType}</span>
                     </ContainerFieldLabel>
                   </ContainerFieldWrapper>
@@ -172,8 +179,9 @@ export default function ContainerTable({ data, isLoading }: ContainerTableProps)
                     </Button>
                   </div>
                 </TableCell>
-              </TableRow>
-            ))}
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </div>

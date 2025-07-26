@@ -69,6 +69,7 @@ export const containers = pgTable("containers", {
   lastChangedBy: text("last_changed_by"),
   lastChangedAt: text("last_changed_at"),
   changedFields: text("changed_fields").array(),
+  isNewContainer: boolean("is_new_container").default(false),
 });
 
 export const insertBLSummarySchema = createInsertSchema(blSummaries).omit({
