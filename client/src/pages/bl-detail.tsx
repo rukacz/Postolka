@@ -154,10 +154,10 @@ export default function BLDetailPage() {
                   <p className="text-gray-600">{blDetail.customerName}</p>
                 </div>
                 {blSummary && (() => {
-                  // Calculate total unseen changes: booking changes + container changes
-                  const bookingChangesCount = currentUserGroup === 'medlog' ? (blSummary.unseenChangesMedlog || 0) : (blSummary.unseenChangesCarrier || 0);
+                  // Calculate total changes: booking field changes + container changes
+                  const bookingChangesCount = blSummary.changedFields?.length || 0;
                   
-                  // Count container-level changes for this user group
+                  // Count container-level changes
                   const containerChangesCount = containers.reduce((total, container) => {
                     return total + (container.changedFields?.length || 0);
                   }, 0);
@@ -185,7 +185,7 @@ export default function BLDetailPage() {
               </div>
               <div className="flex space-x-3">
                 {blSummary && (() => {
-                  const bookingChangesCount = currentUserGroup === 'medlog' ? (blSummary.unseenChangesMedlog || 0) : (blSummary.unseenChangesCarrier || 0);
+                  const bookingChangesCount = blSummary.changedFields?.length || 0;
                   const containerChangesCount = containers.reduce((total, container) => {
                     return total + (container.changedFields?.length || 0);
                   }, 0);
