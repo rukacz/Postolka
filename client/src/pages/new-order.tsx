@@ -10,10 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ArrowLeft, Save, FileText, Loader2 } from "lucide-react";
+import { ArrowLeft, Save, FileText, Loader2, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { insertBLSummarySchema } from "@shared/schema";
 
@@ -71,11 +71,7 @@ const newOrderSchema = z.object({
   containerCount: z.number().min(1, "At least 1 container required"),
   containers: z.array(containerSchema),
   
-  // Options
-  differentDestinations: z.boolean().default(false),
-  differentTimes: z.boolean().default(false),
-  
-  // Global timing (when differentTimes is false)
+  // Global timing
   globalLoadingDateTime: z.string().optional(),
   globalDischargingDateTime: z.string().optional(),
   
@@ -106,6 +102,8 @@ export default function NewOrder() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isLoadingFromMSC, setIsLoadingFromMSC] = useState(false);
+  const [isLoadingFromOVA, setIsLoadingFromOVA] = useState(false);
+  const [containerDataLoaded, setContainerDataLoaded] = useState(false);
 
   const form = useForm<NewOrderFormData>({
     resolver: zodResolver(newOrderSchema),
@@ -118,8 +116,6 @@ export default function NewOrder() {
       carrier: "MSC",
       containerCount: 1,
       containers: [{ containerNumber: "" }],
-      differentDestinations: false,
-      differentTimes: false,
       globalLoadingDateTime: "",
       globalDischargingDateTime: "",
       blBookingNumber: "",
@@ -135,24 +131,6 @@ export default function NewOrder() {
   });
 
   const watchedOrderType = form.watch("orderType");
-  const watchedContainerCount = form.watch("containerCount");
-  const watchedDifferentDestinations = form.watch("differentDestinations");
-  const watchedDifferentTimes = form.watch("differentTimes");
-
-  // Update containers when count changes
-  const updateContainerCount = (newCount: number) => {
-    const currentCount = fields.length;
-    
-    if (newCount > currentCount) {
-      for (let i = currentCount; i < newCount; i++) {
-        append({ containerNumber: "" });
-      }
-    } else if (newCount < currentCount) {
-      for (let i = currentCount - 1; i >= newCount; i--) {
-        remove(i);
-      }
-    }
-  };
 
   // Handle MSC data loading
   const handleLoadFromMSC = async () => {
@@ -168,12 +146,21 @@ export default function NewOrder() {
 
     setIsLoadingFromMSC(true);
     try {
-      // Simulate MSC data loading (replace with actual API call)
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Mock data update
       form.setValue("vessel", "MSC MAYA/0142E");
       form.setValue("polPod", "Hamburg");
+      form.setValue("client", "ŠKODA AUTO");
+      form.setValue("destination", "Hamburg");
+      
+      const mockContainers = [
+        { containerNumber: "COSU1044551", destination: "Hamburg", loadingDateTime: "", dischargingDateTime: "" },
+        { containerNumber: "COSU9004547", destination: "Hamburg", loadingDateTime: "", dischargingDateTime: "" }
+      ];
+      
+      form.setValue("containers", mockContainers);
+      form.setValue("containerCount", mockContainers.length);
+      setContainerDataLoaded(true);
       
       toast({
         title: "Success",
@@ -190,14 +177,47 @@ export default function NewOrder() {
     }
   };
 
+  // Handle OVA string loading
+  const handleLoadFromOVA = async () => {
+    setIsLoadingFromOVA(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      form.setValue("vessel", "MSC OSCAR/0156E");
+      form.setValue("polPod", "Rotterdam");
+      form.setValue("client", "AUDI AG");
+      form.setValue("destination", "Antwerp");
+      
+      const ovaContainers = [
+        { containerNumber: "TCLU3456781", destination: "Antwerp", loadingDateTime: "", dischargingDateTime: "" }
+      ];
+      
+      form.setValue("containers", ovaContainers);
+      form.setValue("containerCount", ovaContainers.length);
+      setContainerDataLoaded(true);
+      
+      toast({
+        title: "Success",
+        description: "Data loaded from OVA string successfully",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load data from OVA string",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingFromOVA(false);
+    }
+  };
+
   const createOrderMutation = useMutation({
     mutationFn: async (data: NewOrderFormData) => {
-      // Convert form data to BL Summary format
       const blSummaryData = {
         blNumber: data.blBookingNumber || `AUTO-${Date.now()}`,
         date: new Date().toISOString().split('T')[0],
         client: data.client,
-        consignee: data.client, // Using client as consignee for now
+        consignee: data.client,
         destination: data.destination,
         podPol: data.polPod,
         containerCount: data.containerCount,
@@ -206,7 +226,7 @@ export default function NewOrder() {
         carrierStatus: "Pre-Order",
         medlogStatus: "New",
         trainScheduled: false,
-        weight: "0 kg", // Default weight
+        weight: "0 kg",
       };
 
       const response = await fetch('/api/bl-summaries', {
@@ -242,7 +262,6 @@ export default function NewOrder() {
 
   const saveDraftMutation = useMutation({
     mutationFn: async (data: NewOrderFormData) => {
-      // Similar to create but with Draft status
       console.log("Saving as draft:", data);
       return { success: true };
     },
@@ -267,8 +286,8 @@ export default function NewOrder() {
     <div className="min-h-screen bg-gray-50">
       <NavigationHeader />
       
-      <div className="p-6">
-        <div className="mb-6 flex items-center justify-between">
+      <div className="p-4">
+        <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Button 
               variant="outline" 
@@ -282,33 +301,99 @@ export default function NewOrder() {
           </div>
         </div>
 
-        <Card className="max-w-6xl mx-auto">
-          <CardHeader>
-            <CardTitle>Order Information</CardTitle>
-            <CardDescription>
-              Fill in all required fields to create a new order
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+        <Card className="max-w-7xl mx-auto">
+          <CardContent className="p-4">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 
-                {/* Step 1: Order Type Selection */}
-                <div className="border-b pb-6">
+                {/* Top Row: Order Type, BL/Booking Number, and Action Buttons */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+                  <div className="md:col-span-2">
+                    <FormField
+                      control={form.control}
+                      name="orderType"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-semibold">Order Type *</FormLabel>
+                          <FormControl>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger className="h-9">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Import">Import</SelectItem>
+                                <SelectItem value="Export">Export</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="md:col-span-4">
+                    <FormField
+                      control={form.control}
+                      name="blBookingNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-semibold">BL/Booking Number *</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Enter BL/Booking number" className="h-9" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="md:col-span-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleLoadFromMSC}
+                      disabled={isLoadingFromMSC || isLoadingFromOVA}
+                      className="w-full h-9"
+                    >
+                      {isLoadingFromMSC && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                      Load from MSC
+                    </Button>
+                  </div>
+                  
+                  <div className="md:col-span-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleLoadFromOVA}
+                      disabled={isLoadingFromMSC || isLoadingFromOVA}
+                      className="w-full h-9"
+                    >
+                      {isLoadingFromOVA && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                      Use OVA string
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Basic Information Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                   <FormField
                     control={form.control}
-                    name="orderType"
+                    name="client"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-lg font-semibold">Order Type *</FormLabel>
+                        <FormLabel className="text-sm">Client *</FormLabel>
                         <FormControl>
                           <Select onValueChange={field.onChange} value={field.value}>
-                            <SelectTrigger className="w-48">
-                              <SelectValue />
+                            <SelectTrigger className="h-9">
+                              <SelectValue placeholder="Select client" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="Import">Import</SelectItem>
-                              <SelectItem value="Export">Export</SelectItem>
+                              <SelectItem value="ŠKODA AUTO">ŠKODA AUTO</SelectItem>
+                              <SelectItem value="TESCO">TESCO</SelectItem>
+                              <SelectItem value="IKEA">IKEA</SelectItem>
+                              <SelectItem value="NTB">NTB</SelectItem>
+                              <SelectItem value="AUDI">AUDI</SelectItem>
                             </SelectContent>
                           </Select>
                         </FormControl>
@@ -316,30 +401,94 @@ export default function NewOrder() {
                       </FormItem>
                     )}
                   />
+
+                  <FormField
+                    control={form.control}
+                    name="destination"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm">Destination *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter destination" {...field} className="h-9" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="polPod"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm">POL/POD *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter port" {...field} className="h-9" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="vessel"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm">Vessel *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter vessel name" {...field} className="h-9" />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
-                {/* Step 2: Common Fields */}
-                <div className="space-y-6">
-                  <h3 className="text-lg font-semibold">Basic Information</h3>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* Second Row */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <FormField
+                    control={form.control}
+                    name="carrier"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm">Carrier *</FormLabel>
+                        <FormControl>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <SelectTrigger className="h-9">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="MSC">MSC</SelectItem>
+                              <SelectItem value="ONE">ONE</SelectItem>
+                              <SelectItem value="Hapag-Lloyd">Hapag-Lloyd</SelectItem>
+                              <SelectItem value="Maersk">Maersk</SelectItem>
+                              <SelectItem value="CMA CGM">CMA CGM</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  {watchedOrderType === "Import" && (
                     <FormField
                       control={form.control}
-                      name="client"
+                      name="customsClearance"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Client *</FormLabel>
+                          <FormLabel className="text-sm">Customs Clearance *</FormLabel>
                           <FormControl>
                             <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select client" />
+                              <SelectTrigger className="h-9">
+                                <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="ŠKODA AUTO">ŠKODA AUTO</SelectItem>
-                                <SelectItem value="TESCO">TESCO</SelectItem>
-                                <SelectItem value="IKEA">IKEA</SelectItem>
-                                <SelectItem value="NTB">NTB</SelectItem>
-                                <SelectItem value="AUDI">AUDI</SelectItem>
+                                <SelectItem value="Import">Import</SelectItem>
+                                <SelectItem value="Inland depot">Inland depot</SelectItem>
+                                <SelectItem value="At customer">At customer</SelectItem>
+                                <SelectItem value="Metrans">Metrans</SelectItem>
                               </SelectContent>
                             </Select>
                           </FormControl>
@@ -347,16 +496,46 @@ export default function NewOrder() {
                         </FormItem>
                       )}
                     />
+                  )}
 
-                    {!watchedDifferentDestinations && (
+                  {watchedOrderType === "Export" && (
+                    <FormField
+                      control={form.control}
+                      name="customsDocuments"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm">Customs Documents *</FormLabel>
+                          <FormControl>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger className="h-9">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="E-mail">E-mail</SelectItem>
+                                <SelectItem value="On loading">On loading</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
+                </div>
+
+                {/* Un/loading date/time */}
+                <div className="border-t pt-4">
+                  <h3 className="text-sm font-semibold mb-3">Un/loading date/time</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {watchedOrderType === "Export" && (
                       <FormField
                         control={form.control}
-                        name="destination"
+                        name="globalLoadingDateTime"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Destination *</FormLabel>
+                            <FormLabel className="text-sm">Loading Date/Time</FormLabel>
                             <FormControl>
-                              <Input placeholder="Enter destination" {...field} />
+                              <Input type="datetime-local" {...field} className="h-9" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -364,423 +543,151 @@ export default function NewOrder() {
                       />
                     )}
 
-                    <FormField
-                      control={form.control}
-                      name="polPod"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>POL/POD *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter port" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="vessel"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Vessel *</FormLabel>
-                          <FormControl>
-                            <Input placeholder="Enter vessel name" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="carrier"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Carrier *</FormLabel>
-                          <FormControl>
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="MSC">MSC</SelectItem>
-                                <SelectItem value="ONE">ONE</SelectItem>
-                                <SelectItem value="Hapag-Lloyd">Hapag-Lloyd</SelectItem>
-                                <SelectItem value="Maersk">Maersk</SelectItem>
-                                <SelectItem value="CMA CGM">CMA CGM</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="containerCount"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Number of Containers *</FormLabel>
-                          <FormControl>
-                            <Input 
-                              type="number" 
-                              min="1" 
-                              {...field} 
-                              onChange={(e) => {
-                                const count = parseInt(e.target.value) || 1;
-                                field.onChange(count);
-                                updateContainerCount(count);
-                              }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    {watchedOrderType === "Import" && (
+                      <FormField
+                        control={form.control}
+                        name="globalDischargingDateTime"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm">Discharging Date/Time</FormLabel>
+                            <FormControl>
+                              <Input type="datetime-local" {...field} className="h-9" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
                   </div>
                 </div>
 
-                {/* Import-specific fields */}
-                {watchedOrderType === "Import" && (
-                  <div className="space-y-6 border-t pt-6">
-                    <h3 className="text-lg font-semibold">Import Details</h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="blBookingNumber"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>BL/Booking Number *</FormLabel>
-                            <div className="flex gap-2">
-                              <FormControl>
-                                <Input placeholder="Enter BL/Booking number" {...field} />
-                              </FormControl>
-                              <Button 
-                                type="button" 
-                                variant="outline" 
-                                onClick={handleLoadFromMSC}
-                                disabled={isLoadingFromMSC}
-                                className="flex-shrink-0"
-                              >
-                                {isLoadingFromMSC ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  "Load from MSC"
+                {/* Container Details - Only show if data loaded */}
+                {containerDataLoaded && (
+                  <div className="border-t pt-4">
+                    <h3 className="text-sm font-semibold mb-3">Container Details</h3>
+                    <Accordion type="single" collapsible className="w-full">
+                      {fields.map((field, index) => (
+                        <AccordionItem key={field.id} value={`container-${index}`}>
+                          <AccordionTrigger className="text-sm">
+                            Container {index + 1}: {form.watch(`containers.${index}.containerNumber`) || "Not specified"}
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 p-3 bg-gray-50 rounded">
+                              <FormField
+                                control={form.control}
+                                name={`containers.${index}.containerNumber`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="text-sm">Container Number *</FormLabel>
+                                    <FormControl>
+                                      <Input {...field} placeholder="ABCD1234567" className="h-9" />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
                                 )}
-                              </Button>
-                            </div>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="customsClearance"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Customs Clearance Method *</FormLabel>
-                            <FormControl>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Import">Import</SelectItem>
-                                  <SelectItem value="Inland depot">Inland depot</SelectItem>
-                                  <SelectItem value="At customer">At customer</SelectItem>
-                                  <SelectItem value="Metrans">Metrans</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Export-specific fields */}
-                {watchedOrderType === "Export" && (
-                  <div className="space-y-6 border-t pt-6">
-                    <h3 className="text-lg font-semibold">Export Details</h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <FormField
-                        control={form.control}
-                        name="vgmConfirmation"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
                               />
-                            </FormControl>
-                            <div className="space-y-1 leading-none">
-                              <FormLabel>VGM Confirmation</FormLabel>
-                              <p className="text-sm text-muted-foreground">
-                                Confirmed Verified Gross Mass
-                              </p>
-                            </div>
-                          </FormItem>
-                        )}
-                      />
 
-                      <FormField
-                        control={form.control}
-                        name="customsDocuments"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Customs Documents Delivery *</FormLabel>
-                            <FormControl>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="E-mail">E-mail</SelectItem>
-                                  <SelectItem value="On loading">On loading</SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Container Options */}
-                <div className="space-y-4 border-t pt-6">
-                  <h3 className="text-lg font-semibold">Container Options</h3>
-                  
-                  <div className="flex flex-col space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="differentDestinations"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>Different destinations for containers</FormLabel>
-                            <p className="text-sm text-muted-foreground">
-                              Each container can have its own destination
-                            </p>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="differentTimes"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel>Different loading/discharging times</FormLabel>
-                            <p className="text-sm text-muted-foreground">
-                              Each container can have individual timing
-                            </p>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </div>
-
-                {/* Global Timing Fields - shown when differentTimes is false */}
-                {!watchedDifferentTimes && (
-                  <div className="space-y-6 border-t pt-6">
-                    <h3 className="text-lg font-semibold">
-                      {watchedOrderType === "Export" ? "Loading" : "Discharging"} Schedule
-                    </h3>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {watchedOrderType === "Export" && (
-                        <FormField
-                          control={form.control}
-                          name="globalLoadingDateTime"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Loading Date/Time *</FormLabel>
-                              <FormControl>
-                                <Input type="datetime-local" {...field} />
-                              </FormControl>
-                              <p className="text-xs text-muted-foreground">
-                                This will apply to all containers
-                              </p>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
-
-                      {watchedOrderType === "Import" && (
-                        <FormField
-                          control={form.control}
-                          name="globalDischargingDateTime"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Discharging Date/Time</FormLabel>
-                              <FormControl>
-                                <Input type="datetime-local" {...field} />
-                              </FormControl>
-                              <p className="text-xs text-muted-foreground">
-                                This will apply to all containers (optional)
-                              </p>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* Container Details */}
-                <div className="space-y-4 border-t pt-6">
-                  <h3 className="text-lg font-semibold">Container Details</h3>
-                  
-                  <Accordion type="single" collapsible className="w-full">
-                    {fields.map((field, index) => (
-                      <AccordionItem key={field.id} value={`container-${index}`}>
-                        <AccordionTrigger>
-                          Container {index + 1}
-                          {form.getValues(`containers.${index}.containerNumber`) && (
-                            <span className="ml-2 text-sm text-muted-foreground">
-                              ({form.getValues(`containers.${index}.containerNumber`)})
-                            </span>
-                          )}
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <div className="space-y-4 p-4">
-                            <FormField
-                              control={form.control}
-                              name={`containers.${index}.containerNumber`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Container Number * (ISO 6346)</FormLabel>
-                                  <FormControl>
-                                    <Input 
-                                      placeholder="COSU1044551" 
-                                      {...field} 
-                                      className="uppercase"
-                                      onChange={(e) => field.onChange(e.target.value.toUpperCase())}
-                                    />
-                                  </FormControl>
-                                  <p className="text-xs text-muted-foreground">
-                                    Format: 4 letters + 7 digits (e.g., COSU1044551)
-                                  </p>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            {watchedDifferentDestinations && (
                               <FormField
                                 control={form.control}
                                 name={`containers.${index}.destination`}
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Destination *</FormLabel>
+                                    <FormLabel className="text-sm">Destination</FormLabel>
                                     <FormControl>
-                                      <Input placeholder="Enter destination" {...field} />
+                                      <Input {...field} placeholder="Container destination" className="h-9" />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
                                 )}
                               />
-                            )}
 
-                            {watchedDifferentTimes && watchedOrderType === "Export" && (
                               <FormField
                                 control={form.control}
                                 name={`containers.${index}.loadingDateTime`}
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Loading Date/Time *</FormLabel>
+                                    <FormLabel className="text-sm">Loading Date/Time</FormLabel>
                                     <FormControl>
-                                      <Input type="datetime-local" {...field} />
+                                      <Input type="datetime-local" {...field} className="h-9" />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
                                 )}
                               />
-                            )}
 
-                            {watchedDifferentTimes && watchedOrderType === "Import" && (
                               <FormField
                                 control={form.control}
                                 name={`containers.${index}.dischargingDateTime`}
                                 render={({ field }) => (
                                   <FormItem>
-                                    <FormLabel>Discharging Date/Time</FormLabel>
+                                    <FormLabel className="text-sm">Discharging Date/Time</FormLabel>
                                     <FormControl>
-                                      <Input type="datetime-local" {...field} />
+                                      <Input type="datetime-local" {...field} className="h-9" />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
                                 )}
                               />
-                            )}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  </div>
+                )}
+
+                {/* Export VGM Confirmation */}
+                {watchedOrderType === "Export" && (
+                  <div className="border-t pt-4">
+                    <FormField
+                      control={form.control}
+                      name="vgmConfirmation"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                          <div className="space-y-1 leading-none">
+                            <FormLabel className="text-sm">VGM Confirmation</FormLabel>
+                            <p className="text-xs text-muted-foreground">
+                              Confirmed Verified Gross Mass
+                            </p>
                           </div>
-                        </AccordionContent>
-                      </AccordionItem>
-                    ))}
-                  </Accordion>
-                </div>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
 
                 {/* Action Buttons */}
-                <div className="flex justify-end space-x-4 pt-8 border-t">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
+                <div className="border-t pt-4 flex justify-end space-x-3">
+                  <Button
+                    type="button"
+                    variant="outline"
                     onClick={() => setLocation('/dashboard')}
                   >
                     Cancel
                   </Button>
-                  
-                  <Button 
-                    type="button" 
+                  <Button
+                    type="button"
                     variant="outline"
                     onClick={onSaveDraft}
                     disabled={saveDraftMutation.isPending}
                   >
-                    {saveDraftMutation.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <FileText className="h-4 w-4 mr-2" />
-                    )}
+                    {saveDraftMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    <Save className="w-4 h-4 mr-2" />
                     Save as Draft
                   </Button>
-                  
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     disabled={createOrderMutation.isPending}
                     className="bg-primary hover:bg-blue-700"
                   >
-                    {createOrderMutation.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <Save className="h-4 w-4 mr-2" />
-                    )}
+                    {createOrderMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                    <FileText className="w-4 h-4 mr-2" />
                     Create Order
                   </Button>
                 </div>
