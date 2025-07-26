@@ -9,10 +9,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Printer, Scissors, Edit, CheckCircle } from "lucide-react";
 import { BLDetail, Container, BLSummary } from "@shared/schema";
-import { BLStatus, UserGroup } from "@/lib/types";
+import { BLStatus, UserGroup, CarrierStatus, MedlogStatus } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { queryClient } from "@/lib/queryClient";
+import CarrierStatusBadge from "@/components/carrier-status-badge";
+import MedlogStatusBadge from "@/components/medlog-status-badge";
+import TrainStatusIcon from "@/components/train-status-icon";
 
 export default function BLDetailPage() {
   const [, params] = useRoute("/bl/:blNumber");
@@ -40,7 +43,7 @@ export default function BLDetailPage() {
 
   const acknowledgeChangesMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest(`/api/bl-summaries/${blNumber}/acknowledge-changes`, {
+      return await fetch(`/api/bl-summaries/${blNumber}/acknowledge-changes`, {
         method: 'POST',
         body: JSON.stringify({ userGroup: currentUserGroup }),
         headers: { 'Content-Type': 'application/json' }
@@ -234,6 +237,39 @@ export default function BLDetailPage() {
               <FieldWrapper fieldName="status" className="p-2 rounded">
                 <FieldLabel fieldName="status">Booking Status</FieldLabel>
                 <StatusBadge status={blDetail.status as BLStatus} />
+              </FieldWrapper>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Shipment Overview Section */}
+        <Card className="mb-6">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Shipment Overview</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="grid grid-cols-4 gap-6">
+              <FieldWrapper fieldName="carrierStatus" className="p-2 rounded">
+                <FieldLabel fieldName="carrierStatus">Carrier Status</FieldLabel>
+                {blSummary && (
+                  <CarrierStatusBadge status={blSummary.carrierStatus as CarrierStatus} />
+                )}
+              </FieldWrapper>
+              <FieldWrapper fieldName="medlogStatus" className="p-2 rounded">
+                <FieldLabel fieldName="medlogStatus">Medlog Status</FieldLabel>
+                {blSummary && (
+                  <MedlogStatusBadge status={blSummary.medlogStatus as MedlogStatus} />
+                )}
+              </FieldWrapper>
+              <FieldWrapper fieldName="trainScheduled" className="p-2 rounded">
+                <FieldLabel fieldName="trainScheduled">Train</FieldLabel>
+                {blSummary && (
+                  <TrainStatusIcon isScheduled={blSummary.trainScheduled} />
+                )}
+              </FieldWrapper>
+              <FieldWrapper fieldName="weight" className="p-2 rounded">
+                <FieldLabel fieldName="weight">Weight</FieldLabel>
+                <p className="text-sm font-semibold">{blSummary?.weight || '-'}</p>
               </FieldWrapper>
             </div>
           </CardContent>
