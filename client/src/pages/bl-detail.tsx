@@ -175,7 +175,7 @@ export default function BLDetailPage() {
                   const changeType = containerHasTimeChanges ? 'time' : 'other';
                   
                   return totalUnseenChanges > 0 ? (
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-3">
                       <ChangeIndicatorDot 
                         count={totalUnseenChanges} 
                         type={changeType}
@@ -183,30 +183,21 @@ export default function BLDetailPage() {
                       <span className="text-sm text-gray-600">
                         unseen change{totalUnseenChanges > 1 ? 's' : ''}
                       </span>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={handleAcknowledgeChanges}
+                        disabled={acknowledgeChangesMutation.isPending}
+                        className="border-green-300 text-green-700 hover:bg-green-50"
+                      >
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        {acknowledgeChangesMutation.isPending ? "Acknowledging..." : "Acknowledge Changes"}
+                      </Button>
                     </div>
                   ) : null;
                 })()}
               </div>
               <div className="flex space-x-3">
-                {blSummary && (() => {
-                  const bookingChangesCount = blSummary.changedFields?.length || 0;
-                  const containerChangesCount = containers.reduce((total, container) => {
-                    return total + (container.changedFields?.length || 0);
-                  }, 0);
-                  const totalUnseenChanges = bookingChangesCount + containerChangesCount;
-                  
-                  return totalUnseenChanges > 0 ? (
-                    <Button 
-                      variant="outline" 
-                      onClick={handleAcknowledgeChanges}
-                      disabled={acknowledgeChangesMutation.isPending}
-                      className="border-green-300 text-green-700 hover:bg-green-50"
-                    >
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      {acknowledgeChangesMutation.isPending ? "Acknowledging..." : "Acknowledge Changes"}
-                    </Button>
-                  ) : null;
-                })()}
 
                 <Button variant="outline">
                   <Scissors className="w-4 h-4 mr-2" />
