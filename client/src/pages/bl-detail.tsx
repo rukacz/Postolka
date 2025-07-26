@@ -92,11 +92,9 @@ export default function BLDetailPage() {
   };
 
   const FieldLabel = ({ fieldName, children }: { fieldName: string; children: React.ReactNode }) => {
-    const isChanged = isFieldChanged(fieldName);
     return (
-      <label className="flex items-center gap-1 text-xs font-medium text-gray-500">
+      <label className="text-xs font-medium text-gray-500">
         {children}
-        {isChanged && <span className="text-yellow-500 text-sm">📝</span>}
       </label>
     );
   };

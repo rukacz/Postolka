@@ -33,11 +33,9 @@ const ContainerFieldLabel = ({ fieldName, container, children }: {
   container: Container;
   children: React.ReactNode 
 }) => {
-  const isChanged = container.changedFields?.includes(fieldName) || false;
   return (
-    <span className="flex items-center gap-1">
+    <span>
       {children}
-      {isChanged && <span className="text-yellow-500 text-xs">📝</span>}
     </span>
   );
 };
