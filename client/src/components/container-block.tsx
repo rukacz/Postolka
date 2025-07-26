@@ -55,11 +55,9 @@ const ContainerBlock = ({
         <div className="flex items-center gap-6 flex-1 justify-between ml-4">
           <div className={`font-mono text-sm ${container.changedFields?.includes('containerNumber') ? 'bg-yellow-100 px-2 py-1 rounded border-l-2 border-yellow-400' : ''}`}>
             {container.containerNumber}
-            {container.changedFields?.includes('containerNumber') && <span className="ml-1">📝</span>}
           </div>
           <div className={`text-sm ${container.changedFields?.includes('sizeType') ? 'bg-yellow-100 px-2 py-1 rounded border-l-2 border-yellow-400' : ''}`}>
             {container.size}/{container.containerType}
-            {container.changedFields?.includes('sizeType') && <span className="ml-1">📝</span>}
           </div>
           <div className={`text-sm ${container.changedFields?.includes('dateTime') ? 'bg-yellow-100 px-2 py-1 rounded border-l-2 border-yellow-400' : ''}`}>
             {container.dateTime ? new Date(container.dateTime).toLocaleString('en-US', {
@@ -68,18 +66,15 @@ const ContainerBlock = ({
               hour: '2-digit',
               minute: '2-digit'
             }) : 'N/A'}
-            {container.changedFields?.includes('dateTime') && <span className="ml-1">📝</span>}
           </div>
           <div className="flex items-center gap-2">
             <RouteVisualizer currentStep={container.routeStep as RouteStep} />
           </div>
           <div className={`${container.changedFields?.includes('status') ? 'bg-yellow-100 px-2 py-1 rounded border-l-2 border-yellow-400' : ''}`}>
             <StatusBadge status={container.status as BLStatus} />
-            {container.changedFields?.includes('status') && <span className="ml-1">📝</span>}
           </div>
           <div className={`text-sm max-w-32 truncate ${container.changedFields?.includes('unloadAddress') ? 'bg-yellow-100 px-2 py-1 rounded border-l-2 border-yellow-400' : ''}`} title={container.unloadAddress || 'N/A'}>
             {container.unloadAddress || 'N/A'}
-            {container.changedFields?.includes('unloadAddress') && <span className="ml-1">📝</span>}
           </div>
         </div>
       </div>

@@ -98,7 +98,7 @@ The application is designed for containerized deployment with:
   - Implemented ContainerBlock component for individual container display with border, rounded corners, and bg-gray-50
   - Created ContainerList component to manage multiple container blocks with selection functionality
   - Integrated container notes directly into each container card with minimal spacing
-  - Maintained field-level change visualization with yellow background and 📝 emoji indicators
+  - Maintained field-level change visualization with yellow background and left border indicators
   - Enhanced visual separation with proper border styling for new containers
 - **2025-01-26**: Complete change notification and field-level visualization system
   - Implemented comprehensive change tracking with color-coded dots (red for time changes, orange for other changes)
