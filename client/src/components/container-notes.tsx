@@ -33,7 +33,7 @@ const ContainerNotes = ({
 
   return (
     <>
-      <div className="flex gap-4 items-start pl-8 py-2">
+      <div className="flex gap-4 items-start pl-8 pt-1 pb-2">
         {/* Carrier Note */}
         <div className="flex items-center w-1/2 gap-2">
           <label className="text-sm font-semibold text-gray-700 whitespace-nowrap">Carrier:</label>

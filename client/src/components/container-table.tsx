@@ -222,7 +222,7 @@ export default function ContainerTable({ data, isLoading, currentUserGroup = 'me
               </TableRow>
               {/* Container Notes Row */}
               <TableRow key={`${container.id}-notes`} className="border-b">
-                <TableCell colSpan={9} className="px-0 py-0">
+                <TableCell colSpan={9} className="px-0 py-0 pt-0 pb-1">
                   <ContainerNotes
                     carrierNote={container.carrierNote || ""}
                     medlogNote={container.medlogNote || ""}
