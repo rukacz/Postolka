@@ -35,9 +35,9 @@ const ContainerNotes = ({
     <>
       <div className="flex gap-4 items-start pl-8 py-2">
         {/* Carrier Note */}
-        <div className="flex flex-col w-1/2">
-          <label className="text-sm font-semibold text-gray-700 mb-1">Carrier Note</label>
-          <div className="relative">
+        <div className="flex items-center w-1/2 gap-2">
+          <label className="text-sm font-semibold text-gray-700 whitespace-nowrap">Carrier:</label>
+          <div className="relative flex-1">
             <Input
               type="text"
               className={`text-sm ${
@@ -46,7 +46,7 @@ const ContainerNotes = ({
               value={carrierNote}
               onChange={(e) => onCarrierNoteChange(e.target.value)}
               readOnly={!isCarrier}
-              placeholder={isCarrier ? "Add carrier note..." : ""}
+              placeholder="Note"
             />
             {isLong(carrierNote) && (
               <span
@@ -61,9 +61,9 @@ const ContainerNotes = ({
         </div>
 
         {/* Medlog Note */}
-        <div className="flex flex-col w-1/2">
-          <label className="text-sm font-semibold text-gray-700 mb-1">Medlog Note</label>
-          <div className="relative">
+        <div className="flex items-center w-1/2 gap-2">
+          <label className="text-sm font-semibold text-gray-700 whitespace-nowrap">Medlog:</label>
+          <div className="relative flex-1">
             <Input
               type="text"
               className={`text-sm ${
@@ -72,7 +72,7 @@ const ContainerNotes = ({
               value={medlogNote}
               onChange={(e) => onMedlogNoteChange(e.target.value)}
               readOnly={!isMedlog}
-              placeholder={isMedlog ? "Add medlog note..." : ""}
+              placeholder="Note"
             />
             {isLong(medlogNote) && (
               <span
