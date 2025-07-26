@@ -146,7 +146,7 @@ export default function ContainerTable({ data, isLoading, currentUserGroup = 'me
               
               return (
                 <React.Fragment key={container.id}>
-                  <TableRow className={rowClassName}>
+                  <TableRow className={`${rowClassName} border-b-0`}>
                 <TableCell className="px-4 py-3">
                   <Checkbox
                     checked={selectedRows.has(container.id)}
@@ -221,7 +221,7 @@ export default function ContainerTable({ data, isLoading, currentUserGroup = 'me
                 </TableCell>
               </TableRow>
               {/* Container Notes Row */}
-              <TableRow key={`${container.id}-notes`} className="border-b-0">
+              <TableRow key={`${container.id}-notes`} className="border-b">
                 <TableCell colSpan={9} className="px-0 py-0">
                   <ContainerNotes
                     carrierNote={container.carrierNote || ""}
