@@ -68,6 +68,36 @@ export default function BLDetailPage() {
     acknowledgeChangesMutation.mutate();
   };
 
+  // Helper function to check if a field has changes
+  const isFieldChanged = (fieldName: string): boolean => {
+    if (!blSummary?.changedFields) return false;
+    return blSummary.changedFields.includes(fieldName);
+  };
+
+  // Helper component for changed field styling
+  const FieldWrapper = ({ fieldName, children, className = "" }: { 
+    fieldName: string; 
+    children: React.ReactNode; 
+    className?: string;
+  }) => {
+    const isChanged = isFieldChanged(fieldName);
+    return (
+      <div className={`${className} ${isChanged ? 'bg-yellow-100 border-l-4 border-yellow-400 pl-3' : ''}`}>
+        {children}
+      </div>
+    );
+  };
+
+  const FieldLabel = ({ fieldName, children }: { fieldName: string; children: React.ReactNode }) => {
+    const isChanged = isFieldChanged(fieldName);
+    return (
+      <label className="flex items-center gap-1 text-xs font-medium text-gray-500">
+        {children}
+        {isChanged && <span className="text-yellow-500 text-sm">📝</span>}
+      </label>
+    );
+  };
+
   if (!blNumber) {
     return <div>Invalid BL number</div>;
   }
@@ -175,22 +205,22 @@ export default function BLDetailPage() {
 
             {/* Header Info Bar */}
             <div className="grid grid-cols-4 gap-6 py-4 border-t">
-              <div>
-                <label className="text-sm font-medium text-gray-500">Customer Ref</label>
+              <FieldWrapper fieldName="customerRef" className="p-2 rounded">
+                <FieldLabel fieldName="customerRef">Customer Ref</FieldLabel>
                 <p className="text-sm font-semibold">{blDetail.customerRef}</p>
-              </div>
+              </FieldWrapper>
               <div>
                 <label className="text-sm font-medium text-gray-500">Booking Ref</label>
                 <p className="text-sm font-semibold">{blDetail.blNumber}</p>
               </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Job Type</label>
+              <FieldWrapper fieldName="jobType" className="p-2 rounded">
+                <FieldLabel fieldName="jobType">Job Type</FieldLabel>
                 <p className="text-sm font-semibold">{blDetail.jobType}</p>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-500">Booking Status</label>
+              </FieldWrapper>
+              <FieldWrapper fieldName="status" className="p-2 rounded">
+                <FieldLabel fieldName="status">Booking Status</FieldLabel>
                 <StatusBadge status={blDetail.status as BLStatus} />
-              </div>
+              </FieldWrapper>
             </div>
           </CardContent>
         </Card>
@@ -203,16 +233,16 @@ export default function BLDetailPage() {
               <CardTitle className="text-base">Delivery Information</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 pt-0">
-              <div>
-                <label className="text-xs font-medium text-gray-500">From</label>
+              <FieldWrapper fieldName="fromLocation" className="p-2 rounded">
+                <FieldLabel fieldName="fromLocation">From</FieldLabel>
                 <p className="text-sm">{blDetail.fromLocation}</p>
                 <p className="text-xs text-gray-600">{blDetail.fromZone}</p>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-gray-500">To</label>
+              </FieldWrapper>
+              <FieldWrapper fieldName="destination" className="p-2 rounded">
+                <FieldLabel fieldName="destination">To</FieldLabel>
                 <p className="text-sm">{blDetail.toLocation}</p>
                 <p className="text-xs text-gray-600">{blDetail.toZone}</p>
-              </div>
+              </FieldWrapper>
             </CardContent>
           </Card>
 
@@ -222,18 +252,18 @@ export default function BLDetailPage() {
               <CardTitle className="text-base">Vessel & Shipping</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 pt-0">
-              <div>
-                <label className="text-xs font-medium text-gray-500">Vessel</label>
+              <FieldWrapper fieldName="vesselName" className="p-2 rounded">
+                <FieldLabel fieldName="vesselName">Vessel</FieldLabel>
                 <p className="text-sm">{blDetail.vesselName}</p>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-gray-500">Shipping Line</label>
+              </FieldWrapper>
+              <FieldWrapper fieldName="shippingLine" className="p-2 rounded">
+                <FieldLabel fieldName="shippingLine">Shipping Line</FieldLabel>
                 <p className="text-sm">{blDetail.shippingLine}</p>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-gray-500">ETA</label>
+              </FieldWrapper>
+              <FieldWrapper fieldName="eta" className="p-2 rounded">
+                <FieldLabel fieldName="eta">ETA</FieldLabel>
                 <p className="text-sm">{blDetail.eta}</p>
-              </div>
+              </FieldWrapper>
             </CardContent>
           </Card>
 
@@ -243,15 +273,15 @@ export default function BLDetailPage() {
               <CardTitle className="text-base">Customer & Contact</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 pt-0">
-              <div>
-                <label className="text-xs font-medium text-gray-500">Customer</label>
+              <FieldWrapper fieldName="customerName" className="p-2 rounded">
+                <FieldLabel fieldName="customerName">Customer</FieldLabel>
                 <p className="text-sm">{blDetail.customerName}</p>
-              </div>
-              <div>
-                <label className="text-xs font-medium text-gray-500">Contact</label>
+              </FieldWrapper>
+              <FieldWrapper fieldName="contactName" className="p-2 rounded">
+                <FieldLabel fieldName="contactName">Contact</FieldLabel>
                 <p className="text-sm">{blDetail.contactName}</p>
                 <p className="text-xs text-gray-600">{blDetail.contactPhone}</p>
-              </div>
+              </FieldWrapper>
             </CardContent>
           </Card>
         </div>
