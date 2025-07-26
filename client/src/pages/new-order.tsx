@@ -80,7 +80,7 @@ const newOrderSchema = z.object({
   customsClearance: z.enum(["In Port", "Inland depot", "At customer", "Metrans"]).optional(),
   
   // Export specific
-  vgmConfirmation: z.boolean().default(false),
+  vgmRequested: z.enum(["Yes", "No"]).default("No"),
   customsDocuments: z.enum(["By email", "At loading place"]).optional(),
 }).refine((data) => {
   if (data.orderType === "Import") {
@@ -120,7 +120,7 @@ export default function NewOrder() {
       globalDischargingDateTime: "",
       blBookingNumber: "",
       customsClearance: "In Port",
-      vgmConfirmation: false,
+      vgmRequested: "No",
       customsDocuments: "By email",
     }
   });
@@ -499,27 +499,51 @@ export default function NewOrder() {
                   )}
 
                   {watchedOrderType === "Export" && (
-                    <FormField
-                      control={form.control}
-                      name="customsDocuments"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm">Customs Documents *</FormLabel>
-                          <FormControl>
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger className="h-9">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="By email">By email</SelectItem>
-                                <SelectItem value="At loading place">At loading place</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <>
+                      <FormField
+                        control={form.control}
+                        name="customsDocuments"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm">Customs Documents *</FormLabel>
+                            <FormControl>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger className="h-9">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="By email">By email</SelectItem>
+                                  <SelectItem value="At loading place">At loading place</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="vgmRequested"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm">VGM requested</FormLabel>
+                            <FormControl>
+                              <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger className="h-9">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Yes">Yes</SelectItem>
+                                  <SelectItem value="No">No</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </>
                   )}
                 </div>
 
@@ -636,31 +660,7 @@ export default function NewOrder() {
                   </div>
                 )}
 
-                {/* Export VGM Confirmation */}
-                {watchedOrderType === "Export" && (
-                  <div className="border-t pt-4">
-                    <FormField
-                      control={form.control}
-                      name="vgmConfirmation"
-                      render={({ field }) => (
-                        <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-                          <FormControl>
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={field.onChange}
-                            />
-                          </FormControl>
-                          <div className="space-y-1 leading-none">
-                            <FormLabel className="text-sm">VGM Confirmation</FormLabel>
-                            <p className="text-xs text-muted-foreground">
-                              Confirmed Verified Gross Mass
-                            </p>
-                          </div>
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                )}
+
 
                 {/* Action Buttons */}
                 <div className="border-t pt-4 flex justify-end space-x-3">
