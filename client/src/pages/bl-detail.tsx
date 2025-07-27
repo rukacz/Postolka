@@ -180,31 +180,21 @@ export default function BLDetailPage() {
                       <span className="text-sm text-gray-600">
                         unseen change{totalUnseenChanges > 1 ? 's' : ''}
                       </span>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={handleAcknowledgeChanges}
+                        disabled={acknowledgeChangesMutation.isPending}
+                        className="border-green-300 text-green-700 hover:bg-green-50"
+                      >
+                        <CheckCircle className="w-4 h-4 mr-1" />
+                        {acknowledgeChangesMutation.isPending ? "Acknowledging..." : "Acknowledge Changes"}
+                      </Button>
                     </div>
                   ) : null;
                 })()}
               </div>
               <div className="flex items-center space-x-2">
-                {blSummary && (() => {
-                  const bookingChangesCount = blSummary.changedFields?.length || 0;
-                  const containerChangesCount = containers.reduce((total, container) => {
-                    return total + (container.changedFields?.length || 0);
-                  }, 0);
-                  const totalUnseenChanges = bookingChangesCount + containerChangesCount;
-                  
-                  return totalUnseenChanges > 0 ? (
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={handleAcknowledgeChanges}
-                      disabled={acknowledgeChangesMutation.isPending}
-                      className="border-green-300 text-green-700 hover:bg-green-50"
-                    >
-                      <CheckCircle className="w-4 h-4 mr-1" />
-                      {acknowledgeChangesMutation.isPending ? "Acknowledging..." : "Acknowledge Changes"}
-                    </Button>
-                  ) : null;
-                })()}
                 <Button variant="outline" size="sm">
                   <Scissors className="w-4 h-4 mr-1" />
                   Split Booking
@@ -220,38 +210,7 @@ export default function BLDetailPage() {
           </CardContent>
         </Card>
 
-        {/* Shipment Overview Section */}
-        <Card className="mb-4">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium">Shipment Overview</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0">
-            <div className="grid grid-cols-4 gap-4">
-              <FieldWrapper fieldName="carrierStatus" className="p-1 rounded">
-                <FieldLabel fieldName="carrierStatus">Carrier Status</FieldLabel>
-                {blSummary && (
-                  <CarrierStatusBadge status={blSummary.carrierStatus as CarrierStatus} />
-                )}
-              </FieldWrapper>
-              <FieldWrapper fieldName="medlogStatus" className="p-1 rounded">
-                <FieldLabel fieldName="medlogStatus">Medlog Status</FieldLabel>
-                {blSummary && (
-                  <MedlogStatusBadge status={blSummary.medlogStatus as MedlogStatus} />
-                )}
-              </FieldWrapper>
-              <FieldWrapper fieldName="trainScheduled" className="p-1 rounded">
-                <FieldLabel fieldName="trainScheduled">Train</FieldLabel>
-                {blSummary && (
-                  <TrainStatusIcon isScheduled={blSummary.trainScheduled} />
-                )}
-              </FieldWrapper>
-              <FieldWrapper fieldName="weight" className="p-1 rounded">
-                <FieldLabel fieldName="weight">Weight</FieldLabel>
-                <p className="text-sm font-semibold">{blSummary?.weight || '-'}</p>
-              </FieldWrapper>
-            </div>
-          </CardContent>
-        </Card>
+
 
         {/* Main Content Grid - Compact */}
         <div className="grid grid-cols-3 gap-3 mb-4">

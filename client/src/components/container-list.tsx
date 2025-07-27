@@ -76,10 +76,10 @@ export default function ContainerList({ data, isLoading, currentUserGroup = 'med
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-4 flex justify-between items-center">
+    <div className="p-4">
+      <div className="mb-3 flex justify-between items-center">
         <div className="flex items-center gap-4">
-          <h3 className="text-lg font-semibold text-gray-900">Container Jobs</h3>
+          <h3 className="text-base font-semibold text-gray-900">Container Jobs</h3>
           <div className="flex items-center gap-2">
             <Checkbox
               checked={selectedRows.size === data.length && data.length > 0}
@@ -88,30 +88,61 @@ export default function ContainerList({ data, isLoading, currentUserGroup = 'med
             <span className="text-sm text-gray-600">Select all</span>
           </div>
         </div>
-        <Button className="bg-primary hover:bg-blue-700">
-          <span className="mr-2">+</span>Add Container
+        <Button className="bg-primary hover:bg-blue-700" size="sm">
+          <span className="mr-1">+</span>Add Container
         </Button>
       </div>
 
-      {/* Container blocks */}
-      <div>
-        {data.map((container) => (
-          <ContainerBlock
-            key={container.id}
-            container={container}
-            userGroup={currentUserGroup}
-            onNoteChange={handleUpdateContainerNote}
-            onSelectChange={toggleRowSelection}
-            isSelected={selectedRows.has(container.id)}
-          />
-        ))}
-      </div>
+      {/* Container Table */}
+      {data.length === 0 ? (
+        <div className="text-center text-gray-500 py-8">
+          No containers found for this booking
+        </div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse border border-gray-300 text-sm">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium w-8">
+                  <Checkbox
+                    checked={selectedRows.size === data.length && data.length > 0}
+                    onCheckedChange={toggleAllSelection}
+                  />
+                </th>
+                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Job</th>
+                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Container</th>
+                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Size/Type</th>
+                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Date/Time</th>
+                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Route</th>
+                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Status</th>
+                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Carrier Status</th>
+                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Medlog Status</th>
+                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Train Name</th>
+                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Train ETD</th>
+                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((container) => (
+                <ContainerBlock
+                  key={container.id}
+                  container={container}
+                  userGroup={currentUserGroup}
+                  onNoteChange={handleUpdateContainerNote}
+                  onSelectChange={toggleRowSelection}
+                  isSelected={selectedRows.has(container.id)}
+                />
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-      <div className="mt-6 flex justify-end space-x-3">
-        <Button variant="outline">
+      <div className="mt-4 flex justify-end space-x-2">
+        <Button variant="outline" size="sm">
           Edit Selected Jobs
         </Button>
-        <Button className="bg-primary hover:bg-blue-700">
+        <Button className="bg-primary hover:bg-blue-700" size="sm">
           Update Status
         </Button>
       </div>
