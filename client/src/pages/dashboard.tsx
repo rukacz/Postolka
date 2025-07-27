@@ -56,9 +56,7 @@ export default function Dashboard() {
   const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
   const paginatedData = filteredData.slice(startIndex, endIndex);
 
-  const handleApplyFilters = () => {
-    setCurrentPage(1);
-  };
+
 
   const handleClearFilters = () => {
     setFilters({});
@@ -85,7 +83,6 @@ export default function Dashboard() {
         <FilterBar
           filters={filters}
           onFiltersChange={setFilters}
-          onApplyFilters={handleApplyFilters}
           onClearFilters={handleClearFilters}
         />
 

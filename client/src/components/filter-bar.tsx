@@ -3,17 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Filter, X, Plus } from "lucide-react";
+import { X, Plus } from "lucide-react";
 import { FilterState } from "@/lib/types";
 
 interface FilterBarProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
-  onApplyFilters: () => void;
   onClearFilters: () => void;
 }
 
-export default function FilterBar({ filters, onFiltersChange, onApplyFilters, onClearFilters }: FilterBarProps) {
+export default function FilterBar({ filters, onFiltersChange, onClearFilters }: FilterBarProps) {
   const [showMoreFilters, setShowMoreFilters] = useState(false);
 
   const updateFilter = (key: keyof FilterState, value: string) => {
@@ -140,11 +139,7 @@ export default function FilterBar({ filters, onFiltersChange, onApplyFilters, on
           </Select>
         </div>
         
-        <div className="flex space-x-2">
-          <Button onClick={onApplyFilters} className="bg-primary hover:bg-blue-700">
-            <Filter className="w-4 h-4 mr-2" />
-            Filter
-          </Button>
+        <div>
           <Button variant="outline" onClick={onClearFilters} className="border-gray-300 text-gray-700 hover:bg-gray-50">
             <X className="w-4 h-4 mr-2" />
             Clear
