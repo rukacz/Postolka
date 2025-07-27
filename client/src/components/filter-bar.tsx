@@ -137,6 +137,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
               <SelectItem value="Sarah Johnson">Sarah Johnson</SelectItem>
               <SelectItem value="Mike Chen">Mike Chen</SelectItem>
               <SelectItem value="Anna Mueller">Anna Mueller</SelectItem>
+              <SelectItem value="David Wilson">David Wilson</SelectItem>
             </SelectContent>
           </Select>
         </div>
