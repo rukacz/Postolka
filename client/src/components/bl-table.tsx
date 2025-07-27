@@ -121,7 +121,6 @@ function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps)
                 Client <ArrowUpDown className="ml-1 h-4 w-4" />
               </Button>
             </TableHead>
-            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Consignee</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Destination</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">POD/POL</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Containers</TableHead>
@@ -131,6 +130,7 @@ function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps)
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Carrier</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Carrier Status</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Medlog Status</TableHead>
+            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">PIC</TableHead>
 
             <TableHead className="w-16 px-4 py-3"></TableHead>
           </TableRow>
@@ -157,7 +157,6 @@ function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps)
               </TableCell>
 
               <TableCell className="px-4 py-3 font-medium">{bl.client}</TableCell>
-              <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.consignee}</TableCell>
               <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.destination}</TableCell>
               <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.podPol}</TableCell>
               <TableCell className="px-4 py-3 text-center">
@@ -177,6 +176,7 @@ function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps)
               <TableCell className="px-4 py-3">
                 <MedlogStatusBadge status={bl.medlogStatus as MedlogStatus} />
               </TableCell>
+              <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.pic}</TableCell>
 
               <TableCell className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                 <DropdownMenu>

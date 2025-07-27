@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { X, Plus } from "lucide-react";
+import { X } from "lucide-react";
 import { FilterState } from "@/lib/types";
 
 interface FilterBarProps {
@@ -21,7 +21,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
-      <div className="grid grid-cols-9 gap-4 items-end">
+      <div className="grid grid-cols-10 gap-4 items-end">
         <div>
           <Label className="text-sm font-medium text-gray-700 mb-1">BL/Booking</Label>
           <Input
@@ -126,6 +126,22 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         </div>
 
         <div>
+          <Label className="text-sm font-medium text-gray-700 mb-1">PIC</Label>
+          <Select value={filters.pic || "all"} onValueChange={(value) => updateFilter('pic', value)}>
+            <SelectTrigger className="focus:ring-2 focus:ring-primary">
+              <SelectValue placeholder="All PIC" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All PIC</SelectItem>
+              <SelectItem value="John Smith">John Smith</SelectItem>
+              <SelectItem value="Sarah Johnson">Sarah Johnson</SelectItem>
+              <SelectItem value="Mike Chen">Mike Chen</SelectItem>
+              <SelectItem value="Anna Mueller">Anna Mueller</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        <div>
           <Label className="text-sm font-medium text-gray-700 mb-1">Changes</Label>
           <Select value={filters.unseenChanges || "all"} onValueChange={(value) => updateFilter('unseenChanges', value)}>
             <SelectTrigger className="focus:ring-2 focus:ring-primary">
@@ -147,16 +163,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         </div>
       </div>
       
-      <div className="mt-3">
-        <Button
-          variant="link"
-          onClick={() => setShowMoreFilters(!showMoreFilters)}
-          className="text-primary text-sm font-medium p-0 h-auto"
-        >
-          <Plus className="w-3 h-3 mr-1" />
-          More Filters
-        </Button>
-      </div>
+
     </div>
   );
 }

@@ -28,7 +28,7 @@ export default function Dashboard() {
     const matchesSearch = !searchValue || 
       bl.blNumber.toLowerCase().includes(searchValue.toLowerCase()) ||
       bl.client.toLowerCase().includes(searchValue.toLowerCase()) ||
-      bl.consignee.toLowerCase().includes(searchValue.toLowerCase());
+      bl.destination.toLowerCase().includes(searchValue.toLowerCase());
 
     const matchesFilters = 
       (!filters.blNumber || bl.blNumber.toLowerCase().includes(filters.blNumber.toLowerCase())) &&
@@ -36,7 +36,8 @@ export default function Dashboard() {
       (!filters.podPol || bl.podPol === filters.podPol) &&
       (!filters.medlogStatus || bl.medlogStatus === filters.medlogStatus) &&
       (!filters.carrierStatus || bl.carrierStatus === filters.carrierStatus) &&
-      (!filters.carrier || bl.carrier === filters.carrier);
+      (!filters.carrier || bl.carrier === filters.carrier) &&
+      (!filters.pic || bl.pic === filters.pic);
 
     // Handle unseen changes filter
     const unseenChangesCount = currentUserGroup === 'medlog' ? (bl.unseenChangesMedlog || 0) : (bl.unseenChangesCarrier || 0);

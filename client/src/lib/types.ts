@@ -6,8 +6,7 @@ export interface FilterState {
   medlogStatus?: string;
   carrierStatus?: string;
   carrier?: string;
-  container?: string;
-  train?: string;
+  pic?: string;
   unseenChanges?: 'all' | 'unseen' | 'acknowledged';
 }
 
