@@ -139,11 +139,11 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All PIC</SelectItem>
-              <SelectItem value="John Smith">John Smith</SelectItem>
-              <SelectItem value="Sarah Johnson">Sarah Johnson</SelectItem>
-              <SelectItem value="Mike Chen">Mike Chen</SelectItem>
-              <SelectItem value="Anna Mueller">Anna Mueller</SelectItem>
-              <SelectItem value="David Wilson">David Wilson</SelectItem>
+              <SelectItem value="Jan Novák">Jan Novák</SelectItem>
+              <SelectItem value="Eva Svobodová">Eva Svobodová</SelectItem>
+              <SelectItem value="Tomáš Dvořák">Tomáš Dvořák</SelectItem>
+              <SelectItem value="Marie Černá">Marie Černá</SelectItem>
+              <SelectItem value="Petr Procházka">Petr Procházka</SelectItem>
             </SelectContent>
           </Select>
         </div>
