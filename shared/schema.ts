@@ -10,6 +10,7 @@ export const blSummaries = pgTable("bl_summaries", {
   destination: text("destination").notNull(),
   pic: text("pic").notNull(), // Person in Charge
   podPol: text("pod_pol").notNull(), // Port of Discharge/Port of Loading
+  etaClosing: text("eta_closing").notNull(), // ETA/Closing date
   containerCount: integer("container_count").notNull(),
   type: text("type").notNull(), // 'Import' | 'Export'
   carrier: text("carrier"),

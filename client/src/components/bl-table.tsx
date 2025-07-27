@@ -123,13 +123,14 @@ function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps)
             </TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Destination</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">POD/POL</TableHead>
+            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">ETA/Closing</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Containers</TableHead>
             <TableHead className="w-8 px-4 py-3 text-left text-sm font-semibold text-gray-900">
               Train
             </TableHead>
-            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Carrier</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Carrier Status</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Medlog Status</TableHead>
+            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Carrier</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">PIC</TableHead>
 
             <TableHead className="w-16 px-4 py-3"></TableHead>
@@ -159,6 +160,7 @@ function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps)
               <TableCell className="px-4 py-3 font-medium">{bl.client}</TableCell>
               <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.destination}</TableCell>
               <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.podPol}</TableCell>
+              <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.etaClosing}</TableCell>
               <TableCell className="px-4 py-3 text-center">
                 <Badge variant="secondary" className="bg-gray-100 text-gray-900">
                   {bl.containerCount}
@@ -167,14 +169,14 @@ function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps)
               <TableCell className="px-4 py-3">
                 <TrainStatusIcon isScheduled={bl.trainScheduled || false} />
               </TableCell>
-              <TableCell className="px-4 py-3 text-sm text-gray-600">
-                {bl.carrier || "Not assigned"}
-              </TableCell>
               <TableCell className="px-4 py-3">
                 <CarrierStatusBadge status={bl.carrierStatus as CarrierStatus} />
               </TableCell>
               <TableCell className="px-4 py-3">
                 <MedlogStatusBadge status={bl.medlogStatus as MedlogStatus} />
+              </TableCell>
+              <TableCell className="px-4 py-3 text-sm text-gray-600">
+                {bl.carrier || "Not assigned"}
               </TableCell>
               <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.pic}</TableCell>
 

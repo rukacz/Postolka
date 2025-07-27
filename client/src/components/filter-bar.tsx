@@ -21,7 +21,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
-      <div className="grid grid-cols-10 gap-4 items-end">
+      <div className="grid grid-cols-11 gap-4 items-end">
         <div>
           <Label className="text-sm font-medium text-gray-700 mb-1">BL/Booking</Label>
           <Input
@@ -59,11 +59,17 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All POD/POL</SelectItem>
-              <SelectItem value="Hamburg">Hamburg</SelectItem>
-              <SelectItem value="Bremerhaven">Bremerhaven</SelectItem>
-              <SelectItem value="Koper">Koper</SelectItem>
+              <SelectItem value="HAM CTA">HAM CTA</SelectItem>
+              <SelectItem value="HAM CTB">HAM CTB</SelectItem>
+              <SelectItem value="HAM CTT">HAM CTT</SelectItem>
+              <SelectItem value="BRV MSC">BRV MSC</SelectItem>
+              <SelectItem value="BRV NTB">BRV NTB</SelectItem>
               <SelectItem value="Rotterdam">Rotterdam</SelectItem>
-              <SelectItem value="Antwerp">Antwerp</SelectItem>
+              <SelectItem value="Antwerpen">Antwerpen</SelectItem>
+              <SelectItem value="Trieste">Trieste</SelectItem>
+              <SelectItem value="Koper">Koper</SelectItem>
+              <SelectItem value="Gdansk">Gdansk</SelectItem>
+              <SelectItem value="Gdynia">Gdynia</SelectItem>
             </SelectContent>
           </Select>
         </div>
