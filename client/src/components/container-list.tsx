@@ -90,50 +90,25 @@ export default function ContainerList({ data, isLoading, currentUserGroup = 'med
         </Button>
       </div>
 
-      {/* Container Table */}
-      {data.length === 0 ? (
-        <div className="text-center text-gray-500 py-8">
-          No containers found for this booking
-        </div>
-      ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse border border-gray-300 text-sm">
-            <thead>
-              <tr className="bg-gray-100">
-                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium w-8">
-                  <Checkbox
-                    checked={selectedRows.size === data.length && data.length > 0}
-                    onCheckedChange={toggleAllSelection}
-                  />
-                </th>
-                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Job</th>
-                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Container</th>
-                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Size/Type</th>
-                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Date/Time</th>
-                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Route</th>
-                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Status</th>
-                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Carrier Status</th>
-                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Medlog Status</th>
-                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Train Name</th>
-                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Train ETD</th>
-                <th className="border border-gray-300 px-2 py-1 text-left text-xs font-medium">Notes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((container) => (
-                <ContainerBlock
-                  key={container.id}
-                  container={container}
-                  userGroup={currentUserGroup}
-                  onNoteChange={handleUpdateContainerNote}
-                  onSelectChange={toggleRowSelection}
-                  isSelected={selectedRows.has(container.id)}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      {/* Container blocks */}
+      <div>
+        {data.length === 0 ? (
+          <div className="text-center text-gray-500 py-8">
+            No containers found for this booking
+          </div>
+        ) : (
+          data.map((container) => (
+            <ContainerBlock
+              key={container.id}
+              container={container}
+              userGroup={currentUserGroup}
+              onNoteChange={handleUpdateContainerNote}
+              onSelectChange={toggleRowSelection}
+              isSelected={selectedRows.has(container.id)}
+            />
+          ))
+        )}
+      </div>
 
       <div className="mt-4 flex justify-end space-x-2">
         <Button variant="outline" size="sm">
