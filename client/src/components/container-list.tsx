@@ -30,11 +30,8 @@ export default function ContainerList({ data, isLoading, currentUserGroup = 'med
       return response.json();
     },
     onSuccess: (_, { containerId }) => {
-      toast({
-        title: "Note updated",
-        description: "Container note has been saved successfully.",
-      });
-      // Invalidate container queries to refresh the data
+      // Only show success toast if user explicitly requested it, not on auto-save
+      // Invalidate container queries to refresh the data silently
       queryClient.invalidateQueries({ 
         queryKey: ['/api/containers']
       });

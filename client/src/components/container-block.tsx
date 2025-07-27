@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Container } from "@shared/schema";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -26,16 +26,35 @@ const ContainerBlock = ({
   const isCarrier = userGroup === "carrier";
   const isMedlog = userGroup === "medlog";
 
-  const isLong = (text: string) => text.length > 80 || text.includes("\n");
+  // Local state for notes to avoid constant API calls
+  const [carrierNote, setCarrierNote] = useState(container.carrierNote || "");
+  const [medlogNote, setMedlogNote] = useState(container.medlogNote || "");
 
-  const handleNoteChange = (group: 'carrier' | 'medlog', value: string) => {
-    onNoteChange(container.id, group, value);
-  };
+  // Update local state when container data changes
+  useEffect(() => {
+    setCarrierNote(container.carrierNote || "");
+    setMedlogNote(container.medlogNote || "");
+  }, [container.carrierNote, container.medlogNote]);
 
-  const handleFullNoteClick = (note: string) => {
-    // Simple alert for now - could be enhanced with a modal later
-    alert(note);
-  };
+  // Debounced save for carrier note
+  useEffect(() => {
+    if (carrierNote !== (container.carrierNote || "")) {
+      const timer = setTimeout(() => {
+        onNoteChange(container.id, 'carrier', carrierNote);
+      }, 1000); // Wait 1 second after user stops typing
+      return () => clearTimeout(timer);
+    }
+  }, [carrierNote, container.carrierNote, container.id, onNoteChange]);
+
+  // Debounced save for medlog note
+  useEffect(() => {
+    if (medlogNote !== (container.medlogNote || "")) {
+      const timer = setTimeout(() => {
+        onNoteChange(container.id, 'medlog', medlogNote);
+      }, 1000); // Wait 1 second after user stops typing
+      return () => clearTimeout(timer);
+    }
+  }, [medlogNote, container.medlogNote, container.id, onNoteChange]);
 
   // Check if this container is newly added
   const isNewContainer = container.isNewContainer;
@@ -117,15 +136,15 @@ const ContainerBlock = ({
       <td className="border border-gray-300 px-2 py-1 min-w-48">
         <div className="space-y-1">
           <Input
-            value={container.carrierNote || ""}
-            onChange={(e) => handleNoteChange('carrier', e.target.value)}
+            value={carrierNote}
+            onChange={(e) => setCarrierNote(e.target.value)}
             placeholder="Carrier note..."
             className="text-xs h-6"
             disabled={!isCarrier}
           />
           <Input
-            value={container.medlogNote || ""}
-            onChange={(e) => handleNoteChange('medlog', e.target.value)}
+            value={medlogNote}
+            onChange={(e) => setMedlogNote(e.target.value)}
             placeholder="Medlog note..."
             className="text-xs h-6"
             disabled={!isMedlog}
