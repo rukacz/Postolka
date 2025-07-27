@@ -85,7 +85,7 @@ export default function BLDetailPage() {
   }) => {
     const isChanged = isFieldChanged(fieldName);
     return (
-      <div className={`${className} ${isChanged ? 'bg-yellow-100 border-l-4 border-yellow-400 pl-3' : ''}`}>
+      <div className={`${className} ${isChanged ? 'bg-yellow-100 border-l-4 border-yellow-400 pl-2' : ''}`}>
         {children}
       </div>
     );
@@ -93,7 +93,7 @@ export default function BLDetailPage() {
 
   const FieldLabel = ({ fieldName, children }: { fieldName: string; children: React.ReactNode }) => {
     return (
-      <label className="text-xs font-medium text-gray-500">
+      <label className="text-xs font-medium text-gray-500 block mb-1">
         {children}
       </label>
     );
@@ -129,30 +129,27 @@ export default function BLDetailPage() {
     <div className="min-h-screen bg-gray-50">
       <NavigationHeader />
       
-      <div className="p-6">
+      <div className="p-4">
         {/* Back Navigation */}
-        <div className="mb-6">
+        <div className="mb-3">
           <Button
             variant="link"
             onClick={() => setLocation('/')}
-            className="text-primary hover:text-blue-700 p-0"
+            className="text-primary hover:text-blue-700 p-0 h-auto"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
+            <ArrowLeft className="w-4 h-4 mr-1" />
             Back to BL List
           </Button>
         </div>
 
         {/* BL Header */}
-        <Card className="mb-6">
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex items-center space-x-4">
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">
-                    {blDetail.direction === 'Import' ? 'BL Details' : 'Booking Details'} - {blDetail.blNumber}
-                  </h1>
-                  <p className="text-gray-600">{blDetail.customerName}</p>
-                </div>
+        <Card className="mb-4">
+          <CardContent className="p-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center space-x-3">
+                <h1 className="text-xl font-bold text-gray-900">
+                  {blDetail.direction === 'Import' ? 'BL Details' : 'Booking Details'} - {blDetail.blNumber} - {blDetail.customerName}
+                </h1>
                 {blSummary && (() => {
                   // Calculate total changes: booking field changes + container changes
                   const bookingChangesCount = blSummary.changedFields?.length || 0;
@@ -175,7 +172,7 @@ export default function BLDetailPage() {
                   const changeType = containerHasTimeChanges ? 'time' : 'other';
                   
                   return totalUnseenChanges > 0 ? (
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2 ml-3">
                       <ChangeIndicatorDot 
                         count={totalUnseenChanges} 
                         type={changeType}
@@ -183,28 +180,37 @@ export default function BLDetailPage() {
                       <span className="text-sm text-gray-600">
                         unseen change{totalUnseenChanges > 1 ? 's' : ''}
                       </span>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={handleAcknowledgeChanges}
-                        disabled={acknowledgeChangesMutation.isPending}
-                        className="border-green-300 text-green-700 hover:bg-green-50"
-                      >
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        {acknowledgeChangesMutation.isPending ? "Acknowledging..." : "Acknowledge Changes"}
-                      </Button>
                     </div>
                   ) : null;
                 })()}
               </div>
-              <div className="flex space-x-3">
-
-                <Button variant="outline">
-                  <Scissors className="w-4 h-4 mr-2" />
+              <div className="flex items-center space-x-2">
+                {blSummary && (() => {
+                  const bookingChangesCount = blSummary.changedFields?.length || 0;
+                  const containerChangesCount = containers.reduce((total, container) => {
+                    return total + (container.changedFields?.length || 0);
+                  }, 0);
+                  const totalUnseenChanges = bookingChangesCount + containerChangesCount;
+                  
+                  return totalUnseenChanges > 0 ? (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={handleAcknowledgeChanges}
+                      disabled={acknowledgeChangesMutation.isPending}
+                      className="border-green-300 text-green-700 hover:bg-green-50"
+                    >
+                      <CheckCircle className="w-4 h-4 mr-1" />
+                      {acknowledgeChangesMutation.isPending ? "Acknowledging..." : "Acknowledge Changes"}
+                    </Button>
+                  ) : null;
+                })()}
+                <Button variant="outline" size="sm">
+                  <Scissors className="w-4 h-4 mr-1" />
                   Split Booking
                 </Button>
-                <Button className="bg-primary hover:bg-blue-700">
-                  <Edit className="w-4 h-4 mr-2" />
+                <Button className="bg-primary hover:bg-blue-700" size="sm">
+                  <Edit className="w-4 h-4 mr-1" />
                   Edit
                 </Button>
               </div>
@@ -215,31 +221,31 @@ export default function BLDetailPage() {
         </Card>
 
         {/* Shipment Overview Section */}
-        <Card className="mb-6">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Shipment Overview</CardTitle>
+        <Card className="mb-4">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium">Shipment Overview</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
-            <div className="grid grid-cols-4 gap-6">
-              <FieldWrapper fieldName="carrierStatus" className="p-2 rounded">
+            <div className="grid grid-cols-4 gap-4">
+              <FieldWrapper fieldName="carrierStatus" className="p-1 rounded">
                 <FieldLabel fieldName="carrierStatus">Carrier Status</FieldLabel>
                 {blSummary && (
                   <CarrierStatusBadge status={blSummary.carrierStatus as CarrierStatus} />
                 )}
               </FieldWrapper>
-              <FieldWrapper fieldName="medlogStatus" className="p-2 rounded">
+              <FieldWrapper fieldName="medlogStatus" className="p-1 rounded">
                 <FieldLabel fieldName="medlogStatus">Medlog Status</FieldLabel>
                 {blSummary && (
                   <MedlogStatusBadge status={blSummary.medlogStatus as MedlogStatus} />
                 )}
               </FieldWrapper>
-              <FieldWrapper fieldName="trainScheduled" className="p-2 rounded">
+              <FieldWrapper fieldName="trainScheduled" className="p-1 rounded">
                 <FieldLabel fieldName="trainScheduled">Train</FieldLabel>
                 {blSummary && (
                   <TrainStatusIcon isScheduled={blSummary.trainScheduled} />
                 )}
               </FieldWrapper>
-              <FieldWrapper fieldName="weight" className="p-2 rounded">
+              <FieldWrapper fieldName="weight" className="p-1 rounded">
                 <FieldLabel fieldName="weight">Weight</FieldLabel>
                 <p className="text-sm font-semibold">{blSummary?.weight || '-'}</p>
               </FieldWrapper>
@@ -248,19 +254,19 @@ export default function BLDetailPage() {
         </Card>
 
         {/* Main Content Grid - Compact */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-3 gap-3 mb-4">
           {/* Delivery Information */}
           <Card className="h-fit">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Delivery Information</CardTitle>
+            <CardHeader className="pb-1">
+              <CardTitle className="text-sm font-medium">Delivery Information</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 pt-0">
-              <FieldWrapper fieldName="fromLocation" className="p-2 rounded">
+            <CardContent className="space-y-1 pt-0">
+              <FieldWrapper fieldName="fromLocation" className="p-1 rounded">
                 <FieldLabel fieldName="fromLocation">From</FieldLabel>
                 <p className="text-sm">{blDetail.fromLocation}</p>
                 <p className="text-xs text-gray-600">{blDetail.fromZone}</p>
               </FieldWrapper>
-              <FieldWrapper fieldName="destination" className="p-2 rounded">
+              <FieldWrapper fieldName="destination" className="p-1 rounded">
                 <FieldLabel fieldName="destination">To</FieldLabel>
                 <p className="text-sm">{blDetail.toLocation}</p>
                 <p className="text-xs text-gray-600">{blDetail.toZone}</p>
@@ -270,19 +276,19 @@ export default function BLDetailPage() {
 
           {/* Vessel & Shipping Info */}
           <Card className="h-fit">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Vessel & Shipping</CardTitle>
+            <CardHeader className="pb-1">
+              <CardTitle className="text-sm font-medium">Vessel & Shipping</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 pt-0">
-              <FieldWrapper fieldName="vesselName" className="p-2 rounded">
+            <CardContent className="space-y-1 pt-0">
+              <FieldWrapper fieldName="vesselName" className="p-1 rounded">
                 <FieldLabel fieldName="vesselName">Vessel</FieldLabel>
                 <p className="text-sm">{blDetail.vesselName}</p>
               </FieldWrapper>
-              <FieldWrapper fieldName="shippingLine" className="p-2 rounded">
+              <FieldWrapper fieldName="shippingLine" className="p-1 rounded">
                 <FieldLabel fieldName="shippingLine">Shipping Line</FieldLabel>
                 <p className="text-sm">{blDetail.shippingLine}</p>
               </FieldWrapper>
-              <FieldWrapper fieldName="eta" className="p-2 rounded">
+              <FieldWrapper fieldName="eta" className="p-1 rounded">
                 <FieldLabel fieldName="eta">ETA</FieldLabel>
                 <p className="text-sm">{blDetail.eta}</p>
               </FieldWrapper>
@@ -291,15 +297,15 @@ export default function BLDetailPage() {
 
           {/* Customer & Contact Info */}
           <Card className="h-fit">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Customer & Contact</CardTitle>
+            <CardHeader className="pb-1">
+              <CardTitle className="text-sm font-medium">Customer & Contact</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 pt-0">
-              <FieldWrapper fieldName="customerName" className="p-2 rounded">
+            <CardContent className="space-y-1 pt-0">
+              <FieldWrapper fieldName="customerName" className="p-1 rounded">
                 <FieldLabel fieldName="customerName">Customer</FieldLabel>
                 <p className="text-sm">{blDetail.customerName}</p>
               </FieldWrapper>
-              <FieldWrapper fieldName="contactName" className="p-2 rounded">
+              <FieldWrapper fieldName="contactName" className="p-1 rounded">
                 <FieldLabel fieldName="contactName">Contact</FieldLabel>
                 <p className="text-sm">{blDetail.contactName}</p>
                 <p className="text-xs text-gray-600">{blDetail.contactPhone}</p>
@@ -312,7 +318,7 @@ export default function BLDetailPage() {
         <Card>
           {/* Tab Navigation */}
           <Tabs defaultValue="jobs" className="w-full">
-            <div className="border-b px-6 pt-4">
+            <div className="border-b px-4 pt-3">
               <TabsList className="grid w-fit grid-cols-3">
                 <TabsTrigger value="jobs">Jobs</TabsTrigger>
                 <TabsTrigger value="notes">Notes</TabsTrigger>
