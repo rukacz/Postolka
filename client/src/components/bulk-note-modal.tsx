@@ -31,7 +31,7 @@ export default function BulkNoteModal({ isOpen, onClose, onSave, selectedCount, 
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg w-full max-h-[80vh]">
         <DialogHeader>
           <DialogTitle>Add {userGroup === 'carrier' ? 'Carrier' : 'Medlog'} Note to {selectedCount} Selected Container(s)</DialogTitle>
         </DialogHeader>
@@ -45,7 +45,7 @@ export default function BulkNoteModal({ isOpen, onClose, onSave, selectedCount, 
               placeholder={`Enter note for ${userGroup}...`}
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              rows={4}
+              rows={6}
             />
           </div>
           <div className="flex justify-end gap-2">
