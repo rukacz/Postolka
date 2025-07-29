@@ -207,9 +207,12 @@ export default function BLDetailPage() {
                 }
               </span>
               {blSummary?.unreadChatCount && blSummary.unreadChatCount > 0 && (
-                <Badge variant="destructive" className="bg-red-500 text-white rounded-full px-2 py-1 text-xs">
-                  {blSummary.unreadChatCount}
-                </Badge>
+                <div className="flex items-center gap-1">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                  <Badge variant="destructive" className="bg-red-500 text-white rounded-full px-2 py-1 text-xs">
+                    {blSummary.unreadChatCount}
+                  </Badge>
+                </div>
               )}
             </div>
           </div>
@@ -219,7 +222,7 @@ export default function BLDetailPage() {
 
         {/* Tabs Section */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-fit grid-cols-3">
             <TabsTrigger value="containers">Containers</TabsTrigger>
             <TabsTrigger value="chat" className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4" />
@@ -251,22 +254,38 @@ export default function BLDetailPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4 mb-4 max-h-96 overflow-y-auto">
-                  {/* Mock chat messages - in real app these would come from API */}
+                  {/* Sample chat messages from InfoBar data */}
                   <div className="flex flex-col space-y-2">
-                    <div className="bg-blue-50 p-3 rounded-lg">
+                    <div className="bg-blue-50 p-3 rounded-lg border-l-4 border-blue-500">
                       <div className="flex justify-between items-start mb-1">
                         <span className="font-semibold text-sm">Martin Novák</span>
-                        <span className="text-xs text-gray-500">2 hours ago</span>
+                        <span className="text-xs text-gray-500">3 hours ago</span>
                       </div>
                       <p className="text-sm">Container MEDU123456 has been loaded and is ready for transport.</p>
                     </div>
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <div className="flex justify-between items-start mb-1">
-                        <span className="font-semibold text-sm">Petr Svoboda</span>
-                        <span className="text-xs text-gray-500">1 hour ago</span>
+                    
+                    {blSummary?.lastChatMessage && (
+                      <div className="bg-green-50 p-3 rounded-lg border-l-4 border-green-500">
+                        <div className="flex justify-between items-start mb-1">
+                          <span className="font-semibold text-sm">{blSummary.lastChatAuthor}</span>
+                          <span className="text-xs text-gray-500">
+                            {blSummary.unreadChatCount && blSummary.unreadChatCount > 0 ? (
+                              <span className="text-red-600 font-semibold">New message</span>
+                            ) : (
+                              '1 hour ago'
+                            )}
+                          </span>
+                        </div>
+                        <p className="text-sm">{blSummary.lastChatMessage}</p>
+                        {blSummary.unreadChatCount && blSummary.unreadChatCount > 0 && (
+                          <div className="mt-2">
+                            <Badge variant="destructive" className="bg-red-500 text-white text-xs">
+                              Unread
+                            </Badge>
+                          </div>
+                        )}
                       </div>
-                      <p className="text-sm">Potvrzeno. ETA updated to 14:30.</p>
-                    </div>
+                    )}
                   </div>
                 </div>
                 

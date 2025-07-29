@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient, useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import NavigationHeader from "@/components/navigation-header";
 import { Button } from "@/components/ui/button";
@@ -84,8 +84,7 @@ const newOrderSchema = z.object({
   vgmRequested: z.enum(["Yes", "No"]).default("No"),
   customsDocuments: z.enum(["By email", "At loading place"]).optional(),
   
-  // Person in Charge
-  pic: z.string().optional(),
+
 }).refine((data) => {
   if (data.orderType === "Import") {
     return data.blBookingNumber && data.blBookingNumber.length > 0 && data.customsClearance;
@@ -108,6 +107,55 @@ export default function NewOrder() {
   const [isLoadingFromMSC, setIsLoadingFromMSC] = useState(false);
   const [isLoadingFromOVA, setIsLoadingFromOVA] = useState(false);
   const [containerDataLoaded, setContainerDataLoaded] = useState(false);
+  
+  // Check if this is edit mode from URL params
+  const urlParams = new URLSearchParams(window.location.search);
+  const editBlNumber = urlParams.get('edit');
+  const isEditMode = !!editBlNumber;
+  
+  // Load existing BL data in edit mode
+  const { data: existingBLSummary } = useQuery({
+    queryKey: ['/api/bl-summaries', editBlNumber],
+    enabled: isEditMode && !!editBlNumber,
+  });
+  
+  const { data: existingBLDetail } = useQuery({
+    queryKey: ['/api/bl-details', editBlNumber],
+    enabled: isEditMode && !!editBlNumber,
+  });
+  
+  const { data: existingContainers } = useQuery({
+    queryKey: ['/api/containers', editBlNumber],
+    enabled: isEditMode && !!editBlNumber,
+  });
+  
+  // Load existing data into form when available
+  useEffect(() => {
+    if (isEditMode && existingBLSummary && existingBLDetail) {
+      form.reset({
+        orderType: existingBLSummary.type as "Import" | "Export",
+        client: existingBLSummary.client,
+        destination: existingBLSummary.destination,
+        polPod: existingBLSummary.podPol,
+        vessel: existingBLDetail.vesselName || "",
+        carrier: existingBLSummary.carrier || "MSC",
+        pic: existingBLSummary.pic,
+        containerCount: existingBLSummary.containerCount,
+        containers: existingContainers?.map(c => ({
+          containerNumber: c.containerNumber,
+          destination: c.destination || "",
+          loadingDateTime: "",
+          dischargingDateTime: ""
+        })) || [{ containerNumber: "" }],
+        globalLoadingDateTime: "",
+        globalDischargingDateTime: "",
+        blBookingNumber: existingBLSummary.blNumber,
+        customsClearance: "In Port" as any,
+        vgmRequested: "No" as any,
+        customsDocuments: "By email" as any,
+      });
+    }
+  }, [existingBLSummary, existingBLDetail, existingContainers, form, isEditMode]);
 
   const form = useForm<NewOrderFormData>({
     resolver: zodResolver(newOrderSchema),
@@ -127,7 +175,6 @@ export default function NewOrder() {
       customsClearance: "In Port",
       vgmRequested: "No",
       customsDocuments: "By email",
-      pic: "",
     }
   });
 
@@ -306,7 +353,9 @@ export default function NewOrder() {
               <ArrowLeft className="h-4 w-4" />
               <span>Back to Overview</span>
             </Button>
-            <h1 className="text-2xl font-bold text-gray-900">New Order</h1>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {isEditMode ? `Edit Order - ${editBlNumber}` : 'New Order'}
+            </h1>
           </div>
         </div>
 
