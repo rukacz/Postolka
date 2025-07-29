@@ -266,7 +266,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
             {/* Destination Column */}
             <div>
               <Input
-                placeholder={blDetail?.toLocation || "Destination"}
+                placeholder="City name"
                 className="h-7 text-xs"
                 onBlur={(e) => {
                   if (e.target.value) {
@@ -285,9 +285,14 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                     <SelectValue placeholder="Customs" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Melnik">Melnik</SelectItem>
-                    <SelectItem value="Mosnov">Mosnov</SelectItem>
+                    <SelectItem value="In port">In port</SelectItem>
+                    <SelectItem value="At customer">At customer</SelectItem>
+                    <SelectItem value="Inland depo">Inland depo</SelectItem>
+                    <SelectItem value="Customs Office">Customs Office</SelectItem>
+                    <SelectItem value="Metrans">Metrans</SelectItem>
                     <SelectItem value="Obrnice">Obrnice</SelectItem>
+                    <SelectItem value="Melnik">Melnik</SelectItem>
+                    <SelectItem value="Mošnov">Mošnov</SelectItem>
                     <SelectItem value="Bratislava">Bratislava</SelectItem>
                   </SelectContent>
                 </Select>
@@ -402,11 +407,11 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 }) : '-'}
               </TableCell>
               <TableCell>
-                {container.destination || blDetail?.toLocation || '-'}
+                {container.destination || '-'}
               </TableCell>
               {blDetail?.jobType === 'Import' && (
                 <TableCell>
-                  {container.customsClearance || blDetail?.toLocation || '-'}
+                  {container.customsClearance || '-'}
                 </TableCell>
               )}
               {blDetail?.jobType === 'Export' && (
