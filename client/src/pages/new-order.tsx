@@ -543,10 +543,7 @@ export default function NewOrder() {
                       </FormItem>
                     )}
                   />
-                </div>
 
-                {/* ETA Row - directly under vessel */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                   <FormField
                     control={form.control}
                     name="eta"
@@ -564,9 +561,6 @@ export default function NewOrder() {
                       </FormItem>
                     )}
                   />
-                  <div className="md:col-span-3">
-                    {/* Empty space */}
-                  </div>
                 </div>
 
                 {/* Second Row */}
