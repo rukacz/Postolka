@@ -7,7 +7,10 @@ Poštolka is a modern logistics management web application built to replace lega
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
-UI Preferences: Tabs should look like proper tabs with clean border styling, not button-like components.
+UI Preferences: 
+- Tabs should look like proper tabs with clean border styling, not button-like components
+- Container editing controls should appear above the table when containers are selected, not inline
+- Notes should display in two lines format: "Carrier: note" and "Medlog: note"
 
 ## System Architecture
 

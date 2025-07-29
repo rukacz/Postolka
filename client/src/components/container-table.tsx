@@ -173,39 +173,97 @@ const ContainerTable = ({ containers, userGroup, onNoteChange, onHazardousChange
 
   return (
     <div className="space-y-4">
-      {/* Bulk Actions Bar */}
+      {/* Bulk Editing Controls */}
       {hasSelectedContainers && (
-        <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <span className="text-sm font-medium text-blue-900">
-            {selectedContainers.length} container(s) selected
-          </span>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowBulkNoteModal(true)}
-              className="h-8"
-            >
-              <FileText className="w-4 h-4 mr-1" />
-              Add Note to Selected
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleBulkHazardous(true)}
-              className="h-8 text-red-600 border-red-200 hover:bg-red-50"
-            >
-              <AlertTriangle className="w-4 h-4 mr-1" />
-              Mark as Hazardous
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => handleBulkHazardous(false)}
-              className="h-8"
-            >
-              Unmark DG
-            </Button>
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-blue-900">
+              {selectedContainers.length} container(s) selected - Bulk Edit
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowBulkNoteModal(true)}
+                className="h-8"
+              >
+                <FileText className="w-4 h-4 mr-1" />
+                Add Note to Selected
+              </Button>
+            </div>
+          </div>
+          
+          {/* Bulk Edit Controls Row */}
+          <div className="flex items-center gap-4 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Label className="text-xs font-medium text-gray-600">DG:</Label>
+              <div className="flex gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleBulkHazardous(true)}
+                  className="h-7 px-2 text-xs text-red-600 border-red-200 hover:bg-red-50"
+                >
+                  Mark DG
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleBulkHazardous(false)}
+                  className="h-7 px-2 text-xs"
+                >
+                  Unmark DG
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Label className="text-xs font-medium text-gray-600">Size/Type:</Label>
+              <Select onValueChange={(value) => selectedContainers.forEach(id => handleFieldUpdate(id, 'size', value))}>
+                <SelectTrigger className="w-20 h-7 text-xs">
+                  <SelectValue placeholder="Set" />
+                </SelectTrigger>
+                <SelectContent>
+                  {sizeTypeOptions.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Label className="text-xs font-medium text-gray-600">Carrier Status:</Label>
+              <Select onValueChange={(value) => selectedContainers.forEach(id => handleFieldUpdate(id, 'carrierStatus', value))}>
+                <SelectTrigger className="w-24 h-7 text-xs">
+                  <SelectValue placeholder="Set" />
+                </SelectTrigger>
+                <SelectContent>
+                  {carrierStatusOptions.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <Label className="text-xs font-medium text-gray-600">Medlog Status:</Label>
+              <Select onValueChange={(value) => selectedContainers.forEach(id => handleFieldUpdate(id, 'medlogStatus', value))}>
+                <SelectTrigger className="w-24 h-7 text-xs">
+                  <SelectValue placeholder="Set" />
+                </SelectTrigger>
+                <SelectContent>
+                  {medlogStatusOptions.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
       )}
@@ -240,34 +298,13 @@ const ContainerTable = ({ containers, userGroup, onNoteChange, onHazardousChange
                 />
               </TableCell>
               <TableCell>
-                <Switch
-                  checked={container.dangerousCargo || false}
-                  onCheckedChange={(checked) => handleFieldUpdate(container.id, 'dangerousCargo', checked)}
-                />
+                {container.dangerousCargo && <DangerousGoodsFlag />}
               </TableCell>
-              <TableCell className="font-mono">
-                <Input
-                  value={container.containerNumber}
-                  onChange={(e) => handleFieldUpdate(container.id, 'containerNumber', e.target.value)}
-                  className="min-w-32 font-mono text-sm border-0 bg-transparent p-1 focus:border focus:border-blue-300 focus:bg-white"
-                />
+              <TableCell className="font-mono text-sm">
+                {container.containerNumber}
               </TableCell>
               <TableCell>
-                <Select
-                  value={container.size}
-                  onValueChange={(value) => handleFieldUpdate(container.id, 'size', value)}
-                >
-                  <SelectTrigger className="w-24 border-0 bg-transparent p-1 focus:border focus:border-blue-300 focus:bg-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sizeTypeOptions.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {container.size}/{container.containerType}
               </TableCell>
               <TableCell className="text-gray-500">
                 <span className="font-mono text-sm">
@@ -275,53 +312,23 @@ const ContainerTable = ({ containers, userGroup, onNoteChange, onHazardousChange
                 </span>
               </TableCell>
               <TableCell>
-                <Input
-                  type="datetime-local"
-                  value={container.dateTime ? new Date(container.dateTime).toISOString().slice(0, 16) : ''}
-                  onChange={(e) => handleFieldUpdate(container.id, 'dateTime', e.target.value ? new Date(e.target.value).toISOString() : null)}
-                  className="min-w-44 text-sm border-0 bg-transparent p-1 focus:border focus:border-blue-300 focus:bg-white"
-                />
+                {container.dateTime ? new Date(container.dateTime).toLocaleString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }) : '-'}
               </TableCell>
               <TableCell>
-                <Select
-                  value={container.carrierStatus}
-                  onValueChange={(value) => handleFieldUpdate(container.id, 'carrierStatus', value)}
-                >
-                  <SelectTrigger className="w-32 border-0 bg-transparent p-1 focus:border focus:border-blue-300 focus:bg-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {carrierStatusOptions.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <CarrierStatusBadge status={container.carrierStatus as any} />
               </TableCell>
               <TableCell>
-                <Select
-                  value={container.medlogStatus}
-                  onValueChange={(value) => handleFieldUpdate(container.id, 'medlogStatus', value)}
-                >
-                  <SelectTrigger className="w-32 border-0 bg-transparent p-1 focus:border focus:border-blue-300 focus:bg-white">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {medlogStatusOptions.map((option) => (
-                      <SelectItem key={option} value={option}>
-                        {option}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <MedlogStatusBadge status={container.medlogStatus as any} />
               </TableCell>
               <TableCell className="max-w-xs">
-                <div className="space-y-1 cursor-pointer" onClick={() => setShowBulkNoteModal(true)}>
-                  <div className="text-xs text-gray-500">Carrier:</div>
-                  <div className="text-sm truncate">{container.carrierNote || '-'}</div>
-                  <div className="text-xs text-gray-500">Medlog:</div>
-                  <div className="text-sm truncate">{container.medlogNote || '-'}</div>
+                <div className="cursor-pointer" onClick={() => setShowBulkNoteModal(true)}>
+                  <div className="text-sm">Carrier: {container.carrierNote || '-'}</div>
+                  <div className="text-sm">Medlog: {container.medlogNote || '-'}</div>
                 </div>
               </TableCell>
             </TableRow>
