@@ -171,6 +171,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update individual container field
+  app.patch("/api/containers/:id", async (req, res) => {
+    try {
+      const containerId = parseInt(req.params.id);
+      const updates = req.body;
+
+      if (!containerId || Object.keys(updates).length === 0) {
+        return res.status(400).json({ error: "Invalid request data" });
+      }
+
+      const container = await storage.getContainer(containerId);
+      if (!container) {
+        return res.status(404).json({ error: "Container not found" });
+      }
+
+      const updatedContainer = await storage.updateContainer(containerId, updates);
+      res.json(updatedContainer);
+    } catch (error) {
+      console.error('Error updating container:', error);
+      res.status(500).json({ error: "Failed to update container" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

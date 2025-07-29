@@ -318,6 +318,19 @@ export class MemStorage implements IStorage {
     this.containers.set(id, updated);
     return updated;
   }
+
+  async updateContainerHazardous(id: number, hazardous: boolean): Promise<Container | undefined> {
+    const existing = this.containers.get(id);
+    if (!existing) return undefined;
+    
+    const updated = { ...existing, dangerousCargo: hazardous };
+    this.containers.set(id, updated);
+    return updated;
+  }
+
+  async getContainer(id: number): Promise<Container | undefined> {
+    return this.containers.get(id);
+  }
 }
 
 // Database Storage Implementation

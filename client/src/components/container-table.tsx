@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { FileText, AlertTriangle, Undo2 } from "lucide-react";
 import DangerousGoodsFlag from "@/components/dangerous-goods-flag";
 import CarrierStatusBadge from "@/components/carrier-status-badge";
@@ -22,16 +24,38 @@ interface ContainerTableProps {
   onHazardousChange: (containerIds: number[], hazardous: boolean) => void;
 }
 
+const sizeTypeOptions = [
+  "20DV", "40DV", "40HC", "20RE", "40HR", "20OT", "40OT", "45DV", "45HC", "20FT", "40FT"
+];
+
+const carrierStatusOptions = [
+  "pending", "confirmed", "in_transit", "delivered", "cancelled"
+];
+
+const medlogStatusOptions = [
+  "pending", "processing", "completed", "on_hold", "cancelled"
+];
+
 const ContainerTable = ({ containers, userGroup, onNoteChange, onHazardousChange }: ContainerTableProps) => {
   const [selectedContainers, setSelectedContainers] = useState<number[]>([]);
   const [showBulkNoteModal, setShowBulkNoteModal] = useState(false);
   const [lastAction, setLastAction] = useState<{ type: string; data: any } | null>(null);
+  const [editingFields, setEditingFields] = useState<{[key: string]: boolean}>({});
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
   const bulkHazardousMutation = useMutation({
     mutationFn: async ({ containerIds, hazardous }: { containerIds: number[]; hazardous: boolean }) => {
       return apiRequest("PATCH", "/api/containers/bulk/hazardous", { containerIds, hazardous });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/containers'] });
+    },
+  });
+
+  const updateContainerMutation = useMutation({
+    mutationFn: async ({ containerId, field, value }: { containerId: number; field: string; value: any }) => {
+      return apiRequest("PATCH", `/api/containers/${containerId}`, { [field]: value });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/containers'] });
@@ -135,6 +159,10 @@ const ContainerTable = ({ containers, userGroup, onNoteChange, onHazardousChange
     });
   };
 
+  const handleFieldUpdate = (containerId: number, field: string, value: any) => {
+    updateContainerMutation.mutate({ containerId, field, value });
+  };
+
   const formatRouteSteps = (routeStep: string) => {
     const steps = routeStep.split('');
     return steps.join(' ');
@@ -212,40 +240,89 @@ const ContainerTable = ({ containers, userGroup, onNoteChange, onHazardousChange
                 />
               </TableCell>
               <TableCell>
-                {container.dangerousCargo && <DangerousGoodsFlag />}
+                <Switch
+                  checked={container.dangerousCargo || false}
+                  onCheckedChange={(checked) => handleFieldUpdate(container.id, 'dangerousCargo', checked)}
+                />
               </TableCell>
-              <TableCell className="font-mono text-sm">
-                {container.containerNumber}
+              <TableCell className="font-mono">
+                <Input
+                  value={container.containerNumber}
+                  onChange={(e) => handleFieldUpdate(container.id, 'containerNumber', e.target.value)}
+                  className="min-w-32 font-mono text-sm border-0 bg-transparent p-1 focus:border focus:border-blue-300 focus:bg-white"
+                />
               </TableCell>
               <TableCell>
-                {container.size}/{container.containerType}
+                <Select
+                  value={container.size}
+                  onValueChange={(value) => handleFieldUpdate(container.id, 'size', value)}
+                >
+                  <SelectTrigger className="w-24 border-0 bg-transparent p-1 focus:border focus:border-blue-300 focus:bg-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sizeTypeOptions.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </TableCell>
-              <TableCell>
+              <TableCell className="text-gray-500">
                 <span className="font-mono text-sm">
                   {formatRouteSteps(container.routeStep)}
                 </span>
               </TableCell>
               <TableCell>
-                {container.dateTime ? new Date(container.dateTime).toLocaleString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                }) : '-'}
-              </TableCell>
-              <TableCell>
-                <CarrierStatusBadge status={container.carrierStatus as any} />
-              </TableCell>
-              <TableCell>
-                <MedlogStatusBadge status={container.medlogStatus as any} />
-              </TableCell>
-              <TableCell>
                 <Input
-                  value={isMedlog ? (container.medlogNote || '') : (container.carrierNote || '')}
-                  onChange={(e) => onNoteChange(container.id, isMedlog ? 'medlog' : 'carrier', e.target.value)}
-                  placeholder="Add note..."
-                  className="h-8 text-sm"
+                  type="datetime-local"
+                  value={container.dateTime ? new Date(container.dateTime).toISOString().slice(0, 16) : ''}
+                  onChange={(e) => handleFieldUpdate(container.id, 'dateTime', e.target.value ? new Date(e.target.value).toISOString() : null)}
+                  className="min-w-44 text-sm border-0 bg-transparent p-1 focus:border focus:border-blue-300 focus:bg-white"
                 />
+              </TableCell>
+              <TableCell>
+                <Select
+                  value={container.carrierStatus}
+                  onValueChange={(value) => handleFieldUpdate(container.id, 'carrierStatus', value)}
+                >
+                  <SelectTrigger className="w-32 border-0 bg-transparent p-1 focus:border focus:border-blue-300 focus:bg-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {carrierStatusOptions.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </TableCell>
+              <TableCell>
+                <Select
+                  value={container.medlogStatus}
+                  onValueChange={(value) => handleFieldUpdate(container.id, 'medlogStatus', value)}
+                >
+                  <SelectTrigger className="w-32 border-0 bg-transparent p-1 focus:border focus:border-blue-300 focus:bg-white">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {medlogStatusOptions.map((option) => (
+                      <SelectItem key={option} value={option}>
+                        {option}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </TableCell>
+              <TableCell className="max-w-xs">
+                <div className="space-y-1 cursor-pointer" onClick={() => setShowBulkNoteModal(true)}>
+                  <div className="text-xs text-gray-500">Carrier:</div>
+                  <div className="text-sm truncate">{container.carrierNote || '-'}</div>
+                  <div className="text-xs text-gray-500">Medlog:</div>
+                  <div className="text-sm truncate">{container.medlogNote || '-'}</div>
+                </div>
               </TableCell>
             </TableRow>
           ))}

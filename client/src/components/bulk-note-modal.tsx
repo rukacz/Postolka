@@ -26,7 +26,7 @@ const BulkNoteModal = ({ isOpen, onClose, onSave, selectedCount }: BulkNoteModal
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-2xl max-h-96">
         <DialogHeader>
           <DialogTitle>Add Note to Selected</DialogTitle>
         </DialogHeader>
