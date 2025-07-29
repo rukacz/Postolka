@@ -180,179 +180,6 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
 
   return (
     <div className="space-y-4">
-      {/* Bulk Editing Controls */}
-      {hasSelectedContainers && (
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-blue-900">
-              {selectedContainers.length} container(s) selected - Bulk Edit
-            </span>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowBulkNoteModal(true)}
-                className="h-8"
-              >
-                <FileText className="w-4 h-4 mr-1" />
-                Add Note to Selected
-              </Button>
-            </div>
-          </div>
-          
-          {/* Bulk Edit Controls Row - Aligned with Table Columns */}
-          <div className="grid gap-2 items-center" style={{ gridTemplateColumns: "3rem 3rem minmax(120px, 1fr) 80px 80px 100px 100px 100px 100px 100px 60px" }}>
-            {/* Empty space for checkbox column */}
-            <div></div>
-            
-            {/* DG Column */}
-            <div className="flex justify-center">
-              <Switch
-                onCheckedChange={(checked) => handleBulkHazardous(checked)}
-                className="scale-75"
-              />
-            </div>
-
-            {/* Container # Column */}
-            <div>
-              <Input
-                placeholder="ABCD1234567"
-                maxLength={11}
-                className="h-7 text-xs font-mono"
-                onBlur={(e) => {
-                  if (e.target.value && validateContainerNumber(e.target.value)) {
-                    selectedContainers.forEach(id => handleFieldUpdate(id, 'containerNumber', e.target.value.toUpperCase()));
-                    e.target.value = '';
-                  }
-                }}
-                onChange={(e) => {
-                  e.target.value = e.target.value.toUpperCase();
-                }}
-              />
-            </div>
-
-            {/* Size/Type Column */}
-            <div>
-              <Select onValueChange={(value) => selectedContainers.forEach(id => handleFieldUpdate(id, 'size', value))}>
-                <SelectTrigger className="h-7 text-xs">
-                  <SelectValue placeholder="Size" />
-                </SelectTrigger>
-                <SelectContent>
-                  {sizeTypeOptions.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Route Column (no edit) */}
-            <div></div>
-
-            {/* Date/Time Column */}
-            <div>
-              <Input
-                type="datetime-local"
-                className="h-7 text-xs"
-                onChange={(e) => {
-                  if (e.target.value) {
-                    selectedContainers.forEach(id => handleFieldUpdate(id, 'dateTime', e.target.value));
-                  }
-                }}
-              />
-            </div>
-
-            {/* Destination Column */}
-            <div>
-              <Input
-                placeholder="City name"
-                className="h-7 text-xs"
-                onBlur={(e) => {
-                  if (e.target.value) {
-                    selectedContainers.forEach(id => handleFieldUpdate(id, 'destination', e.target.value));
-                    e.target.value = '';
-                  }
-                }}
-              />
-            </div>
-
-            {/* Customs Clearance (Import) or Weight (Export) Column */}
-            <div>
-              {blDetail?.jobType === 'Import' && (
-                <Select onValueChange={(value) => selectedContainers.forEach(id => handleFieldUpdate(id, 'customsClearance', value))}>
-                  <SelectTrigger className="h-7 text-xs">
-                    <SelectValue placeholder="Customs" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="In port">In port</SelectItem>
-                    <SelectItem value="At customer">At customer</SelectItem>
-                    <SelectItem value="Inland depo">Inland depo</SelectItem>
-                    <SelectItem value="Customs Office">Customs Office</SelectItem>
-                    <SelectItem value="Metrans">Metrans</SelectItem>
-                    <SelectItem value="Obrnice">Obrnice</SelectItem>
-                    <SelectItem value="Melnik">Melnik</SelectItem>
-                    <SelectItem value="Mošnov">Mošnov</SelectItem>
-                    <SelectItem value="Bratislava">Bratislava</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-              {blDetail?.jobType === 'Export' && (
-                <Switch
-                  onCheckedChange={(checked) => selectedContainers.forEach(id => handleFieldUpdate(id, 'weighingRequested', checked))}
-                  className="scale-75"
-                />
-              )}
-            </div>
-
-            {/* Carrier Status Column */}
-            <div>
-              <Select onValueChange={(value) => selectedContainers.forEach(id => handleFieldUpdate(id, 'carrierStatus', value))}>
-                <SelectTrigger className="h-7 text-xs">
-                  <SelectValue placeholder="Carrier" />
-                </SelectTrigger>
-                <SelectContent>
-                  {carrierStatusOptions.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Medlog Status Column */}
-            <div>
-              <Select onValueChange={(value) => selectedContainers.forEach(id => handleFieldUpdate(id, 'medlogStatus', value))}>
-                <SelectTrigger className="h-7 text-xs">
-                  <SelectValue placeholder="Medlog" />
-                </SelectTrigger>
-                <SelectContent>
-                  {medlogStatusOptions.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Notes Column */}
-            <div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowBulkNoteModal(true)}
-                className="h-7 px-2 text-xs w-full"
-              >
-                📝
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Container Table */}
       <Table>
         <TableHeader>
           <TableRow>
@@ -363,17 +190,202 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
               />
             </TableHead>
             <TableHead className="w-12">DG</TableHead>
-            <TableHead>Container #</TableHead>
-            <TableHead>Size/Type</TableHead>
-            <TableHead>Route</TableHead>
-            <TableHead>Date/Time</TableHead>
-            <TableHead>Destination</TableHead>
-            {blDetail?.jobType === 'Import' && <TableHead>Customs Clearance</TableHead>}
-            {blDetail?.jobType === 'Export' && <TableHead>Weight</TableHead>}
-            <TableHead>Carrier Status</TableHead>
-            <TableHead>Medlog Status</TableHead>
-            <TableHead>Note</TableHead>
+            <TableHead className="w-32">Container #</TableHead>
+            <TableHead className="w-24">Size/Type</TableHead>
+            <TableHead className="w-16">Route</TableHead>
+            <TableHead className="w-32">Date/Time</TableHead>
+            <TableHead className="w-24">Destination</TableHead>
+            {blDetail?.jobType === 'Import' && <TableHead className="w-32">Customs Clearance</TableHead>}
+            {blDetail?.jobType === 'Export' && <TableHead className="w-20">Weight</TableHead>}
+            <TableHead className="w-28">Carrier Status</TableHead>
+            <TableHead className="w-28">Medlog Status</TableHead>
+            <TableHead className="w-48">Note</TableHead>
           </TableRow>
+          {/* Bulk Editing Row */}
+          {selectedContainers.length > 0 && (
+            <TableRow className="bg-blue-50 border-blue-200">
+              <TableHead className="h-auto p-2">
+                <div className="flex items-center gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleDeselectAll}
+                    className="text-xs h-6"
+                  >
+                    <Undo2 className="h-3 w-3" />
+                  </Button>
+                  <span className="text-xs font-medium text-blue-700">
+                    {selectedContainers.length} selected
+                  </span>
+                </div>
+              </TableHead>
+
+              {/* DG Column */}
+              <TableHead className="h-auto p-2">
+                <Switch
+                  checked={false}
+                  onCheckedChange={(checked) => {
+                    handleHazardousChange(selectedContainers, checked);
+                  }}
+                  className="scale-75"
+                />
+              </TableHead>
+
+              {/* Container # Column */}
+              <TableHead className="h-auto p-2">
+                <Input
+                  placeholder="ABCD1234567"
+                  maxLength={11}
+                  className="h-7 text-xs font-mono w-full"
+                  onBlur={(e) => {
+                    if (e.target.value && validateContainerNumber(e.target.value)) {
+                      selectedContainers.forEach(id => handleFieldUpdate(id, 'containerNumber', e.target.value.toUpperCase()));
+                      e.target.value = '';
+                    }
+                  }}
+                  onChange={(e) => {
+                    e.target.value = e.target.value.toUpperCase();
+                  }}
+                />
+              </TableHead>
+
+              {/* Size/Type Column */}
+              <TableHead className="h-auto p-2">
+                <Select onValueChange={(value) => {
+                  selectedContainers.forEach(id => handleFieldUpdate(id, 'sizeType', value));
+                }}>
+                  <SelectTrigger className="h-7 text-xs">
+                    <SelectValue placeholder="Size/Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sizeTypeOptions.map(option => (
+                      <SelectItem key={option} value={option}>{option}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </TableHead>
+
+              {/* Route Column */}
+              <TableHead className="h-auto p-2">
+                <Input
+                  placeholder="Route"
+                  className="h-7 text-xs w-full"
+                  onBlur={(e) => {
+                    if (e.target.value) {
+                      selectedContainers.forEach(id => handleFieldUpdate(id, 'route', e.target.value));
+                      e.target.value = '';
+                    }
+                  }}
+                />
+              </TableHead>
+
+              {/* Date/Time Column */}
+              <TableHead className="h-auto p-2">
+                <Input
+                  type="datetime-local"
+                  className="h-7 text-xs w-full"
+                  onChange={(e) => {
+                    if (e.target.value) {
+                      selectedContainers.forEach(id => handleFieldUpdate(id, 'dateTime', e.target.value));
+                    }
+                  }}
+                />
+              </TableHead>
+
+              {/* Destination Column */}
+              <TableHead className="h-auto p-2">
+                <Input
+                  placeholder="City name"
+                  className="h-7 text-xs w-full"
+                  onBlur={(e) => {
+                    if (e.target.value) {
+                      selectedContainers.forEach(id => handleFieldUpdate(id, 'destination', e.target.value));
+                      e.target.value = '';
+                    }
+                  }}
+                />
+              </TableHead>
+
+              {/* Customs Clearance or Weight Scale for Export */}
+              {blDetail?.jobType === 'Import' && (
+                <TableHead className="h-auto p-2">
+                  <Select onValueChange={(value) => {
+                    selectedContainers.forEach(id => handleFieldUpdate(id, 'customsClearance', value));
+                  }}>
+                    <SelectTrigger className="h-7 text-xs">
+                      <SelectValue placeholder="Customs" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="In port">In port</SelectItem>
+                      <SelectItem value="At customer">At customer</SelectItem>
+                      <SelectItem value="Inland depo">Inland depo</SelectItem>
+                      <SelectItem value="Customs Office">Customs Office</SelectItem>
+                      <SelectItem value="Metrans">Metrans</SelectItem>
+                      <SelectItem value="Obrnice">Obrnice</SelectItem>
+                      <SelectItem value="Melnik">Melnik</SelectItem>
+                      <SelectItem value="Mošnov">Mošnov</SelectItem>
+                      <SelectItem value="Bratislava">Bratislava</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </TableHead>
+              )}
+              {blDetail?.jobType === 'Export' && (
+                <TableHead className="h-auto p-2">
+                  <Switch
+                    checked={false}
+                    onCheckedChange={(checked) => {
+                      selectedContainers.forEach(id => handleFieldUpdate(id, 'weighingRequested', checked));
+                    }}
+                    className="scale-75"
+                  />
+                </TableHead>
+              )}
+
+              {/* Carrier Status Column */}
+              <TableHead className="h-auto p-2">
+                <Select onValueChange={(value) => {
+                  selectedContainers.forEach(id => handleFieldUpdate(id, 'carrierStatus', value));
+                }}>
+                  <SelectTrigger className="h-7 text-xs">
+                    <SelectValue placeholder="Carrier Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {carrierStatusOptions.map(option => (
+                      <SelectItem key={option} value={option}>{option}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </TableHead>
+
+              {/* Medlog Status Column */}
+              <TableHead className="h-auto p-2">
+                <Select onValueChange={(value) => {
+                  selectedContainers.forEach(id => handleFieldUpdate(id, 'medlogStatus', value));
+                }}>
+                  <SelectTrigger className="h-7 text-xs">
+                    <SelectValue placeholder="Medlog Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {medlogStatusOptions.map(option => (
+                      <SelectItem key={option} value={option}>{option}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </TableHead>
+
+              {/* Notes Column */}
+              <TableHead className="h-auto p-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowBulkNoteModal(true)}
+                  className="text-xs h-7"
+                >
+                  Add Note
+                </Button>
+              </TableHead>
+            </TableRow>
+          )}
         </TableHeader>
         <TableBody>
           {containers.map((container) => (
