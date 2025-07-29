@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { FileText, AlertTriangle, Undo2 } from "lucide-react";
+import { FileText, AlertTriangle, Undo2, Scale } from "lucide-react";
 import DangerousGoodsFlag from "@/components/dangerous-goods-flag";
 import CarrierStatusBadge from "@/components/carrier-status-badge";
 import MedlogStatusBadge from "@/components/medlog-status-badge";
@@ -20,6 +20,7 @@ import { apiRequest } from "@/lib/queryClient";
 interface ContainerTableProps {
   containers: Container[];
   userGroup: UserGroup;
+  blDetail?: { jobType: 'Import' | 'Export' } | null;
   onNoteChange: (containerId: number, group: 'carrier' | 'medlog', note: string) => void;
   onHazardousChange: (containerIds: number[], hazardous: boolean) => void;
 }
@@ -36,7 +37,7 @@ const medlogStatusOptions = [
   "pending", "processing", "completed", "on_hold", "cancelled"
 ];
 
-const ContainerTable = ({ containers, userGroup, onNoteChange, onHazardousChange }: ContainerTableProps) => {
+const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazardousChange }: ContainerTableProps) => {
   const [selectedContainers, setSelectedContainers] = useState<number[]>([]);
   const [showBulkNoteModal, setShowBulkNoteModal] = useState(false);
   const [lastAction, setLastAction] = useState<{ type: string; data: any } | null>(null);
@@ -193,35 +194,38 @@ const ContainerTable = ({ containers, userGroup, onNoteChange, onHazardousChange
             </div>
           </div>
           
-          {/* Bulk Edit Controls Row */}
-          <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex items-center gap-2">
-              <Label className="text-xs font-medium text-gray-600">DG:</Label>
-              <div className="flex gap-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleBulkHazardous(true)}
-                  className="h-7 px-2 text-xs text-red-600 border-red-200 hover:bg-red-50"
-                >
-                  Mark DG
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleBulkHazardous(false)}
-                  className="h-7 px-2 text-xs"
-                >
-                  Unmark DG
-                </Button>
-              </div>
+          {/* Bulk Edit Controls Row - Aligned with Table Columns */}
+          <div className="grid gap-2 items-center" style={{ gridTemplateColumns: "3rem 3rem minmax(120px, 1fr) 80px 80px 100px 100px 100px 100px 100px 60px" }}>
+            {/* Empty space for checkbox column */}
+            <div></div>
+            
+            {/* DG Column */}
+            <div className="flex justify-center">
+              <Switch
+                onCheckedChange={(checked) => handleBulkHazardous(checked)}
+                className="scale-75"
+              />
             </div>
 
-            <div className="flex items-center gap-2">
-              <Label className="text-xs font-medium text-gray-600">Size/Type:</Label>
+            {/* Container # Column */}
+            <div>
+              <Input
+                placeholder="Set container #"
+                className="h-7 text-xs"
+                onBlur={(e) => {
+                  if (e.target.value) {
+                    selectedContainers.forEach(id => handleFieldUpdate(id, 'containerNumber', e.target.value));
+                    e.target.value = '';
+                  }
+                }}
+              />
+            </div>
+
+            {/* Size/Type Column */}
+            <div>
               <Select onValueChange={(value) => selectedContainers.forEach(id => handleFieldUpdate(id, 'size', value))}>
-                <SelectTrigger className="w-20 h-7 text-xs">
-                  <SelectValue placeholder="Set" />
+                <SelectTrigger className="h-7 text-xs">
+                  <SelectValue placeholder="Size" />
                 </SelectTrigger>
                 <SelectContent>
                   {sizeTypeOptions.map((option) => (
@@ -233,11 +237,64 @@ const ContainerTable = ({ containers, userGroup, onNoteChange, onHazardousChange
               </Select>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Label className="text-xs font-medium text-gray-600">Carrier Status:</Label>
+            {/* Route Column (no edit) */}
+            <div></div>
+
+            {/* Date/Time Column */}
+            <div>
+              <Input
+                type="datetime-local"
+                className="h-7 text-xs"
+                onChange={(e) => {
+                  if (e.target.value) {
+                    selectedContainers.forEach(id => handleFieldUpdate(id, 'dateTime', e.target.value));
+                  }
+                }}
+              />
+            </div>
+
+            {/* Destination Column */}
+            <div>
+              <Input
+                placeholder="Destination"
+                className="h-7 text-xs"
+                onBlur={(e) => {
+                  if (e.target.value) {
+                    selectedContainers.forEach(id => handleFieldUpdate(id, 'destination', e.target.value));
+                    e.target.value = '';
+                  }
+                }}
+              />
+            </div>
+
+            {/* Customs Clearance (Import) or Weight (Export) Column */}
+            <div>
+              {blDetail?.jobType === 'Import' && (
+                <Select onValueChange={(value) => selectedContainers.forEach(id => handleFieldUpdate(id, 'customsClearance', value))}>
+                  <SelectTrigger className="h-7 text-xs">
+                    <SelectValue placeholder="Customs" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Melnik">Melnik</SelectItem>
+                    <SelectItem value="Mosnov">Mosnov</SelectItem>
+                    <SelectItem value="Obrnice">Obrnice</SelectItem>
+                    <SelectItem value="Bratislava">Bratislava</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+              {blDetail?.jobType === 'Export' && (
+                <Switch
+                  onCheckedChange={(checked) => selectedContainers.forEach(id => handleFieldUpdate(id, 'weighingRequested', checked))}
+                  className="scale-75"
+                />
+              )}
+            </div>
+
+            {/* Carrier Status Column */}
+            <div>
               <Select onValueChange={(value) => selectedContainers.forEach(id => handleFieldUpdate(id, 'carrierStatus', value))}>
-                <SelectTrigger className="w-24 h-7 text-xs">
-                  <SelectValue placeholder="Set" />
+                <SelectTrigger className="h-7 text-xs">
+                  <SelectValue placeholder="Carrier" />
                 </SelectTrigger>
                 <SelectContent>
                   {carrierStatusOptions.map((option) => (
@@ -249,11 +306,11 @@ const ContainerTable = ({ containers, userGroup, onNoteChange, onHazardousChange
               </Select>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Label className="text-xs font-medium text-gray-600">Medlog Status:</Label>
+            {/* Medlog Status Column */}
+            <div>
               <Select onValueChange={(value) => selectedContainers.forEach(id => handleFieldUpdate(id, 'medlogStatus', value))}>
-                <SelectTrigger className="w-24 h-7 text-xs">
-                  <SelectValue placeholder="Set" />
+                <SelectTrigger className="h-7 text-xs">
+                  <SelectValue placeholder="Medlog" />
                 </SelectTrigger>
                 <SelectContent>
                   {medlogStatusOptions.map((option) => (
@@ -263,6 +320,18 @@ const ContainerTable = ({ containers, userGroup, onNoteChange, onHazardousChange
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Notes Column */}
+            <div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowBulkNoteModal(true)}
+                className="h-7 px-2 text-xs w-full"
+              >
+                📝
+              </Button>
             </div>
           </div>
         </div>
@@ -283,6 +352,9 @@ const ContainerTable = ({ containers, userGroup, onNoteChange, onHazardousChange
             <TableHead>Size/Type</TableHead>
             <TableHead>Route</TableHead>
             <TableHead>Date/Time</TableHead>
+            <TableHead>Destination</TableHead>
+            {blDetail?.jobType === 'Import' && <TableHead>Customs Clearance</TableHead>}
+            {blDetail?.jobType === 'Export' && <TableHead>Weight</TableHead>}
             <TableHead>Carrier Status</TableHead>
             <TableHead>Medlog Status</TableHead>
             <TableHead>Note</TableHead>
@@ -319,6 +391,21 @@ const ContainerTable = ({ containers, userGroup, onNoteChange, onHazardousChange
                   minute: '2-digit'
                 }) : '-'}
               </TableCell>
+              <TableCell>
+                {container.destination || '-'}
+              </TableCell>
+              {blDetail?.jobType === 'Import' && (
+                <TableCell>
+                  {container.customsClearance || '-'}
+                </TableCell>
+              )}
+              {blDetail?.jobType === 'Export' && (
+                <TableCell>
+                  {container.weighingRequested && (
+                    <Scale className="w-4 h-4 text-gray-600" />
+                  )}
+                </TableCell>
+              )}
               <TableCell>
                 <CarrierStatusBadge status={container.carrierStatus as any} />
               </TableCell>

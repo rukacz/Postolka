@@ -306,6 +306,7 @@ export default function BLDetailPage() {
             <ContainerTable 
               containers={containers || []} 
               userGroup={currentUserGroup}
+              blDetail={blDetail}
               onNoteChange={handleNoteChange}
               onHazardousChange={handleHazardousChange}
             />

@@ -81,6 +81,9 @@ export const containers = pgTable("containers", {
   temperature: integer("temperature"),
   routeStep: text("route_step").notNull(), // Current step: 'W' | 'D' | 'C' | 'R'
   unloadAddress: text("unload_address"), // Changed from transporter to unloadAddress
+  destination: text("destination"),
+  customsClearance: text("customs_clearance"),
+  weighingRequested: boolean("weighing_requested").default(false),
   // Status fields
   carrierStatus: text("carrier_status").notNull(),
   medlogStatus: text("medlog_status").notNull(),
