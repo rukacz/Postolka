@@ -77,7 +77,7 @@ const newOrderSchema = z.object({
   
   // Import specific
   blBookingNumber: z.string().optional(),
-  customsClearance: z.enum(["In Port", "Inland depot", "At customer", "Metrans"]).optional(),
+  customsClearance: z.enum(["In Port", "Inland depot", "At customer", "Metrans", "Melnik", "Mosnov", "Obrnice", "Bratislava"]).optional(),
   
   // Export specific
   vgmRequested: z.enum(["Yes", "No"]).default("No"),
@@ -348,28 +348,27 @@ export default function NewOrder() {
                     />
                   </div>
                   
-                  <div className="md:col-span-3">
+                  <div className="md:col-span-6 flex gap-2">
                     <Button
                       type="button"
                       variant="outline"
+                      size="sm"
                       onClick={handleLoadFromMSC}
                       disabled={isLoadingFromMSC || isLoadingFromOVA}
-                      className="w-full h-9"
+                      className="h-7 px-3 text-xs"
                     >
-                      {isLoadingFromMSC && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                      {isLoadingFromMSC && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
                       Load from MSC
                     </Button>
-                  </div>
-                  
-                  <div className="md:col-span-3">
                     <Button
                       type="button"
                       variant="outline"
+                      size="sm"
                       onClick={handleLoadFromOVA}
                       disabled={isLoadingFromMSC || isLoadingFromOVA}
-                      className="w-full h-9"
+                      className="h-7 px-3 text-xs"
                     >
-                      {isLoadingFromOVA && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                      {isLoadingFromOVA && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
                       Use OVA string
                     </Button>
                   </div>
@@ -489,6 +488,10 @@ export default function NewOrder() {
                                 <SelectItem value="Inland depot">Inland depot</SelectItem>
                                 <SelectItem value="At customer">At customer</SelectItem>
                                 <SelectItem value="Metrans">Metrans</SelectItem>
+                                <SelectItem value="Melnik">Melnik</SelectItem>
+                                <SelectItem value="Mosnov">Mosnov</SelectItem>
+                                <SelectItem value="Obrnice">Obrnice</SelectItem>
+                                <SelectItem value="Bratislava">Bratislava</SelectItem>
                               </SelectContent>
                             </Select>
                           </FormControl>
@@ -547,9 +550,8 @@ export default function NewOrder() {
                   )}
                 </div>
 
-                {/* Un/loading date/time */}
+                {/* Date/time section */}
                 <div className="border-t pt-4">
-                  <h3 className="text-sm font-semibold mb-3">Un/loading date/time</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {watchedOrderType === "Export" && (
                       <FormField
@@ -573,7 +575,7 @@ export default function NewOrder() {
                         name="globalDischargingDateTime"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-sm">Discharging Date/Time</FormLabel>
+                            <FormLabel className="text-sm">Unloading Date/Time</FormLabel>
                             <FormControl>
                               <Input type="datetime-local" {...field} className="h-9" />
                             </FormControl>
