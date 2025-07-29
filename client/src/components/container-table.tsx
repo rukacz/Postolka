@@ -321,7 +321,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
             <TableHead className="w-32">Date/Time</TableHead>
             <TableHead className="w-24">Destination</TableHead>
             {blDetail?.jobType === 'Import' && <TableHead className="w-32">Customs Clearance</TableHead>}
-            {blDetail?.jobType === 'Export' && <TableHead className="w-20">Weight</TableHead>}
+            {blDetail?.jobType === 'Export' && <TableHead className="w-20">VGM</TableHead>}
             <TableHead className="w-36">Carrier Status</TableHead>
             <TableHead className="w-28">Medlog Status</TableHead>
             <TableHead className="w-48">Note</TableHead>
@@ -429,7 +429,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 />
               </TableHead>
 
-              {/* Customs Clearance or Weight Scale for Export */}
+              {/* Customs Clearance or VGM Scale for Export */}
               {blDetail?.jobType === 'Import' && (
                 <TableHead className="h-auto p-2">
                   <Select onValueChange={(value) => {
