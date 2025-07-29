@@ -67,6 +67,7 @@ const newOrderSchema = z.object({
   vessel: z.string().min(1, "Vessel is required"),
   carrier: z.string().default("MSC"),
   pic: z.string().min(1, "Person in Charge is required"),
+  eta: z.string().optional(),
   containerCount: z.number().min(1, "At least 1 container required"),
   containers: z.array(containerSchema),
   
@@ -137,6 +138,7 @@ export default function NewOrder() {
       vessel: "",
       carrier: "MSC",
       pic: "",
+      eta: "",
       containerCount: 1,
       containers: [{ containerNumber: "" }],
       globalLoadingDateTime: "",
@@ -166,6 +168,7 @@ export default function NewOrder() {
         vessel: existingBLDetail.vesselName || "",
         carrier: existingBLSummary.carrier || "MSC",
         pic: existingBLSummary.pic,
+        eta: existingBLSummary.etaClosing || "",
         containerCount: existingBLSummary.containerCount,
         containers: existingContainers?.map(c => ({
           containerNumber: c.containerNumber,
@@ -274,7 +277,7 @@ export default function NewOrder() {
         destination: data.destination,
         pic: data.pic || "Not assigned",
         podPol: data.polPod,
-        etaClosing: "TBD",
+        etaClosing: data.eta || "TBD",
         vesselVoyage: data.vessel || "TBD",
         containerCount: data.containerCount,
         type: data.orderType,
@@ -537,6 +540,31 @@ export default function NewOrder() {
                       </FormItem>
                     )}
                   />
+                </div>
+
+                {/* ETA Row */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                  <FormField
+                    control={form.control}
+                    name="eta"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm">ETA</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="datetime-local" 
+                            {...field} 
+                            className="h-9"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  
+                  <div className="md:col-span-3">
+                    {/* Empty space for alignment */}
+                  </div>
                 </div>
 
                 {/* Second Row */}
