@@ -6,6 +6,7 @@ import StatusBadge from "@/components/status-badge";
 import RouteVisualizer from "@/components/route-visualizer";
 import CarrierStatusBadge from "@/components/carrier-status-badge";
 import MedlogStatusBadge from "@/components/medlog-status-badge";
+import DangerousGoodsFlag from "@/components/dangerous-goods-flag";
 import { BLStatus, RouteStep, UserGroup, CarrierStatus, MedlogStatus } from "@/lib/types";
 
 interface ContainerBlockProps {
@@ -74,8 +75,11 @@ const ContainerBlock = ({
         </div>
         
         <div className="flex items-center gap-6 flex-1 justify-between ml-4">
-          <div className={`font-mono text-sm ${container.changedFields?.includes('containerNumber') ? 'bg-yellow-100 px-2 py-1 rounded border-l-2 border-yellow-400' : ''}`}>
-            {container.containerNumber}
+          <div className="flex items-center gap-2">
+            <div className={`font-mono text-sm ${container.changedFields?.includes('containerNumber') ? 'bg-yellow-100 px-2 py-1 rounded border-l-2 border-yellow-400' : ''}`}>
+              {container.containerNumber}
+            </div>
+            {container.dangerousCargo && <DangerousGoodsFlag />}
           </div>
           <div className={`text-sm ${container.changedFields?.includes('sizeType') ? 'bg-yellow-100 px-2 py-1 rounded border-l-2 border-yellow-400' : ''}`}>
             {container.size}/{container.containerType}
