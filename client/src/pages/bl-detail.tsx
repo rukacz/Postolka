@@ -220,13 +220,27 @@ export default function BLDetailPage() {
 
 
 
-        {/* Tabs Section */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-fit grid-cols-3 bg-white border border-gray-200 rounded-md p-1">
-            <TabsTrigger value="containers" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border data-[state=active]:border-blue-200 rounded px-4 py-2">
+        {/* Tab Navigation */}
+        <div className="border-b border-gray-200 mb-6">
+          <nav className="flex space-x-8" aria-label="Tabs">
+            <button
+              onClick={() => setActiveTab('containers')}
+              className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'containers'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
               Containers
-            </TabsTrigger>
-            <TabsTrigger value="chat" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border data-[state=active]:border-blue-200 rounded px-4 py-2 flex items-center gap-2">
+            </button>
+            <button
+              onClick={() => setActiveTab('chat')}
+              className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                activeTab === 'chat'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
               <MessageCircle className="h-4 w-4" />
               Chat
               {blSummary?.unreadChatCount && blSummary.unreadChatCount > 0 && (
@@ -234,21 +248,33 @@ export default function BLDetailPage() {
                   {blSummary.unreadChatCount}
                 </Badge>
               )}
-            </TabsTrigger>
-            <TabsTrigger value="log" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border data-[state=active]:border-blue-200 rounded px-4 py-2">
+            </button>
+            <button
+              onClick={() => setActiveTab('log')}
+              className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'log'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
               Log
-            </TabsTrigger>
-          </TabsList>
+            </button>
+          </nav>
+        </div>
 
-          <TabsContent value="containers" className="mt-4">
+        {/* Tab Content */}
+        {activeTab === 'containers' && (
+          <div>
             <ContainerList 
-              data={containers} 
+              data={containers || []} 
               isLoading={isLoadingContainers}
-              currentUserGroup={currentUserGroup}
+              currentUserGroup="medlog"
             />
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent value="chat" className="mt-4">
+        {activeTab === 'chat' && (
+          <div>
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -293,65 +319,54 @@ export default function BLDetailPage() {
                   </div>
                 </div>
                 
+                {/* Message input */}
                 <div className="flex gap-2">
-                  <Input
-                    placeholder="Type your message..."
-                    value={newChatMessage}
-                    onChange={(e) => setNewChatMessage(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        // Handle send message
-                        setNewChatMessage("");
-                      }
-                    }}
+                  <input
+                    type="text"
+                    placeholder="Type a message..."
+                    className="flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
-                  <Button onClick={() => setNewChatMessage("")}>
-                    Send
-                  </Button>
+                  <Button size="sm">Send</Button>
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent value="log" className="mt-4">
+        {activeTab === 'log' && (
+          <div>
             <Card>
               <CardHeader>
                 <CardTitle>Activity Log</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="border-l-4 border-blue-500 pl-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-semibold text-sm">Booking Created</p>
-                        <p className="text-sm text-gray-600">Initial booking created by Martin Novák</p>
-                      </div>
-                      <span className="text-xs text-gray-500">3 days ago</span>
+                  <div className="flex items-start gap-3">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                    <div>
+                      <p className="text-sm font-medium">Status updated to "In Progress"</p>
+                      <p className="text-xs text-gray-500">Jan 22, 2025 at 2:30 PM by Martin Novák</p>
                     </div>
                   </div>
-                  <div className="border-l-4 border-orange-500 pl-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-semibold text-sm">Status Changed</p>
-                        <p className="text-sm text-gray-600">Status updated to "In Transit"</p>
-                      </div>
-                      <span className="text-xs text-gray-500">2 days ago</span>
+                  <div className="flex items-start gap-3">
+                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                    <div>
+                      <p className="text-sm font-medium">Container loaded and ready</p>
+                      <p className="text-xs text-gray-500">Jan 22, 2025 at 1:45 PM by Petr Svoboda</p>
                     </div>
                   </div>
-                  <div className="border-l-4 border-green-500 pl-4">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <p className="font-semibold text-sm">Container Loaded</p>
-                        <p className="text-sm text-gray-600">Container MEDU123456 loaded onto vessel</p>
-                      </div>
-                      <span className="text-xs text-gray-500">1 day ago</span>
+                  <div className="flex items-start gap-3">
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
+                    <div>
+                      <p className="text-sm font-medium">BL created</p>
+                      <p className="text-xs text-gray-500">Jan 22, 2025 at 9:00 AM by System</p>
                     </div>
                   </div>
                 </div>
               </CardContent>
             </Card>
-          </TabsContent>
-        </Tabs>
+          </div>
+        )}
       </div>
     </div>
   );

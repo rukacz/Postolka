@@ -7,6 +7,7 @@ Poštolka is a modern logistics management web application built to replace lega
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+UI Preferences: Tabs should look like proper tabs with clean border styling, not button-like components.
 
 ## System Architecture
 
