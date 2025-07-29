@@ -786,7 +786,7 @@ export default function NewOrder() {
                   >
                     {createOrderMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                     <FileText className="w-4 h-4 mr-2" />
-                    Create Order
+                    {isEditMode ? "Save Changes" : "Create Order"}
                   </Button>
                 </div>
               </form>
