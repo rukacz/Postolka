@@ -1,7 +1,7 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useRoute, useLocation } from "wouter";
 import NavigationHeader from "@/components/navigation-header";
-import ContainerList from "@/components/container-list";
+import ContainerTable from "@/components/container-table";
 import StatusBadge from "@/components/status-badge";
 import ChangeIndicatorDot from "@/components/change-indicator-dot";
 import { Button } from "@/components/ui/button";
@@ -80,6 +80,44 @@ export default function BLDetailPage() {
   const isFieldChanged = (fieldName: string): boolean => {
     if (!blSummary?.changedFields) return false;
     return blSummary.changedFields.includes(fieldName);
+  };
+
+  const handleNoteChange = async (containerId: number, group: 'carrier' | 'medlog', note: string) => {
+    try {
+      await apiRequest("PATCH", `/api/containers/${containerId}/note`, {
+        group,
+        note
+      });
+      
+      // Invalidate container queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['/api/containers'] });
+      
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update container note",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleHazardousChange = async (containerIds: number[], hazardous: boolean) => {
+    try {
+      await apiRequest("PATCH", "/api/containers/bulk/hazardous", {
+        containerIds,
+        hazardous
+      });
+      
+      // Invalidate container queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['/api/containers'] });
+      
+    } catch (error) {
+      toast({
+        title: "Error", 
+        description: "Failed to update hazardous cargo status",
+        variant: "destructive"
+      });
+    }
   };
 
   // Helper component for changed field styling
@@ -265,10 +303,11 @@ export default function BLDetailPage() {
         {/* Tab Content */}
         {activeTab === 'containers' && (
           <div>
-            <ContainerList 
-              data={containers || []} 
-              isLoading={isLoadingContainers}
-              currentUserGroup="medlog"
+            <ContainerTable 
+              containers={containers || []} 
+              userGroup={currentUserGroup}
+              onNoteChange={handleNoteChange}
+              onHazardousChange={handleHazardousChange}
             />
           </div>
         )}

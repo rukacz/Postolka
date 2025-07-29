@@ -30,6 +30,8 @@ export interface IStorage {
   createContainer(container: InsertContainer): Promise<Container>;
   updateContainer(id: number, container: Partial<Container>): Promise<Container | undefined>;
   updateContainerNote(id: number, group: 'carrier' | 'medlog', note: string): Promise<Container | undefined>;
+  updateContainerHazardous(id: number, hazardous: boolean): Promise<Container | undefined>;
+  getContainer(id: number): Promise<Container | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -443,6 +445,20 @@ export class DatabaseStorage implements IStorage {
       .where(eq(containers.id, id))
       .returning();
     return updated || undefined;
+  }
+  async updateContainerHazardous(id: number, hazardous: boolean): Promise<Container | undefined> {
+    const [updatedContainer] = await db
+      .update(containers)
+      .set({ dangerousCargo: hazardous })
+      .where(eq(containers.id, id))
+      .returning();
+    
+    return updatedContainer || undefined;
+  }
+
+  async getContainer(id: number): Promise<Container | undefined> {
+    const [container] = await db.select().from(containers).where(eq(containers.id, id));
+    return container || undefined;
   }
 }
 

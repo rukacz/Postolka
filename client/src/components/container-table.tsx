@@ -1,252 +1,266 @@
 import React, { useState } from "react";
 import { Container } from "@shared/schema";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { MapPin, CheckCircle, MoreHorizontal } from "lucide-react";
-import RouteVisualizer from "./route-visualizer";
-import StatusBadge from "./status-badge";
-import ContainerNotes from "./container-notes";
-import { RouteStep, BLStatus, UserGroup } from "@/lib/types";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { FileText, AlertTriangle, Undo2 } from "lucide-react";
+import DangerousGoodsFlag from "@/components/dangerous-goods-flag";
+import CarrierStatusBadge from "@/components/carrier-status-badge";
+import MedlogStatusBadge from "@/components/medlog-status-badge";
+import BulkNoteModal from "@/components/bulk-note-modal";
+import { UserGroup } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
 
 interface ContainerTableProps {
-  data: Container[];
-  isLoading?: boolean;
-  currentUserGroup?: UserGroup;
+  containers: Container[];
+  userGroup: UserGroup;
+  onNoteChange: (containerId: number, group: 'carrier' | 'medlog', note: string) => void;
+  onHazardousChange: (containerIds: number[], hazardous: boolean) => void;
 }
 
-// Helper component for container field change styling
-const ContainerFieldWrapper = ({ fieldName, container, children, className = "" }: { 
-  fieldName: string; 
-  container: Container;
-  children: React.ReactNode; 
-  className?: string;
-}) => {
-  const isChanged = container.changedFields?.includes(fieldName) || false;
-  return (
-    <div className={`${className} ${isChanged ? 'bg-yellow-100 border-l-4 border-yellow-400 pl-2 py-1 rounded' : ''}`}>
-      {children}
-    </div>
-  );
-};
-
-const ContainerFieldLabel = ({ fieldName, container, children }: { 
-  fieldName: string; 
-  container: Container;
-  children: React.ReactNode 
-}) => {
-  return (
-    <span>
-      {children}
-    </span>
-  );
-};
-
-export default function ContainerTable({ data, isLoading, currentUserGroup = 'medlog' }: ContainerTableProps) {
-  const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
+const ContainerTable = ({ containers, userGroup, onNoteChange, onHazardousChange }: ContainerTableProps) => {
+  const [selectedContainers, setSelectedContainers] = useState<number[]>([]);
+  const [showBulkNoteModal, setShowBulkNoteModal] = useState(false);
+  const [lastAction, setLastAction] = useState<{ type: string; data: any } | null>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  // Mutation for updating container notes
-  const updateNoteMutation = useMutation({
-    mutationFn: async ({ containerId, group, note }: { containerId: number; group: 'carrier' | 'medlog'; note: string }) => {
-      const response = await fetch(`/api/containers/${containerId}/note`, {
-        method: 'PATCH',
-        body: JSON.stringify({ group, note }),
-        headers: { 'Content-Type': 'application/json' }
-      });
-      if (!response.ok) throw new Error('Failed to update note');
-      return response.json();
+  const bulkHazardousMutation = useMutation({
+    mutationFn: async ({ containerIds, hazardous }: { containerIds: number[]; hazardous: boolean }) => {
+      return apiRequest("PATCH", "/api/containers/bulk/hazardous", { containerIds, hazardous });
     },
-    onSuccess: (_, { containerId }) => {
-      toast({
-        title: "Note updated",
-        description: "Container note has been saved successfully.",
-      });
-      // Invalidate container queries to refresh the data
-      queryClient.invalidateQueries({ 
-        queryKey: ['/api/containers']
-      });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/containers'] });
     },
-    onError: () => {
-      toast({
-        title: "Error",
-        description: "Failed to update container note. Please try again.",
-        variant: "destructive",
-      });
-    }
   });
 
-  // Helper function to update container notes
-  const handleUpdateContainerNote = (containerId: number, group: 'carrier' | 'medlog', note: string) => {
-    updateNoteMutation.mutate({ containerId, group, note });
-  };
+  const isCarrier = userGroup === "carrier";
+  const isMedlog = userGroup === "medlog";
 
-  const toggleRowSelection = (id: number) => {
-    const newSelected = new Set(selectedRows);
-    if (newSelected.has(id)) {
-      newSelected.delete(id);
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedContainers(containers.map(c => c.id));
     } else {
-      newSelected.add(id);
-    }
-    setSelectedRows(newSelected);
-  };
-
-  const toggleAllSelection = () => {
-    if (selectedRows.size === data.length) {
-      setSelectedRows(new Set());
-    } else {
-      setSelectedRows(new Set(data.map(container => container.id)));
+      setSelectedContainers([]);
     }
   };
 
-  if (isLoading) {
-    return <div className="p-6 text-center">Loading containers...</div>;
-  }
+  const handleSelectContainer = (containerId: number, checked: boolean) => {
+    if (checked) {
+      setSelectedContainers(prev => [...prev, containerId]);
+    } else {
+      setSelectedContainers(prev => prev.filter(id => id !== containerId));
+    }
+  };
+
+  const handleBulkHazardous = (hazardous: boolean) => {
+    const previousStates = selectedContainers.map(id => ({
+      id,
+      hazardous: containers.find(c => c.id === id)?.dangerousCargo || false
+    }));
+
+    setLastAction({
+      type: 'hazardous',
+      data: { containerIds: selectedContainers, previousStates }
+    });
+
+    bulkHazardousMutation.mutate({ containerIds: selectedContainers, hazardous });
+    
+    toast({
+      title: `Containers ${hazardous ? 'marked' : 'unmarked'} as hazardous`,
+      description: `${selectedContainers.length} containers updated`,
+      action: (
+        <Button variant="outline" size="sm" onClick={handleUndo}>
+          <Undo2 className="w-4 h-4 mr-1" />
+          Undo
+        </Button>
+      ),
+    });
+  };
+
+  const handleBulkNote = (note: string) => {
+    const noteType = isMedlog ? 'medlog' : 'carrier';
+    const previousNotes = selectedContainers.map(id => {
+      const container = containers.find(c => c.id === id);
+      return {
+        id,
+        note: noteType === 'medlog' ? container?.medlogNote : container?.carrierNote
+      };
+    });
+
+    setLastAction({
+      type: 'note',
+      data: { containerIds: selectedContainers, previousNotes, noteType }
+    });
+
+    selectedContainers.forEach(id => {
+      onNoteChange(id, noteType, note);
+    });
+
+    toast({
+      title: "Notes added to selected containers",
+      description: `${selectedContainers.length} containers updated`,
+      action: (
+        <Button variant="outline" size="sm" onClick={handleUndo}>
+          <Undo2 className="w-4 h-4 mr-1" />
+          Undo
+        </Button>
+      ),
+    });
+
+    setShowBulkNoteModal(false);
+  };
+
+  const handleUndo = () => {
+    if (!lastAction) return;
+
+    if (lastAction.type === 'hazardous') {
+      lastAction.data.previousStates.forEach(({ id, hazardous }: any) => {
+        onHazardousChange([id], hazardous);
+      });
+    } else if (lastAction.type === 'note') {
+      lastAction.data.previousNotes.forEach(({ id, note }: any) => {
+        onNoteChange(id, lastAction.data.noteType, note || '');
+      });
+    }
+
+    setLastAction(null);
+    toast({
+      title: "Action undone",
+      description: "Changes have been reverted",
+    });
+  };
+
+  const formatRouteSteps = (routeStep: string) => {
+    const steps = routeStep.split('');
+    return steps.join(' ');
+  };
+
+  const hasSelectedContainers = selectedContainers.length > 0;
+  const allSelected = selectedContainers.length === containers.length && containers.length > 0;
 
   return (
-    <div className="p-6">
-      <div className="mb-4 flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Container Jobs</h3>
-        <Button className="bg-primary hover:bg-blue-700">
-          <span className="mr-2">+</span>Add Container
-        </Button>
-      </div>
+    <div className="space-y-4">
+      {/* Bulk Actions Bar */}
+      {hasSelectedContainers && (
+        <div className="flex items-center gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <span className="text-sm font-medium text-blue-900">
+            {selectedContainers.length} container(s) selected
+          </span>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowBulkNoteModal(true)}
+              className="h-8"
+            >
+              <FileText className="w-4 h-4 mr-1" />
+              Add Note to Selected
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleBulkHazardous(true)}
+              className="h-8 text-red-600 border-red-200 hover:bg-red-50"
+            >
+              <AlertTriangle className="w-4 h-4 mr-1" />
+              Mark as Hazardous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleBulkHazardous(false)}
+              className="h-8"
+            >
+              Unmark DG
+            </Button>
+          </div>
+        </div>
+      )}
 
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-gray-50 border-b">
-              <TableHead className="w-8 px-4 py-3">
+      {/* Container Table */}
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="w-12">
+              <Checkbox
+                checked={allSelected}
+                onCheckedChange={handleSelectAll}
+              />
+            </TableHead>
+            <TableHead className="w-12">DG</TableHead>
+            <TableHead>Container #</TableHead>
+            <TableHead>Size/Type</TableHead>
+            <TableHead>Route</TableHead>
+            <TableHead>Date/Time</TableHead>
+            <TableHead>Carrier Status</TableHead>
+            <TableHead>Medlog Status</TableHead>
+            <TableHead>Note</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {containers.map((container) => (
+            <TableRow key={container.id}>
+              <TableCell>
                 <Checkbox
-                  checked={selectedRows.size === data.length && data.length > 0}
-                  onCheckedChange={toggleAllSelection}
+                  checked={selectedContainers.includes(container.id)}
+                  onCheckedChange={(checked) => handleSelectContainer(container.id, checked as boolean)}
                 />
-              </TableHead>
-              <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Job #</TableHead>
-              <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Container #</TableHead>
-              <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Size/Type</TableHead>
-              <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Date/Time</TableHead>
-              <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Route</TableHead>
-              <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Status</TableHead>
-              <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">(Un)Load Address</TableHead>
-              <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Seal</TableHead>
-              <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Actions</TableHead>
+              </TableCell>
+              <TableCell>
+                {container.dangerousCargo && <DangerousGoodsFlag />}
+              </TableCell>
+              <TableCell className="font-mono text-sm">
+                {container.containerNumber}
+              </TableCell>
+              <TableCell>
+                {container.size}/{container.containerType}
+              </TableCell>
+              <TableCell>
+                <span className="font-mono text-sm">
+                  {formatRouteSteps(container.routeStep)}
+                </span>
+              </TableCell>
+              <TableCell>
+                {container.dateTime ? new Date(container.dateTime).toLocaleString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }) : '-'}
+              </TableCell>
+              <TableCell>
+                <CarrierStatusBadge status={container.carrierStatus as any} />
+              </TableCell>
+              <TableCell>
+                <MedlogStatusBadge status={container.medlogStatus as any} />
+              </TableCell>
+              <TableCell>
+                <Input
+                  value={isMedlog ? (container.medlogNote || '') : (container.carrierNote || '')}
+                  onChange={(e) => onNoteChange(container.id, isMedlog ? 'medlog' : 'carrier', e.target.value)}
+                  placeholder="Add note..."
+                  className="h-8 text-sm"
+                />
+              </TableCell>
             </TableRow>
-          </TableHeader>
-          <TableBody>
-            {data.map((container) => {
-              // Check if this container is newly added (when BL has "containers" in changedFields)
-              const isNewContainer = container.isNewContainer;
-              const rowClassName = isNewContainer 
-                ? "hover:bg-yellow-100 bg-yellow-50 border-l-4 border-l-yellow-400" 
-                : "hover:bg-gray-50";
-              
-              return (
-                <React.Fragment key={container.id}>
-                  <TableRow className={`${rowClassName} border-b-0`}>
-                <TableCell className="px-4 py-3">
-                  <Checkbox
-                    checked={selectedRows.has(container.id)}
-                    onCheckedChange={() => toggleRowSelection(container.id)}
-                  />
-                </TableCell>
-                <TableCell className="px-4 py-3 font-medium">{container.jobNumber}</TableCell>
-                <TableCell className="px-4 py-3">
-                  <ContainerFieldWrapper fieldName="containerNumber" container={container}>
-                    <ContainerFieldLabel fieldName="containerNumber" container={container}>
-                      <span className="font-mono text-sm">{container.containerNumber}</span>
-                    </ContainerFieldLabel>
-                  </ContainerFieldWrapper>
-                </TableCell>
-                <TableCell className="px-4 py-3">
-                  <ContainerFieldWrapper fieldName="sizeType" container={container}>
-                    <ContainerFieldLabel fieldName="sizeType" container={container}>
-                      <span className="text-sm">{container.size}/{container.containerType}</span>
-                    </ContainerFieldLabel>
-                  </ContainerFieldWrapper>
-                </TableCell>
-                <TableCell className="px-4 py-3">
-                  <ContainerFieldWrapper fieldName="dateTime" container={container}>
-                    <ContainerFieldLabel fieldName="dateTime" container={container}>
-                      <span className="text-sm">
-                        {container.dateTime ? new Date(container.dateTime).toLocaleString('en-US', {
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        }) : 'N/A'}
-                      </span>
-                    </ContainerFieldLabel>
-                  </ContainerFieldWrapper>
-                </TableCell>
-                <TableCell className="px-4 py-3">
-                  <RouteVisualizer currentStep={container.routeStep as RouteStep} />
-                </TableCell>
-                <TableCell className="px-4 py-3">
-                  <ContainerFieldWrapper fieldName="status" container={container}>
-                    <ContainerFieldLabel fieldName="status" container={container}>
-                      <StatusBadge status={container.status as BLStatus} />
-                    </ContainerFieldLabel>
-                  </ContainerFieldWrapper>
-                </TableCell>
-                <TableCell className="px-4 py-3">
-                  <ContainerFieldWrapper fieldName="unloadAddress" container={container}>
-                    <ContainerFieldLabel fieldName="unloadAddress" container={container}>
-                      <span className="text-sm">{container.unloadAddress || 'N/A'}</span>
-                    </ContainerFieldLabel>
-                  </ContainerFieldWrapper>
-                </TableCell>
-                <TableCell className="px-4 py-3">
-                  <ContainerFieldWrapper fieldName="sealNumber" container={container}>
-                    <ContainerFieldLabel fieldName="sealNumber" container={container}>
-                      <span className="font-mono text-sm">{container.sealNumber || "N/A"}</span>
-                    </ContainerFieldLabel>
-                  </ContainerFieldWrapper>
-                </TableCell>
-                <TableCell className="px-4 py-3">
-                  <div className="flex space-x-2">
-                    <Button variant="ghost" size="sm" className="text-blue-600 hover:text-blue-800 p-1" title="Track">
-                      <MapPin className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="text-green-600 hover:text-green-800 p-1" title="Update Status">
-                      <CheckCircle className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-800 p-1" title="More Actions">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-              {/* Container Notes Row */}
-              <TableRow key={`${container.id}-notes`} className="border-b">
-                <TableCell colSpan={9} className="px-0 py-0 pt-0 pb-1">
-                  <ContainerNotes
-                    carrierNote={container.carrierNote || ""}
-                    medlogNote={container.medlogNote || ""}
-                    onCarrierNoteChange={(note) => handleUpdateContainerNote(container.id, 'carrier', note)}
-                    onMedlogNoteChange={(note) => handleUpdateContainerNote(container.id, 'medlog', note)}
-                    userGroup={currentUserGroup}
-                  />
-                </TableCell>
-              </TableRow>
-                </React.Fragment>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </div>
+          ))}
+        </TableBody>
+      </Table>
 
-      <div className="mt-6 flex justify-end space-x-3">
-        <Button variant="outline">
-          Edit Selected Jobs
-        </Button>
-        <Button className="bg-primary hover:bg-blue-700">
-          Update Status
-        </Button>
-      </div>
+      {/* Bulk Note Modal */}
+      <BulkNoteModal
+        isOpen={showBulkNoteModal}
+        onClose={() => setShowBulkNoteModal(false)}
+        onSave={handleBulkNote}
+        selectedCount={selectedContainers.length}
+      />
     </div>
   );
-}
+};
+
+export default ContainerTable;

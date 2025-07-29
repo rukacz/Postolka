@@ -147,6 +147,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.patch("/api/containers/bulk/hazardous", async (req, res) => {
+    try {
+      const { containerIds, hazardous } = req.body;
+      
+      if (!Array.isArray(containerIds)) {
+        return res.status(400).json({ error: "containerIds must be an array" });
+      }
+
+      const updatedContainers = [];
+      for (const id of containerIds) {
+        const container = await storage.getContainer(id);
+        if (container) {
+          const updated = await storage.updateContainerHazardous(id, hazardous);
+          updatedContainers.push(updated);
+        }
+      }
+
+      res.json(updatedContainers);
+    } catch (error) {
+      console.error("Error updating container hazardous status:", error);
+      res.status(500).json({ error: "Failed to update container hazardous status" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
