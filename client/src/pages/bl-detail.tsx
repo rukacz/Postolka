@@ -194,10 +194,17 @@ export default function BLDetailPage() {
           </div>
           
           <div className="flex space-x-2">
-            <Button variant="outline" size="sm">
-              <Printer className="h-4 w-4 mr-2" />
-              Print
-            </Button>
+            {blSummary?.hasChanges && (
+              <Button 
+                onClick={handleAcknowledgeChanges}
+                disabled={acknowledgeChangesMutation.isPending}
+                size="sm"
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Acknowledge Changes
+              </Button>
+            )}
             <Button variant="outline" size="sm">
               <Scissors className="h-4 w-4 mr-2" />
               Export
@@ -210,17 +217,6 @@ export default function BLDetailPage() {
               <Edit className="h-4 w-4 mr-2" />
               Edit
             </Button>
-            {blSummary?.hasChanges && (
-              <Button 
-                onClick={handleAcknowledgeChanges}
-                disabled={acknowledgeChangesMutation.isPending}
-                size="sm"
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Acknowledge Changes
-              </Button>
-            )}
           </div>
         </div>
 
@@ -322,6 +318,7 @@ export default function BLDetailPage() {
               blDetail={blDetail}
               onNoteChange={handleNoteChange}
               onHazardousChange={handleHazardousChange}
+              changedFields={blSummary?.changedFields || []}
             />
           </div>
         )}

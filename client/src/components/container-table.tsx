@@ -23,6 +23,7 @@ interface ContainerTableProps {
   blDetail?: { jobType: 'Import' | 'Export'; toLocation?: string } | null;
   onNoteChange: (containerId: number, group: 'carrier' | 'medlog', note: string) => void;
   onHazardousChange: (containerIds: number[], hazardous: boolean) => void;
+  changedFields?: string[];
 }
 
 const sizeTypeOptions = [
@@ -43,7 +44,7 @@ const validateContainerNumber = (containerNumber: string): boolean => {
   return regex.test(containerNumber);
 };
 
-const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazardousChange }: ContainerTableProps) => {
+const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazardousChange, changedFields = [] }: ContainerTableProps) => {
   const [selectedContainers, setSelectedContainers] = useState<number[]>([]);
   const [showBulkNoteModal, setShowBulkNoteModal] = useState(false);
   const [lastAction, setLastAction] = useState<{ type: string; data: any } | null>(null);
@@ -71,6 +72,28 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
 
   const isCarrier = userGroup === "carrier";
   const isMedlog = userGroup === "medlog";
+
+  // Helper function to check if a field has changes
+  const isFieldChanged = (fieldName: string): boolean => {
+    return changedFields.includes(fieldName);
+  };
+
+  // Helper component for changed field styling in containers
+  const FieldWrapper = ({ fieldName, children, className = "" }: { 
+    fieldName: string; 
+    children: React.ReactNode; 
+    className?: string;
+  }) => {
+    const isChanged = isFieldChanged(fieldName);
+    return (
+      <div className={`relative ${className} ${isChanged ? 'bg-yellow-100 border border-yellow-300 rounded px-1' : ''}`}>
+        {children}
+        {isChanged && (
+          <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+        )}
+      </div>
+    );
+  };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -409,10 +432,14 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 {container.sizeType}
               </TableCell>
               <TableCell className="font-mono text-sm">
-                {container.trainName || '-'}
+                <FieldWrapper fieldName="trainName">
+                  {container.trainName || '-'}
+                </FieldWrapper>
               </TableCell>
               <TableCell className="text-sm">
-                {container.trainEtd || '-'}
+                <FieldWrapper fieldName="trainDate">
+                  {container.trainEtd || '-'}
+                </FieldWrapper>
               </TableCell>
               <TableCell>
                 {container.dateTime ? new Date(container.dateTime).toLocaleString('en-US', {
@@ -423,7 +450,9 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 }) : '-'}
               </TableCell>
               <TableCell>
-                {container.destination || '-'}
+                <FieldWrapper fieldName="destination">
+                  {container.destination || '-'}
+                </FieldWrapper>
               </TableCell>
               {blDetail?.jobType === 'Import' && (
                 <TableCell>
