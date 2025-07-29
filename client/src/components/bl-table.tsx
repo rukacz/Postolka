@@ -19,33 +19,23 @@ interface BLTableProps {
   currentUserGroup?: UserGroup;
 }
 
-// Component to properly calculate and display change indicators including container changes
+// Component to display change indicators using database counts
 const BLChangeIndicator = ({ bl, currentUserGroup, onClick }: { 
   bl: BLSummary; 
   currentUserGroup: UserGroup; 
   onClick: () => void 
 }) => {
-  const { data: containers = [] } = useQuery<Container[]>({
-    queryKey: ['/api/containers', bl.blNumber],
-    enabled: !!bl.blNumber,
-  });
+  // Use the pre-calculated counts from database based on user group
+  const totalUnseenChanges = currentUserGroup === 'carrier' 
+    ? (bl.unseenChangesCarrier || 0) + (bl.unreadChatCount || 0)
+    : (bl.unseenChangesMedlog || 0) + (bl.unreadChatCount || 0);
 
-  // Calculate total changes: booking field changes + container changes
-  const bookingChangesCount = bl.changedFields?.length || 0;
-  const containerChangesCount = containers.reduce((total, container) => {
-    return total + (container.changedFields?.length || 0);
-  }, 0);
-  const totalUnseenChanges = bookingChangesCount + containerChangesCount;
-
-  // Red dot (time) should only show for container-level time changes (ETA, delivery times)
-  // Orange dot (other) for all other changes including booking-level date changes
-  const containerHasTimeChanges = containers.some(container => 
-    container.changedFields?.some(field => 
-      field.includes('eta') || field.includes('time') || field.includes('delivery') || field.includes('dateTime')
-    )
+  // Determine change type based on changed fields
+  const hasTimeChanges = bl.changedFields?.some(field => 
+    field.includes('eta') || field.includes('time') || field.includes('delivery') || field.includes('dateTime')
   );
   
-  const changeType = containerHasTimeChanges ? 'time' : 'other';
+  const changeType = hasTimeChanges ? 'time' : 'other';
 
   return (
     <ChangeIndicatorDot 
