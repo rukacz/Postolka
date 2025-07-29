@@ -7,7 +7,9 @@ import ChangeIndicatorDot from "@/components/change-indicator-dot";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Printer, Scissors, Edit, CheckCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Printer, Scissors, Edit, CheckCircle, MessageCircle } from "lucide-react";
 import { BLDetail, Container, BLSummary } from "@shared/schema";
 import { BLStatus, UserGroup, CarrierStatus, MedlogStatus } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -16,12 +18,15 @@ import { queryClient } from "@/lib/queryClient";
 import CarrierStatusBadge from "@/components/carrier-status-badge";
 import MedlogStatusBadge from "@/components/medlog-status-badge";
 import TrainStatusIcon from "@/components/train-status-icon";
+import { useState } from "react";
 
 export default function BLDetailPage() {
   const [, params] = useRoute("/bl/:blNumber");
   const [, setLocation] = useLocation();
   const blNumber = params?.blNumber;
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("containers");
+  const [newChatMessage, setNewChatMessage] = useState("");
   
   // Simulated current user group - in real app this would come from auth context
   const currentUserGroup: UserGroup = 'medlog';
@@ -129,183 +134,201 @@ export default function BLDetailPage() {
     <div className="min-h-screen bg-gray-50">
       <NavigationHeader />
       
-      <div className="p-4">
-        {/* Back Navigation */}
-        <div className="mb-3">
-          <Button
-            variant="link"
-            onClick={() => setLocation('/')}
-            className="text-primary hover:text-blue-700 p-0 h-auto"
-          >
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            Back to BL List
-          </Button>
+      <div className="p-6">
+        {/* Header with Back Button and Actions */}
+        <div className="mb-6 flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Button 
+              variant="outline" 
+              onClick={() => setLocation('/dashboard')}
+              className="flex items-center space-x-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back to Overview</span>
+            </Button>
+{/* Change indicator removed for now - will be shown in InfoBar instead */}
+            <h1 className="text-2xl font-bold text-gray-900">
+              Booking Details – {blDetail.blNumber} – {blDetail.customerName}
+            </h1>
+          </div>
+          
+          <div className="flex space-x-2">
+            <Button variant="outline" size="sm">
+              <Printer className="h-4 w-4 mr-2" />
+              Print
+            </Button>
+            <Button variant="outline" size="sm">
+              <Scissors className="h-4 w-4 mr-2" />
+              Export
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setLocation(`/new-order?edit=${blDetail.blNumber}`)}
+            >
+              <Edit className="h-4 w-4 mr-2" />
+              Edit
+            </Button>
+            {blSummary?.hasChanges && (
+              <Button 
+                onClick={handleAcknowledgeChanges}
+                disabled={acknowledgeChangesMutation.isPending}
+                size="sm"
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                <CheckCircle className="h-4 w-4 mr-2" />
+                Acknowledge Changes
+              </Button>
+            )}
+          </div>
         </div>
 
-        {/* BL Header */}
-        <Card className="mb-4">
-          <CardContent className="p-4">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-3">
-                <h1 className="text-xl font-bold text-gray-900">
-                  {blDetail.direction === 'Import' ? 'BL Details' : 'Booking Details'} - {blDetail.blNumber} - {blDetail.customerName}
-                </h1>
-                {blSummary && (() => {
-                  // Calculate total changes: booking field changes + container changes
-                  const bookingChangesCount = blSummary.changedFields?.length || 0;
-                  
-                  // Count container-level changes
-                  const containerChangesCount = containers.reduce((total, container) => {
-                    return total + (container.changedFields?.length || 0);
-                  }, 0);
-                  
-                  const totalUnseenChanges = bookingChangesCount + containerChangesCount;
-                  
-                  // Red dot (time) should only show for container-level time changes (ETA, delivery times)
-                  // Orange dot (other) for all other changes including booking-level date changes
-                  const containerHasTimeChanges = containers.some(container => 
-                    container.changedFields?.some(field => 
-                      field.includes('eta') || field.includes('time') || field.includes('delivery') || field.includes('dateTime')
-                    )
-                  );
-                  
-                  const changeType = containerHasTimeChanges ? 'time' : 'other';
-                  
-                  return totalUnseenChanges > 0 ? (
-                    <div className="flex items-center space-x-2 ml-3">
-                      <ChangeIndicatorDot 
-                        count={totalUnseenChanges} 
-                        type={changeType}
-                      />
-                      <span className="text-sm text-gray-600">
-                        unseen change{totalUnseenChanges > 1 ? 's' : ''}
-                      </span>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={handleAcknowledgeChanges}
-                        disabled={acknowledgeChangesMutation.isPending}
-                        className="border-green-300 text-green-700 hover:bg-green-50"
-                      >
-                        <CheckCircle className="w-4 h-4 mr-1" />
-                        {acknowledgeChangesMutation.isPending ? "Acknowledging..." : "Acknowledge Changes"}
-                      </Button>
+        {/* InfoBar */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-6">
+              <span className="font-semibold">{blSummary?.carrier || 'MSC'}</span>
+              <span className="text-gray-700">
+                {blSummary?.type === 'Import' ? 
+                  (blSummary?.podPol || 'N/A') : 
+                  (blSummary?.podPol || 'N/A')
+                }
+              </span>
+              <span className="text-gray-700">{blSummary?.vesselVoyage || 'N/A'}</span>
+              <span className="text-gray-700">{blSummary?.etaClosing || 'N/A'}</span>
+              <span className="text-gray-700">{blSummary?.pic || 'Not assigned'}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <MessageCircle className="h-4 w-4 text-gray-600" />
+              <span className="text-xs text-gray-600">
+                {blSummary?.lastChatMessage ? 
+                  `${blSummary.lastChatAuthor}: ${blSummary.lastChatMessage.substring(0, 30)}${blSummary.lastChatMessage.length > 30 ? '...' : ''}` : 
+                  'No messages'
+                }
+              </span>
+              {blSummary?.unreadChatCount && blSummary.unreadChatCount > 0 && (
+                <Badge variant="destructive" className="bg-red-500 text-white rounded-full px-2 py-1 text-xs">
+                  {blSummary.unreadChatCount}
+                </Badge>
+              )}
+            </div>
+          </div>
+        </div>
+
+
+
+        {/* Tabs Section */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="containers">Containers</TabsTrigger>
+            <TabsTrigger value="chat" className="flex items-center gap-2">
+              <MessageCircle className="h-4 w-4" />
+              Chat
+              {blSummary?.unreadChatCount && blSummary.unreadChatCount > 0 && (
+                <Badge variant="destructive" className="bg-red-500 text-white ml-1 px-1.5 py-0.5 text-xs">
+                  {blSummary.unreadChatCount}
+                </Badge>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="log">Log</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="containers" className="mt-4">
+            <ContainerList 
+              data={containers} 
+              isLoading={isLoadingContainers}
+              currentUserGroup={currentUserGroup}
+            />
+          </TabsContent>
+
+          <TabsContent value="chat" className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageCircle className="h-5 w-5" />
+                  Chat Messages
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4 mb-4 max-h-96 overflow-y-auto">
+                  {/* Mock chat messages - in real app these would come from API */}
+                  <div className="flex flex-col space-y-2">
+                    <div className="bg-blue-50 p-3 rounded-lg">
+                      <div className="flex justify-between items-start mb-1">
+                        <span className="font-semibold text-sm">Martin Novák</span>
+                        <span className="text-xs text-gray-500">2 hours ago</span>
+                      </div>
+                      <p className="text-sm">Container MEDU123456 has been loaded and is ready for transport.</p>
                     </div>
-                  ) : null;
-                })()}
-              </div>
-              <div className="flex items-center space-x-2">
-                <Button variant="outline" size="sm">
-                  <Scissors className="w-4 h-4 mr-1" />
-                  Split Booking
-                </Button>
-                <Button className="bg-primary hover:bg-blue-700" size="sm">
-                  <Edit className="w-4 h-4 mr-1" />
-                  Edit
-                </Button>
-              </div>
-            </div>
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <div className="flex justify-between items-start mb-1">
+                        <span className="font-semibold text-sm">Petr Svoboda</span>
+                        <span className="text-xs text-gray-500">1 hour ago</span>
+                      </div>
+                      <p className="text-sm">Potvrzeno. ETA updated to 14:30.</p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Type your message..."
+                    value={newChatMessage}
+                    onChange={(e) => setNewChatMessage(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        // Handle send message
+                        setNewChatMessage("");
+                      }
+                    }}
+                  />
+                  <Button onClick={() => setNewChatMessage("")}>
+                    Send
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-
-          </CardContent>
-        </Card>
-
-
-
-        {/* Main Content Grid - Compact */}
-        <div className="grid grid-cols-3 gap-3 mb-4">
-          {/* Delivery Information */}
-          <Card className="h-fit">
-            <CardHeader className="pb-1">
-              <CardTitle className="text-sm font-medium">Delivery Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-1 pt-0">
-              <FieldWrapper fieldName="fromLocation" className="p-1 rounded">
-                <FieldLabel fieldName="fromLocation">From</FieldLabel>
-                <p className="text-sm">{blDetail.fromLocation}</p>
-                <p className="text-xs text-gray-600">{blDetail.fromZone}</p>
-              </FieldWrapper>
-              <FieldWrapper fieldName="destination" className="p-1 rounded">
-                <FieldLabel fieldName="destination">To</FieldLabel>
-                <p className="text-sm">{blDetail.toLocation}</p>
-                <p className="text-xs text-gray-600">{blDetail.toZone}</p>
-              </FieldWrapper>
-            </CardContent>
-          </Card>
-
-          {/* Vessel & Shipping Info */}
-          <Card className="h-fit">
-            <CardHeader className="pb-1">
-              <CardTitle className="text-sm font-medium">Vessel & Shipping</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-1 pt-0">
-              <FieldWrapper fieldName="vesselName" className="p-1 rounded">
-                <FieldLabel fieldName="vesselName">Vessel</FieldLabel>
-                <p className="text-sm">{blDetail.vesselName}</p>
-              </FieldWrapper>
-              <FieldWrapper fieldName="shippingLine" className="p-1 rounded">
-                <FieldLabel fieldName="shippingLine">Shipping Line</FieldLabel>
-                <p className="text-sm">{blDetail.shippingLine}</p>
-              </FieldWrapper>
-              <FieldWrapper fieldName="eta" className="p-1 rounded">
-                <FieldLabel fieldName="eta">ETA</FieldLabel>
-                <p className="text-sm">{blDetail.eta}</p>
-              </FieldWrapper>
-            </CardContent>
-          </Card>
-
-          {/* Customer & Contact Info */}
-          <Card className="h-fit">
-            <CardHeader className="pb-1">
-              <CardTitle className="text-sm font-medium">Customer & Contact</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-1 pt-0">
-              <FieldWrapper fieldName="customerName" className="p-1 rounded">
-                <FieldLabel fieldName="customerName">Customer</FieldLabel>
-                <p className="text-sm">{blDetail.customerName}</p>
-              </FieldWrapper>
-              <FieldWrapper fieldName="contactName" className="p-1 rounded">
-                <FieldLabel fieldName="contactName">Contact</FieldLabel>
-                <p className="text-sm">{blDetail.contactName}</p>
-                <p className="text-xs text-gray-600">{blDetail.contactPhone}</p>
-              </FieldWrapper>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Container Management Section */}
-        <Card>
-          {/* Tab Navigation */}
-          <Tabs defaultValue="jobs" className="w-full">
-            <div className="border-b px-4 pt-3">
-              <TabsList className="grid w-fit grid-cols-3">
-                <TabsTrigger value="jobs">Jobs</TabsTrigger>
-                <TabsTrigger value="notes">Notes</TabsTrigger>
-                <TabsTrigger value="log">Log</TabsTrigger>
-              </TabsList>
-            </div>
-
-            <TabsContent value="jobs" className="mt-0">
-              <ContainerList 
-                data={containers} 
-                isLoading={isLoadingContainers}
-                currentUserGroup={currentUserGroup}
-              />
-            </TabsContent>
-
-            <TabsContent value="notes" className="p-6">
-              <div className="text-center text-gray-500">
-                Notes functionality will be implemented here
-              </div>
-            </TabsContent>
-
-            <TabsContent value="log" className="p-6">
-              <div className="text-center text-gray-500">
-                Log functionality will be implemented here
-              </div>
-            </TabsContent>
-          </Tabs>
-        </Card>
+          <TabsContent value="log" className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Activity Log</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="border-l-4 border-blue-500 pl-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-semibold text-sm">Booking Created</p>
+                        <p className="text-sm text-gray-600">Initial booking created by Martin Novák</p>
+                      </div>
+                      <span className="text-xs text-gray-500">3 days ago</span>
+                    </div>
+                  </div>
+                  <div className="border-l-4 border-orange-500 pl-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-semibold text-sm">Status Changed</p>
+                        <p className="text-sm text-gray-600">Status updated to "In Transit"</p>
+                      </div>
+                      <span className="text-xs text-gray-500">2 days ago</span>
+                    </div>
+                  </div>
+                  <div className="border-l-4 border-green-500 pl-4">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="font-semibold text-sm">Container Loaded</p>
+                        <p className="text-sm text-gray-600">Container MEDU123456 loaded onto vessel</p>
+                      </div>
+                      <span className="text-xs text-gray-500">1 day ago</span>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

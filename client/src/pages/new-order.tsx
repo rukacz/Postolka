@@ -68,6 +68,7 @@ const newOrderSchema = z.object({
   polPod: z.string().min(1, "POL/POD is required"),
   vessel: z.string().min(1, "Vessel is required"),
   carrier: z.string().default("MSC"),
+  pic: z.string().min(1, "Person in Charge is required"),
   containerCount: z.number().min(1, "At least 1 container required"),
   containers: z.array(containerSchema),
   
@@ -82,6 +83,9 @@ const newOrderSchema = z.object({
   // Export specific
   vgmRequested: z.enum(["Yes", "No"]).default("No"),
   customsDocuments: z.enum(["By email", "At loading place"]).optional(),
+  
+  // Person in Charge
+  pic: z.string().optional(),
 }).refine((data) => {
   if (data.orderType === "Import") {
     return data.blBookingNumber && data.blBookingNumber.length > 0 && data.customsClearance;
@@ -114,6 +118,7 @@ export default function NewOrder() {
       polPod: "",
       vessel: "",
       carrier: "MSC",
+      pic: "",
       containerCount: 1,
       containers: [{ containerNumber: "" }],
       globalLoadingDateTime: "",
@@ -122,6 +127,7 @@ export default function NewOrder() {
       customsClearance: "In Port",
       vgmRequested: "No",
       customsDocuments: "By email",
+      pic: "",
     }
   });
 
@@ -219,7 +225,10 @@ export default function NewOrder() {
         client: data.client,
         consignee: data.client,
         destination: data.destination,
+        pic: data.pic || "Not assigned",
         podPol: data.polPod,
+        etaClosing: "TBD",
+        vesselVoyage: data.vessel || "TBD",
         containerCount: data.containerCount,
         type: data.orderType,
         carrier: data.carrier,
@@ -348,29 +357,67 @@ export default function NewOrder() {
                     />
                   </div>
                   
-                  <div className="md:col-span-6 flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleLoadFromMSC}
-                      disabled={isLoadingFromMSC || isLoadingFromOVA}
-                      className="h-7 px-3 text-xs"
-                    >
-                      {isLoadingFromMSC && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
-                      Load from MSC
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleLoadFromOVA}
-                      disabled={isLoadingFromMSC || isLoadingFromOVA}
-                      className="h-7 px-3 text-xs"
-                    >
-                      {isLoadingFromOVA && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
-                      Use OVA string
-                    </Button>
+                  <div className="md:col-span-3 flex items-end gap-2">
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleLoadFromMSC}
+                        disabled={isLoadingFromMSC || isLoadingFromOVA}
+                        className="h-7 px-3 text-xs"
+                      >
+                        {isLoadingFromMSC && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
+                        Load from MSC
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleLoadFromOVA}
+                        disabled={isLoadingFromMSC || isLoadingFromOVA}
+                        className="h-7 px-3 text-xs"
+                      >
+                        {isLoadingFromOVA && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
+                        Use OVA string
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="md:col-span-3">
+                    <FormField
+                      control={form.control}
+                      name="pic"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-semibold">Person in Charge (PIC)</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="e.g. Jan Novák" 
+                              {...field} 
+                              className="h-9"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  
+                  <div className="md:col-span-3">
+                    <FormField
+                      control={form.control}
+                      name="pic"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm font-semibold">Person in Charge (PIC)</FormLabel>
+                          <FormControl>
+                            <Input {...field} placeholder="Enter PIC name" className="h-9" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </div>
 

@@ -93,21 +93,20 @@ The application is designed for containerized deployment with:
 - Session management ready with `connect-pg-simple`
 
 ### Recent Changes
-- **2025-01-26**: Complete change notification and field-level visualization system
-- **2025-01-26**: Replaced table-based container display with card-based ContainerBlock components
-  - Implemented ContainerBlock component for individual container display with border, rounded corners, and bg-gray-50
-  - Created ContainerList component to manage multiple container blocks with selection functionality
-  - Integrated container notes directly into each container card with minimal spacing
-  - Maintained field-level change visualization with yellow background and left border indicators
-  - Enhanced visual separation with proper border styling for new containers
-- **2025-01-26**: Complete change notification and field-level visualization system
-  - Implemented comprehensive change tracking with color-coded dots (red for time changes, orange for other changes)
-  - Added "Changes" filter to dashboard with options: All, Only with changes, Only acknowledged
-  - Enhanced database schema with change tracking fields for both BL summaries and containers
-  - Added "Acknowledge Changes" button in booking details with proper API endpoint
-  - Implemented field-level change highlighting with yellow background and 📝 emoji indicators
-  - Enhanced ContainerTable with field-level change visualization for all container fields
-  - Created sample data with realistic change scenarios for comprehensive testing
+- **2025-01-29**: Major structural overhaul of booking detail page and New Order form
+  - Added Edit button in booking details that redirects to New Order form for full booking editing
+  - Removed Delivery Information, Vessel & Shipping, and Customer & Contact sections from booking details
+  - Created new InfoBar under booking title with format: Carrier | POL/POD | Vessel/Voyage | ETA | PIC | 💬 Last chat message (with 🔴 unread count)
+  - Added Person in Charge (PIC) field to New Order form, positioned right of Load from MSC buttons
+  - Implemented tabs structure with Containers (renamed from Jobs), Chat 💬 (with unread badges), and Log
+  - Added chat functionality with unread message indicators and preview of last message
+  - Enhanced database schema with vesselVoyage, lastChatMessage, lastChatAuthor, unreadChatCount fields
+  - Updated New Order form with smaller "Load from MSC" and "Use OVA string" buttons, removed headers
+  - Changed "Discharging Date/Time" to "Unloading Date/Time" for Import orders
+  - Added customs clearance options: Melnik, Mosnov, Obrnice, Bratislava
+- **2025-01-26**: Container display reverted to card-based blocks with rounded corners and shadows
+  - Two-row layout: first row for container details, second row dedicated to notes
+  - Maintained debounced saving for smooth note editing experience
 - **2025-01-22**: Major UI restructure and New Order component
   - Removed Priority column, added Carrier Status and Medlog Status columns  
   - Created CarrierStatusBadge, MedlogStatusBadge, and TrainStatusIcon components

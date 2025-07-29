@@ -11,6 +11,7 @@ export const blSummaries = pgTable("bl_summaries", {
   pic: text("pic").notNull(), // Person in Charge
   podPol: text("pod_pol").notNull(), // Port of Discharge/Port of Loading
   etaClosing: text("eta_closing").notNull(), // ETA/Closing date
+  vesselVoyage: text("vessel_voyage"), // Vessel/Voyage info
   containerCount: integer("container_count").notNull(),
   type: text("type").notNull(), // 'Import' | 'Export'
   carrier: text("carrier"),
@@ -24,6 +25,19 @@ export const blSummaries = pgTable("bl_summaries", {
   unseenChangesCarrier: integer("unseen_changes_carrier").default(0),
   unseenChangesMedlog: integer("unseen_changes_medlog").default(0),
   changedFields: text("changed_fields").array().default([]), // Array of field names that were changed
+  // Chat fields
+  lastChatMessage: text("last_chat_message").default(""),
+  lastChatAuthor: text("last_chat_author").default(""),
+  unreadChatCount: integer("unread_chat_count").default(0),
+});
+
+export const chatMessages = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
+  blNumber: text("bl_number").notNull(),
+  author: text("author").notNull(),
+  message: text("message").notNull(),
+  timestamp: timestamp("timestamp").notNull().defaultNow(),
+  isRead: boolean("is_read").default(false),
 });
 
 export const blDetails = pgTable("bl_details", {
@@ -95,12 +109,19 @@ export const insertContainerSchema = createInsertSchema(containers).omit({
   id: true,
 });
 
+export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
+  id: true,
+  timestamp: true,
+});
+
 export type BLSummary = typeof blSummaries.$inferSelect;
 export type InsertBLSummary = z.infer<typeof insertBLSummarySchema>;
 export type BLDetail = typeof blDetails.$inferSelect;
 export type InsertBLDetail = z.infer<typeof insertBLDetailSchema>;
 export type Container = typeof containers.$inferSelect;
 export type InsertContainer = z.infer<typeof insertContainerSchema>;
+export type ChatMessage = typeof chatMessages.$inferSelect;
+export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 
 // Keep existing user schema for consistency
 export const users = pgTable("users", {

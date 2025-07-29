@@ -22,6 +22,7 @@ export async function seedDatabase() {
         destination: "Mladá Boleslav",
         podPol: "HAM CTA",
         etaClosing: "25/01/2025",
+        vesselVoyage: "MSC MAYA/0142E",
         containerCount: 2,
         type: "Import",
         carrier: "MSC",
@@ -34,7 +35,10 @@ export async function seedDatabase() {
         lastChangedAt: new Date('2025-01-22T14:30:00Z'),
         unseenChangesCarrier: 0,
         unseenChangesMedlog: 2,
-        changedFields: ["eta", "carrierStatus"]
+        changedFields: ["eta", "carrierStatus"],
+        lastChatMessage: "Potvrzeno. ETA updated to 14:30.",
+        lastChatAuthor: "Petr Svoboda", 
+        unreadChatCount: 2
       },
       {
         blNumber: "MSCU789012",
@@ -44,6 +48,7 @@ export async function seedDatabase() {
         destination: "Gan",
         podPol: "BRV MSC",
         etaClosing: "26/01/2025",
+        vesselVoyage: "MSC OSCAR/0156E",
         containerCount: 1,
         type: "Import",
         carrier: "MSC",
@@ -56,7 +61,10 @@ export async function seedDatabase() {
         lastChangedAt: null,
         unseenChangesCarrier: 0,
         unseenChangesMedlog: 0,
-        changedFields: []
+        changedFields: [],
+        lastChatMessage: "",
+        lastChatAuthor: "",
+        unreadChatCount: 0
       },
       {
         blNumber: "TCLU345678",
@@ -66,6 +74,7 @@ export async function seedDatabase() {
         destination: "Ružomberok",
         podPol: "Koper",
         etaClosing: "27/01/2025",
+        vesselVoyage: "ONE STORK/0523W",
         containerCount: 3,
         type: "Export",
         carrier: "ONE",
@@ -78,7 +87,10 @@ export async function seedDatabase() {
         lastChangedAt: new Date('2025-01-24T09:15:00Z'),
         unseenChangesCarrier: 3,
         unseenChangesMedlog: 0,
-        changedFields: ["medlogStatus", "destination", "date"]
+        changedFields: ["medlogStatus", "destination", "date"],
+        lastChatMessage: "Status změněn na Rejected",
+        lastChatAuthor: "Tomáš Dvořák",
+        unreadChatCount: 1
       },
       {
         blNumber: "NTBG456789",
@@ -88,6 +100,7 @@ export async function seedDatabase() {
         destination: "Praha",
         podPol: "Rotterdam",
         etaClosing: "22/01/2025", 
+        vesselVoyage: "MSC BENEDETTA/0245E",
         containerCount: 2,
         type: "Import",
         carrier: "MSC",
@@ -100,7 +113,10 @@ export async function seedDatabase() {
         lastChangedAt: new Date('2025-01-21T16:20:00Z'),
         unseenChangesCarrier: 0,
         unseenChangesMedlog: 1,
-        changedFields: ["containers"]
+        changedFields: ["containers"],
+        lastChatMessage: "Kontejnery připraveny k nakládce",
+        lastChatAuthor: "Marie Černá",
+        unreadChatCount: 0
       },
       {
         blNumber: "AUDI567890",
@@ -110,6 +126,7 @@ export async function seedDatabase() {
         destination: "Ingolstadt",
         podPol: "Antwerpen",
         etaClosing: "28/01/2025",
+        vesselVoyage: "HAPAG LLOYD BERLIN/0834W",
         containerCount: 1,
         type: "Export", 
         carrier: "Hapag-Lloyd",
@@ -122,7 +139,10 @@ export async function seedDatabase() {
         lastChangedAt: null,
         unseenChangesCarrier: 0,
         unseenChangesMedlog: 0,
-        changedFields: []
+        changedFields: [],
+        lastChatMessage: "",
+        lastChatAuthor: "",
+        unreadChatCount: 0
       }
     ];
 
