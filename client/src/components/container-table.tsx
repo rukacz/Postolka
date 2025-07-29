@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { FileText, AlertTriangle, Undo2, Scale, ChevronRight } from "lucide-react";
+import { FileText, AlertTriangle, Undo2, Scale, ChevronRight, Flame } from "lucide-react";
 import DangerousGoodsFlag from "@/components/dangerous-goods-flag";
 import CarrierStatusBadge from "@/components/carrier-status-badge";
 import MedlogStatusBadge from "@/components/medlog-status-badge";
@@ -201,7 +201,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
             <TableHead className="w-24">Destination</TableHead>
             {blDetail?.jobType === 'Import' && <TableHead className="w-32">Customs Clearance</TableHead>}
             {blDetail?.jobType === 'Export' && <TableHead className="w-20">Weight</TableHead>}
-            <TableHead className="w-28">Carrier Status</TableHead>
+            <TableHead className="w-36">Carrier Status</TableHead>
             <TableHead className="w-28">Medlog Status</TableHead>
             <TableHead className="w-48">Note</TableHead>
           </TableRow>
@@ -350,7 +350,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 <Select onValueChange={(value) => {
                   selectedContainers.forEach(id => handleFieldUpdate(id, 'carrierStatus', value));
                 }}>
-                  <SelectTrigger className="h-7 text-xs">
+                  <SelectTrigger className="h-7 text-xs w-full">
                     <SelectValue placeholder="Carrier Status" />
                   </SelectTrigger>
                   <SelectContent>
@@ -392,7 +392,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
           )}
         </TableHeader>
         <TableBody>
-          {containers.map((container) => (
+          {containers.slice().sort((a, b) => a.id - b.id).map((container) => (
             <TableRow key={container.id}>
               <TableCell>
                 <Checkbox
@@ -401,7 +401,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 />
               </TableCell>
               <TableCell>
-                {container.dangerousCargo && <DangerousGoodsFlag />}
+                {container.dangerousCargo && <Flame className="w-4 h-4 text-red-500" />}
               </TableCell>
               <TableCell className="font-mono text-sm">
                 {container.containerNumber}
@@ -447,7 +447,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 <div className="space-y-1">
                   <div className="text-xs flex items-center justify-between">
                     <span className="truncate">Carrier: {container.carrierNote || '-'}</span>
-                    {(container.carrierNote && container.carrierNote.length > 20) || (container.medlogNote && container.medlogNote.length > 20) ? (
+                    {container.carrierNote && container.carrierNote.length > 20 ? (
                       <Button
                         variant="outline"
                         size="sm"
@@ -458,7 +458,19 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                       </Button>
                     ) : null}
                   </div>
-                  <div className="text-xs truncate">Medlog: {container.medlogNote || '-'}</div>
+                  <div className="text-xs flex items-center justify-between">
+                    <span className="truncate">Medlog: {container.medlogNote || '-'}</span>
+                    {container.medlogNote && container.medlogNote.length > 20 ? (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowBulkNoteModal(true)}
+                        className="h-5 w-5 p-0 ml-1 bg-blue-100 border-blue-300 text-blue-600 hover:bg-blue-200"
+                      >
+                        <ChevronRight className="h-3 w-3" />
+                      </Button>
+                    ) : null}
+                  </div>
                 </div>
               </TableCell>
             </TableRow>
@@ -472,6 +484,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
         onClose={() => setShowBulkNoteModal(false)}
         onSave={handleBulkNote}
         selectedCount={selectedContainers.length}
+        userGroup={userGroup}
       />
     </div>
   );

@@ -10,28 +10,22 @@ interface BulkNoteModalProps {
   onClose: () => void;
   onSave: (noteType: 'carrier' | 'medlog', note: string) => void;
   selectedCount: number;
+  userGroup: 'carrier' | 'medlog';
 }
 
-export default function BulkNoteModal({ isOpen, onClose, onSave, selectedCount }: BulkNoteModalProps) {
-  const [carrierNote, setCarrierNote] = useState("");
-  const [medlogNote, setMedlogNote] = useState("");
+export default function BulkNoteModal({ isOpen, onClose, onSave, selectedCount, userGroup }: BulkNoteModalProps) {
+  const [note, setNote] = useState("");
 
-  const handleSave = (noteType: 'carrier' | 'medlog') => {
-    const note = noteType === 'carrier' ? carrierNote : medlogNote;
+  const handleSave = () => {
     if (note.trim()) {
-      onSave(noteType, note);
-      if (noteType === 'carrier') {
-        setCarrierNote("");
-      } else {
-        setMedlogNote("");
-      }
+      onSave(userGroup, note);
+      setNote("");
       onClose();
     }
   };
 
   const handleClose = () => {
-    setCarrierNote("");
-    setMedlogNote("");
+    setNote("");
     onClose();
   };
 
@@ -39,54 +33,30 @@ export default function BulkNoteModal({ isOpen, onClose, onSave, selectedCount }
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Add Note to {selectedCount} Selected Container(s)</DialogTitle>
+          <DialogTitle>Add {userGroup === 'carrier' ? 'Carrier' : 'Medlog'} Note to {selectedCount} Selected Container(s)</DialogTitle>
         </DialogHeader>
-        <Tabs defaultValue="carrier" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="carrier">Carrier Note</TabsTrigger>
-            <TabsTrigger value="medlog">Medlog Note</TabsTrigger>
-          </TabsList>
-          <TabsContent value="carrier" className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="carrier-note">Carrier Note</Label>
-              <Textarea
-                id="carrier-note"
-                placeholder="Enter note for carrier..."
-                value={carrierNote}
-                onChange={(e) => setCarrierNote(e.target.value)}
-                rows={4}
-              />
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={handleClose}>
-                Cancel
-              </Button>
-              <Button onClick={() => handleSave('carrier')}>
-                Add Carrier Note
-              </Button>
-            </div>
-          </TabsContent>
-          <TabsContent value="medlog" className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="medlog-note">Medlog Note</Label>
-              <Textarea
-                id="medlog-note"
-                placeholder="Enter note for medlog..."
-                value={medlogNote}
-                onChange={(e) => setMedlogNote(e.target.value)}
-                rows={4}
-              />
-            </div>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={handleClose}>
-                Cancel
-              </Button>
-              <Button onClick={() => handleSave('medlog')}>
-                Add Medlog Note
-              </Button>
-            </div>
-          </TabsContent>
-        </Tabs>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="note">
+              {userGroup === 'carrier' ? 'Carrier Note' : 'Medlog Note'}
+            </Label>
+            <Textarea
+              id="note"
+              placeholder={`Enter note for ${userGroup}...`}
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              rows={4}
+            />
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button onClick={handleSave}>
+              Add Note
+            </Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
