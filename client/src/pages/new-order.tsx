@@ -795,7 +795,12 @@ export default function NewOrder() {
                     Save as Draft
                   </Button>
                   <Button
-                    type="submit"
+                    type="button"
+                    onClick={() => {
+                      console.log("Save Changes button clicked");
+                      console.log("Form errors:", form.formState.errors);
+                      form.handleSubmit(onSubmit)();
+                    }}
                     disabled={createOrderMutation.isPending}
                     className="bg-primary hover:bg-blue-700"
                   >
