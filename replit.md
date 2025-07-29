@@ -97,6 +97,12 @@ The application is designed for containerized deployment with:
 - Session management ready with `connect-pg-simple`
 
 ### Recent Changes
+- **2025-01-29**: Route column removal and UI improvements
+  - Removed route column from container table as requested
+  - Updated destination fields to show only city names (Mladá Boleslav, Praha, Koper, etc.)
+  - Made note modal larger with increased width (max-w-lg) and height (80vh)
+  - Increased textarea rows from 4 to 6 for better note writing experience
+  - Fixed DG toggle switch to properly reflect container dangerous cargo state
 - **2025-01-29**: Major structural overhaul of booking detail page and New Order form
   - Added Edit button in booking details that redirects to New Order form for full booking editing
   - Removed Delivery Information, Vessel & Shipping, and Customer & Contact sections from booking details

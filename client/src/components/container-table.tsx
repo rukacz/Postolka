@@ -196,7 +196,6 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
             <TableHead className="w-12">DG</TableHead>
             <TableHead className="w-32">Container #</TableHead>
             <TableHead className="w-24">Size/Type</TableHead>
-            <TableHead className="w-16">Route</TableHead>
             <TableHead className="w-32">Date/Time</TableHead>
             <TableHead className="w-24">Destination</TableHead>
             {blDetail?.jobType === 'Import' && <TableHead className="w-32">Customs Clearance</TableHead>}
@@ -271,19 +270,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 </Select>
               </TableHead>
 
-              {/* Route Column */}
-              <TableHead className="h-auto p-2">
-                <Input
-                  placeholder="Route"
-                  className="h-7 text-xs w-full"
-                  onBlur={(e) => {
-                    if (e.target.value) {
-                      selectedContainers.forEach(id => handleFieldUpdate(id, 'route', e.target.value));
-                      e.target.value = '';
-                    }
-                  }}
-                />
-              </TableHead>
+
 
               {/* Date/Time Column */}
               <TableHead className="h-auto p-2">
@@ -410,11 +397,6 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
               </TableCell>
               <TableCell>
                 {container.size}/{container.containerType}
-              </TableCell>
-              <TableCell className="text-gray-500">
-                <span className="font-mono text-sm">
-                  {formatRouteSteps(container.routeStep)}
-                </span>
               </TableCell>
               <TableCell>
                 {container.dateTime ? new Date(container.dateTime).toLocaleString('en-US', {
