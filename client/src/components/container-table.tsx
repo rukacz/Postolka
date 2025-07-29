@@ -30,11 +30,11 @@ const sizeTypeOptions = [
 ];
 
 const carrierStatusOptions = [
-  "MIPS Send", "Pre-Order", "Confirmed", "In Transit", "At Terminal", "Ready for Pickup", "Delivered", "Cancelled"
+  "Pre-Order", "MIPS Send", "Cancelled", "Do Not Release"
 ];
 
 const medlogStatusOptions = [
-  "New", "In Progress", "Documentation Ready", "Customs Cleared", "Released", "Completed", "On Hold"
+  "New", "Approved", "Rejected", "Changed"
 ];
 
 // Container number validation function
@@ -428,10 +428,10 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                     <span className="truncate">Carrier: {container.carrierNote || '-'}</span>
                     {(container.carrierNote && container.carrierNote.length > 20) || (container.medlogNote && container.medlogNote.length > 20) ? (
                       <Button
-                        variant="ghost"
+                        variant="outline"
                         size="sm"
                         onClick={() => setShowBulkNoteModal(true)}
-                        className="h-4 w-4 p-0 ml-1"
+                        className="h-5 w-5 p-0 ml-1 bg-blue-100 border-blue-300 text-blue-600 hover:bg-blue-200"
                       >
                         <ChevronRight className="h-3 w-3" />
                       </Button>
