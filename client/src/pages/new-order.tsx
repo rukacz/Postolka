@@ -302,15 +302,21 @@ export default function NewOrder() {
     onSuccess: () => {
       toast({
         title: "Success",
-        description: "New order created successfully.",
+        description: isEditMode ? "Order updated successfully!" : "New order created successfully.",
       });
       queryClient.invalidateQueries({ queryKey: ['/api/bl-summaries'] });
-      setLocation('/dashboard');
+      
+      // Redirect based on mode
+      if (isEditMode && editBlNumber) {
+        setLocation(`/bl/${editBlNumber}`);
+      } else {
+        setLocation('/dashboard');
+      }
     },
     onError: (error: any) => {
       toast({
         title: "Error",
-        description: "Failed to create order. Please try again.",
+        description: isEditMode ? "Failed to update order. Please try again." : "Failed to create order. Please try again.",
         variant: "destructive",
       });
     }
