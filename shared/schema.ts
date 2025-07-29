@@ -29,6 +29,7 @@ export const blSummaries = pgTable("bl_summaries", {
   lastChatMessage: text("last_chat_message").default(""),
   lastChatAuthor: text("last_chat_author").default(""),
   unreadChatCount: integer("unread_chat_count").default(0),
+  dangerousCargo: boolean("dangerous_cargo").default(false),
 });
 
 export const chatMessages = pgTable("chat_messages", {

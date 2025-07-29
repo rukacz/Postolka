@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -68,6 +69,7 @@ const newOrderSchema = z.object({
   carrier: z.string().default("MSC"),
   pic: z.string().min(1, "Person in Charge is required"),
   eta: z.string().optional(),
+  dangerousCargo: z.boolean().default(false),
   containerCount: z.number().min(1, "At least 1 container required"),
   containers: z.array(containerSchema),
   
@@ -139,6 +141,7 @@ export default function NewOrder() {
       carrier: "MSC",
       pic: "",
       eta: "",
+      dangerousCargo: false,
       containerCount: 1,
       containers: [{ containerNumber: "" }],
       globalLoadingDateTime: "",
@@ -169,6 +172,7 @@ export default function NewOrder() {
         carrier: existingBLSummary.carrier || "MSC",
         pic: existingBLSummary.pic,
         eta: existingBLSummary.etaClosing || "",
+        dangerousCargo: existingBLSummary.dangerousCargo || false,
         containerCount: existingBLSummary.containerCount,
         containers: existingContainers?.map(c => ({
           containerNumber: c.containerNumber,
@@ -279,6 +283,7 @@ export default function NewOrder() {
         podPol: data.polPod,
         etaClosing: data.eta || "TBD",
         vesselVoyage: data.vessel || "TBD",
+        dangerousCargo: data.dangerousCargo || false,
         containerCount: data.containerCount,
         type: data.orderType,
         carrier: data.carrier,
@@ -474,30 +479,54 @@ export default function NewOrder() {
 
                 {/* Basic Information Row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-                  <FormField
-                    control={form.control}
-                    name="client"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm">Client *</FormLabel>
-                        <FormControl>
-                          <Select onValueChange={field.onChange} value={field.value}>
-                            <SelectTrigger className="h-9">
-                              <SelectValue placeholder="Select client" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="ŠKODA AUTO">ŠKODA AUTO</SelectItem>
-                              <SelectItem value="TESCO">TESCO</SelectItem>
-                              <SelectItem value="IKEA">IKEA</SelectItem>
-                              <SelectItem value="NTB">NTB</SelectItem>
-                              <SelectItem value="AUDI">AUDI</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="space-y-3">
+                    <FormField
+                      control={form.control}
+                      name="client"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm">Client *</FormLabel>
+                          <FormControl>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger className="h-9">
+                                <SelectValue placeholder="Select client" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="ŠKODA AUTO">ŠKODA AUTO</SelectItem>
+                                <SelectItem value="TESCO">TESCO</SelectItem>
+                                <SelectItem value="IKEA">IKEA</SelectItem>
+                                <SelectItem value="NTB">NTB</SelectItem>
+                                <SelectItem value="AUDI">AUDI</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="dangerousCargo"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between space-y-0">
+                          <FormLabel className="text-sm">Dangerous Cargo</FormLabel>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              className={`${
+                                field.value 
+                                  ? "data-[state=checked]:bg-red-600" 
+                                  : "data-[state=unchecked]:bg-gray-300"
+                              }`}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
                   <FormField
                     control={form.control}
@@ -540,10 +569,7 @@ export default function NewOrder() {
                       </FormItem>
                     )}
                   />
-                </div>
 
-                {/* ETA Row */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                   <FormField
                     control={form.control}
                     name="eta"
@@ -561,10 +587,6 @@ export default function NewOrder() {
                       </FormItem>
                     )}
                   />
-                  
-                  <div className="md:col-span-3">
-                    {/* Empty space for alignment */}
-                  </div>
                 </div>
 
                 {/* Second Row */}
