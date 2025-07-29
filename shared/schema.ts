@@ -73,8 +73,7 @@ export const containers = pgTable("containers", {
   blNumber: text("bl_number").notNull(),
   jobNumber: text("job_number").notNull(),
   containerNumber: text("container_number").notNull(),
-  size: text("size").notNull(),
-  containerType: text("container_type").notNull(),
+  sizeType: text("size_type").notNull(),
   dateTime: text("date_time"), // Changed from weight to dateTime
   status: text("status").notNull(),
   sealNumber: text("seal_number"),

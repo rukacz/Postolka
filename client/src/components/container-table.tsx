@@ -259,7 +259,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
               {/* Size/Type Column */}
               <TableHead className="h-auto p-2">
                 <Select onValueChange={(value) => {
-                  selectedContainers.forEach(id => handleFieldUpdate(id, 'containerType', value));
+                  selectedContainers.forEach(id => handleFieldUpdate(id, 'sizeType', value));
                 }}>
                   <SelectTrigger className="h-7 text-xs">
                     <SelectValue placeholder="Size/Type" />
@@ -406,7 +406,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 {container.containerNumber}
               </TableCell>
               <TableCell>
-                {container.size}/{container.containerType}
+                {container.sizeType}
               </TableCell>
               <TableCell className="font-mono text-sm">
                 {container.trainName || '-'}
