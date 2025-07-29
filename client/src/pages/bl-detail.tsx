@@ -27,6 +27,7 @@ export default function BLDetailPage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("containers");
   const [newChatMessage, setNewChatMessage] = useState("");
+  const [addContainerMode, setAddContainerMode] = useState(false);
   
   // Simulated current user group - in real app this would come from auth context
   const currentUserGroup: UserGroup = 'medlog';
@@ -313,10 +314,7 @@ export default function BLDetailPage() {
                 variant="outline" 
                 size="sm"
                 className="mb-2"
-                onClick={() => {
-                  // Navigate to new order form to add container
-                  setLocation(`/new-order?bl=${blDetail.blNumber}&addContainer=true`);
-                }}
+                onClick={() => setAddContainerMode(true)}
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Container
@@ -331,10 +329,12 @@ export default function BLDetailPage() {
             <ContainerTable 
               containers={containers || []} 
               userGroup={currentUserGroup}
-              blDetail={blDetail}
+              blDetail={{...blDetail, blNumber}}
               onNoteChange={handleNoteChange}
               onHazardousChange={handleHazardousChange}
               changedFields={blSummary?.changedFields || []}
+              addContainerMode={addContainerMode}
+              onAddContainerComplete={() => setAddContainerMode(false)}
             />
           </div>
         )}

@@ -20,10 +20,12 @@ import { apiRequest } from "@/lib/queryClient";
 interface ContainerTableProps {
   containers: Container[];
   userGroup: UserGroup;
-  blDetail?: { jobType: 'Import' | 'Export'; toLocation?: string } | null;
+  blDetail?: { jobType: 'Import' | 'Export'; toLocation?: string; blNumber?: string } | null;
   onNoteChange: (containerId: number, group: 'carrier' | 'medlog', note: string) => void;
   onHazardousChange: (containerIds: number[], hazardous: boolean) => void;
   changedFields?: string[];
+  addContainerMode?: boolean;
+  onAddContainerComplete?: () => void;
 }
 
 const sizeTypeOptions = [
@@ -44,11 +46,18 @@ const validateContainerNumber = (containerNumber: string): boolean => {
   return regex.test(containerNumber);
 };
 
-const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazardousChange, changedFields = [] }: ContainerTableProps) => {
+const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazardousChange, changedFields = [], addContainerMode = false, onAddContainerComplete }: ContainerTableProps) => {
   const [selectedContainers, setSelectedContainers] = useState<number[]>([]);
   const [showBulkNoteModal, setShowBulkNoteModal] = useState(false);
   const [lastAction, setLastAction] = useState<{ type: string; data: any } | null>(null);
   const [editingFields, setEditingFields] = useState<{[key: string]: boolean}>({});
+  const [newContainer, setNewContainer] = useState<{
+    containerNumber: string;
+    sizeType: string;
+    destination: string;
+    dangerousCargo: boolean;
+    isEditing: boolean;
+  } | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -70,8 +79,96 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
     },
   });
 
+  const createContainerMutation = useMutation({
+    mutationFn: async (containerData: any) => {
+      return apiRequest("POST", "/api/containers", containerData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/containers'] });
+      setNewContainer(null);
+      if (onAddContainerComplete) {
+        onAddContainerComplete();
+      }
+      toast({
+        title: "Container added",
+        description: "New container has been created successfully.",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to create container. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const isCarrier = userGroup === "carrier";
   const isMedlog = userGroup === "medlog";
+
+  // Function to handle adding new container
+  const handleAddContainer = () => {
+    setNewContainer({
+      containerNumber: '',
+      sizeType: '40DV',
+      destination: blDetail?.toLocation || '',
+      dangerousCargo: false,
+      isEditing: true
+    });
+  };
+
+  // Trigger add container when addContainerMode changes
+  React.useEffect(() => {
+    if (addContainerMode && !newContainer) {
+      handleAddContainer();
+    }
+  }, [addContainerMode]);
+
+  // Function to save new container
+  const handleSaveNewContainer = () => {
+    if (!newContainer || !newContainer.containerNumber) {
+      toast({
+        title: "Validation Error",
+        description: "Container number is required.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!validateContainerNumber(newContainer.containerNumber)) {
+      toast({
+        title: "Validation Error", 
+        description: "Container number must be in format ABCD1234567.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const containerData = {
+      blNumber: blDetail?.blNumber || containers[0]?.blNumber,
+      jobNumber: '1', // Default job number
+      containerNumber: newContainer.containerNumber,
+      sizeType: newContainer.sizeType,
+      status: 'Active',
+      routeStep: 'W',
+      destination: newContainer.destination,
+      carrierStatus: 'Pre-Order',
+      medlogStatus: 'New',
+      dangerousCargo: newContainer.dangerousCargo,
+      carrierNote: '',
+      medlogNote: ''
+    };
+
+    createContainerMutation.mutate(containerData);
+  };
+
+  // Function to cancel new container
+  const handleCancelNewContainer = () => {
+    setNewContainer(null);
+    if (onAddContainerComplete) {
+      onAddContainerComplete();
+    }
+  };
 
   // Helper function to check if a field has changes
   const isFieldChanged = (fieldName: string): boolean => {
@@ -414,6 +511,92 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
           )}
         </TableHeader>
         <TableBody>
+          {/* New container row for editing */}
+          {newContainer && (
+            <TableRow className="bg-blue-50 border-l-4 border-l-blue-500">
+              <TableCell>
+                <Checkbox 
+                  checked={true}
+                  className="border-blue-500 bg-blue-100"
+                />
+              </TableCell>
+              <TableCell>
+                <Flame className="w-4 h-4 text-red-500" style={{ opacity: newContainer.dangerousCargo ? 1 : 0 }} />
+              </TableCell>
+              <TableCell className="font-mono text-sm">
+                <Input
+                  value={newContainer.containerNumber}
+                  onChange={(e) => setNewContainer({...newContainer, containerNumber: e.target.value.toUpperCase()})}
+                  placeholder="ABCD1234567"
+                  className="w-full"
+                  autoFocus
+                />
+              </TableCell>
+              <TableCell>
+                <Select
+                  value={newContainer.sizeType}
+                  onValueChange={(value) => setNewContainer({...newContainer, sizeType: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {sizeTypeOptions.map(option => (
+                      <SelectItem key={option} value={option}>{option}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </TableCell>
+              <TableCell className="font-mono text-sm">-</TableCell>
+              <TableCell className="text-sm">-</TableCell>
+              <TableCell>-</TableCell>
+              <TableCell>
+                <Input
+                  value={newContainer.destination}
+                  onChange={(e) => setNewContainer({...newContainer, destination: e.target.value})}
+                  placeholder="Destination"
+                  className="w-full"
+                />
+              </TableCell>
+              {blDetail?.jobType === 'Import' && (
+                <TableCell>-</TableCell>
+              )}
+              {blDetail?.jobType === 'Export' && (
+                <TableCell>
+                  <Switch
+                    checked={newContainer.dangerousCargo}
+                    onCheckedChange={(checked) => setNewContainer({...newContainer, dangerousCargo: checked})}
+                  />
+                </TableCell>
+              )}
+              <TableCell>
+                <CarrierStatusBadge status="Pre-Order" />
+              </TableCell>
+              <TableCell>
+                <MedlogStatusBadge status="New" />
+              </TableCell>
+              <TableCell className="w-48">
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleSaveNewContainer}
+                    disabled={createContainerMutation.isPending}
+                    size="sm"
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    Save
+                  </Button>
+                  <Button
+                    onClick={handleCancelNewContainer}
+                    disabled={createContainerMutation.isPending}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          )}
           {containers.slice().sort((a, b) => a.id - b.id).map((container) => (
             <TableRow key={container.id}>
               <TableCell>
