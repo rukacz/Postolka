@@ -50,11 +50,9 @@ const validateContainerNumber = (containerNum: string): boolean => {
   return calculatedCheckDigit === checkDigit;
 };
 
-// Container schema
+// Container schema - relaxed validation for edit mode
 const containerSchema = z.object({
-  containerNumber: z.string()
-    .min(1, "Container number is required")
-    .refine(validateContainerNumber, "Invalid container number (ISO 6346 format required)"),
+  containerNumber: z.string().optional(),
   destination: z.string().optional(),
   loadingDateTime: z.string().optional(),
   dischargingDateTime: z.string().optional(),
@@ -468,21 +466,7 @@ export default function NewOrder() {
                     />
                   </div>
                   
-                  <div className="md:col-span-3">
-                    <FormField
-                      control={form.control}
-                      name="pic"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-semibold">Person in Charge (PIC)</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="Enter PIC name" className="h-9" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+
                 </div>
 
                 {/* Basic Information Row */}
