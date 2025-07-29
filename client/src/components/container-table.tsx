@@ -88,6 +88,10 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
     }
   };
 
+  const handleDeselectAll = () => {
+    setSelectedContainers([]);
+  };
+
   const handleBulkHazardous = (hazardous: boolean) => {
     const previousStates = selectedContainers.map(id => ({
       id,
@@ -225,7 +229,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 <Switch
                   checked={false}
                   onCheckedChange={(checked) => {
-                    handleHazardousChange(selectedContainers, checked);
+                    handleBulkHazardous(checked);
                   }}
                   className="scale-75"
                 />
@@ -252,7 +256,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
               {/* Size/Type Column */}
               <TableHead className="h-auto p-2">
                 <Select onValueChange={(value) => {
-                  selectedContainers.forEach(id => handleFieldUpdate(id, 'sizeType', value));
+                  selectedContainers.forEach(id => handleFieldUpdate(id, 'containerType', value));
                 }}>
                   <SelectTrigger className="h-7 text-xs">
                     <SelectValue placeholder="Size/Type" />
