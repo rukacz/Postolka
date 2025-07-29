@@ -129,34 +129,6 @@ export default function NewOrder() {
     enabled: isEditMode && !!editBlNumber,
   });
   
-  // Load existing data into form when available
-  useEffect(() => {
-    if (isEditMode && existingBLSummary && existingBLDetail) {
-      form.reset({
-        orderType: existingBLSummary.type as "Import" | "Export",
-        client: existingBLSummary.client,
-        destination: existingBLSummary.destination,
-        polPod: existingBLSummary.podPol,
-        vessel: existingBLDetail.vesselName || "",
-        carrier: existingBLSummary.carrier || "MSC",
-        pic: existingBLSummary.pic,
-        containerCount: existingBLSummary.containerCount,
-        containers: existingContainers?.map(c => ({
-          containerNumber: c.containerNumber,
-          destination: c.destination || "",
-          loadingDateTime: "",
-          dischargingDateTime: ""
-        })) || [{ containerNumber: "" }],
-        globalLoadingDateTime: "",
-        globalDischargingDateTime: "",
-        blBookingNumber: existingBLSummary.blNumber,
-        customsClearance: "In Port" as any,
-        vgmRequested: "No" as any,
-        customsDocuments: "By email" as any,
-      });
-    }
-  }, [existingBLSummary, existingBLDetail, existingContainers, form, isEditMode]);
-
   const form = useForm<NewOrderFormData>({
     resolver: zodResolver(newOrderSchema),
     defaultValues: {
@@ -184,6 +156,34 @@ export default function NewOrder() {
   });
 
   const watchedOrderType = form.watch("orderType");
+  
+  // Load existing data into form when available
+  useEffect(() => {
+    if (isEditMode && existingBLSummary && existingBLDetail) {
+      form.reset({
+        orderType: existingBLSummary.type as "Import" | "Export",
+        client: existingBLSummary.client,
+        destination: existingBLSummary.destination,
+        polPod: existingBLSummary.podPol,
+        vessel: existingBLDetail.vesselName || "",
+        carrier: existingBLSummary.carrier || "MSC",
+        pic: existingBLSummary.pic,
+        containerCount: existingBLSummary.containerCount,
+        containers: existingContainers?.map(c => ({
+          containerNumber: c.containerNumber,
+          destination: c.destination || "",
+          loadingDateTime: "",
+          dischargingDateTime: ""
+        })) || [{ containerNumber: "" }],
+        globalLoadingDateTime: "",
+        globalDischargingDateTime: "",
+        blBookingNumber: existingBLSummary.blNumber,
+        customsClearance: "In Port" as any,
+        vgmRequested: "No" as any,
+        customsDocuments: "By email" as any,
+      });
+    }
+  }, [existingBLSummary, existingBLDetail, existingContainers, form, isEditMode]);
 
   // Handle MSC data loading
   const handleLoadFromMSC = async () => {

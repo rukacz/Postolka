@@ -62,9 +62,9 @@ export async function seedDatabase() {
         unseenChangesCarrier: 0,
         unseenChangesMedlog: 0,
         changedFields: [],
-        lastChatMessage: "",
-        lastChatAuthor: "",
-        unreadChatCount: 0
+        lastChatMessage: "Containers ready for pickup",
+        lastChatAuthor: "Eva Svobodová",
+        unreadChatCount: 1
       },
       {
         blNumber: "TCLU345678",
@@ -140,9 +140,9 @@ export async function seedDatabase() {
         unseenChangesCarrier: 0,
         unseenChangesMedlog: 0,
         changedFields: [],
-        lastChatMessage: "",
-        lastChatAuthor: "",
-        unreadChatCount: 0
+        lastChatMessage: "Dokument připraven",
+        lastChatAuthor: "Petr Procházka",
+        unreadChatCount: 3
       }
     ];
 

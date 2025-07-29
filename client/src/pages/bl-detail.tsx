@@ -201,7 +201,7 @@ export default function BLDetailPage() {
             <div className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4 text-gray-600" />
               <span className="text-xs text-gray-600">
-                {blSummary?.lastChatMessage ? 
+                {blSummary?.lastChatMessage && blSummary.lastChatMessage.trim() !== "" ? 
                   `${blSummary.lastChatAuthor}: ${blSummary.lastChatMessage.substring(0, 30)}${blSummary.lastChatMessage.length > 30 ? '...' : ''}` : 
                   'No messages'
                 }
@@ -222,9 +222,11 @@ export default function BLDetailPage() {
 
         {/* Tabs Section */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-fit grid-cols-3">
-            <TabsTrigger value="containers">Containers</TabsTrigger>
-            <TabsTrigger value="chat" className="flex items-center gap-2">
+          <TabsList className="grid w-fit grid-cols-3 bg-white border border-gray-200 rounded-md p-1">
+            <TabsTrigger value="containers" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border data-[state=active]:border-blue-200 rounded px-4 py-2">
+              Containers
+            </TabsTrigger>
+            <TabsTrigger value="chat" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border data-[state=active]:border-blue-200 rounded px-4 py-2 flex items-center gap-2">
               <MessageCircle className="h-4 w-4" />
               Chat
               {blSummary?.unreadChatCount && blSummary.unreadChatCount > 0 && (
@@ -233,7 +235,9 @@ export default function BLDetailPage() {
                 </Badge>
               )}
             </TabsTrigger>
-            <TabsTrigger value="log">Log</TabsTrigger>
+            <TabsTrigger value="log" className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-600 data-[state=active]:border data-[state=active]:border-blue-200 rounded px-4 py-2">
+              Log
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="containers" className="mt-4">
