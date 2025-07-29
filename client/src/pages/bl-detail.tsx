@@ -128,8 +128,11 @@ export default function BLDetailPage() {
   }) => {
     const isChanged = isFieldChanged(fieldName);
     return (
-      <div className={`${className} ${isChanged ? 'bg-yellow-100 border-l-4 border-yellow-400 pl-2' : ''}`}>
+      <div className={`relative ${className} ${isChanged ? 'bg-yellow-200 border border-yellow-400 rounded shadow-sm' : ''}`}>
         {children}
+        {isChanged && (
+          <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+        )}
       </div>
     );
   };
@@ -225,16 +228,26 @@ export default function BLDetailPage() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-6">
-              <span className="font-semibold">{blSummary?.carrier || 'MSC'}</span>
-              <span className="text-gray-700">
-                {blSummary?.type === 'Import' ? 
-                  (blSummary?.podPol || 'N/A') : 
-                  (blSummary?.podPol || 'N/A')
-                }
-              </span>
-              <span className="text-gray-700">{blSummary?.vesselVoyage || 'N/A'}</span>
-              <span className="text-gray-700">{blSummary?.etaClosing || 'N/A'}</span>
-              <span className="text-gray-700">{blSummary?.pic || 'Not assigned'}</span>
+              <FieldWrapper fieldName="carrier" className="inline-block rounded px-2 py-1">
+                <span className="font-semibold">{blSummary?.carrier || 'MSC'}</span>
+              </FieldWrapper>
+              <FieldWrapper fieldName="podPol" className="inline-block rounded px-2 py-1">
+                <span className="text-gray-700">
+                  {blSummary?.type === 'Import' ? 
+                    (blSummary?.podPol || 'N/A') : 
+                    (blSummary?.podPol || 'N/A')
+                  }
+                </span>
+              </FieldWrapper>
+              <FieldWrapper fieldName="vesselVoyage" className="inline-block rounded px-2 py-1">
+                <span className="text-gray-700">{blSummary?.vesselVoyage || 'N/A'}</span>
+              </FieldWrapper>
+              <FieldWrapper fieldName="eta" className="inline-block rounded px-2 py-1">
+                <span className="text-gray-700">{blSummary?.etaClosing || 'N/A'}</span>
+              </FieldWrapper>
+              <FieldWrapper fieldName="pic" className="inline-block rounded px-2 py-1">
+                <span className="text-gray-700">{blSummary?.pic || 'Not assigned'}</span>
+              </FieldWrapper>
             </div>
             <div className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4 text-gray-600" />
