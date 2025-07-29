@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { FileText, AlertTriangle, Undo2, Scale } from "lucide-react";
+import { FileText, AlertTriangle, Undo2, Scale, ChevronRight } from "lucide-react";
 import DangerousGoodsFlag from "@/components/dangerous-goods-flag";
 import CarrierStatusBadge from "@/components/carrier-status-badge";
 import MedlogStatusBadge from "@/components/medlog-status-badge";
@@ -20,7 +20,7 @@ import { apiRequest } from "@/lib/queryClient";
 interface ContainerTableProps {
   containers: Container[];
   userGroup: UserGroup;
-  blDetail?: { jobType: 'Import' | 'Export' } | null;
+  blDetail?: { jobType: 'Import' | 'Export'; toLocation?: string } | null;
   onNoteChange: (containerId: number, group: 'carrier' | 'medlog', note: string) => void;
   onHazardousChange: (containerIds: number[], hazardous: boolean) => void;
 }
@@ -30,12 +30,18 @@ const sizeTypeOptions = [
 ];
 
 const carrierStatusOptions = [
-  "pending", "confirmed", "in_transit", "delivered", "cancelled"
+  "MIPS Send", "Pre-Order", "Confirmed", "In Transit", "At Terminal", "Ready for Pickup", "Delivered", "Cancelled"
 ];
 
 const medlogStatusOptions = [
-  "pending", "processing", "completed", "on_hold", "cancelled"
+  "New", "In Progress", "Documentation Ready", "Customs Cleared", "Released", "Completed", "On Hold"
 ];
+
+// Container number validation function
+const validateContainerNumber = (containerNumber: string): boolean => {
+  const regex = /^[A-Z]{4}[0-9]{7}$/;
+  return regex.test(containerNumber);
+};
 
 const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazardousChange }: ContainerTableProps) => {
   const [selectedContainers, setSelectedContainers] = useState<number[]>([]);
@@ -210,13 +216,17 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
             {/* Container # Column */}
             <div>
               <Input
-                placeholder="Set container #"
-                className="h-7 text-xs"
+                placeholder="ABCD1234567"
+                maxLength={11}
+                className="h-7 text-xs font-mono"
                 onBlur={(e) => {
-                  if (e.target.value) {
-                    selectedContainers.forEach(id => handleFieldUpdate(id, 'containerNumber', e.target.value));
+                  if (e.target.value && validateContainerNumber(e.target.value)) {
+                    selectedContainers.forEach(id => handleFieldUpdate(id, 'containerNumber', e.target.value.toUpperCase()));
                     e.target.value = '';
                   }
+                }}
+                onChange={(e) => {
+                  e.target.value = e.target.value.toUpperCase();
                 }}
               />
             </div>
@@ -256,7 +266,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
             {/* Destination Column */}
             <div>
               <Input
-                placeholder="Destination"
+                placeholder={blDetail?.toLocation || "Destination"}
                 className="h-7 text-xs"
                 onBlur={(e) => {
                   if (e.target.value) {
@@ -392,11 +402,11 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 }) : '-'}
               </TableCell>
               <TableCell>
-                {container.destination || '-'}
+                {container.destination || blDetail?.toLocation || '-'}
               </TableCell>
               {blDetail?.jobType === 'Import' && (
                 <TableCell>
-                  {container.customsClearance || '-'}
+                  {container.customsClearance || blDetail?.toLocation || '-'}
                 </TableCell>
               )}
               {blDetail?.jobType === 'Export' && (
@@ -412,10 +422,22 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
               <TableCell>
                 <MedlogStatusBadge status={container.medlogStatus as any} />
               </TableCell>
-              <TableCell className="max-w-xs">
-                <div className="cursor-pointer" onClick={() => setShowBulkNoteModal(true)}>
-                  <div className="text-sm">Carrier: {container.carrierNote || '-'}</div>
-                  <div className="text-sm">Medlog: {container.medlogNote || '-'}</div>
+              <TableCell className="w-48">
+                <div className="space-y-1">
+                  <div className="text-xs flex items-center justify-between">
+                    <span className="truncate">Carrier: {container.carrierNote || '-'}</span>
+                    {(container.carrierNote && container.carrierNote.length > 20) || (container.medlogNote && container.medlogNote.length > 20) ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowBulkNoteModal(true)}
+                        className="h-4 w-4 p-0 ml-1"
+                      >
+                        <ChevronRight className="h-3 w-3" />
+                      </Button>
+                    ) : null}
+                  </div>
+                  <div className="text-xs truncate">Medlog: {container.medlogNote || '-'}</div>
                 </div>
               </TableCell>
             </TableRow>
