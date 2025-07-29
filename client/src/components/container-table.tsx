@@ -196,6 +196,8 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
             <TableHead className="w-12">DG</TableHead>
             <TableHead className="w-32">Container #</TableHead>
             <TableHead className="w-24">Size/Type</TableHead>
+            <TableHead className="w-28">Train</TableHead>
+            <TableHead className="w-32">Train Date</TableHead>
             <TableHead className="w-32">Date/Time</TableHead>
             <TableHead className="w-24">Destination</TableHead>
             {blDetail?.jobType === 'Import' && <TableHead className="w-32">Customs Clearance</TableHead>}
@@ -270,7 +272,15 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 </Select>
               </TableHead>
 
+              {/* Train Column - Read only */}
+              <TableHead className="h-auto p-2">
+                <span className="text-xs text-gray-500">Read only</span>
+              </TableHead>
 
+              {/* Train Date Column - Read only */}
+              <TableHead className="h-auto p-2">
+                <span className="text-xs text-gray-500">Read only</span>
+              </TableHead>
 
               {/* Date/Time Column */}
               <TableHead className="h-auto p-2">
@@ -397,6 +407,12 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
               </TableCell>
               <TableCell>
                 {container.size}/{container.containerType}
+              </TableCell>
+              <TableCell className="font-mono text-sm">
+                {container.trainName || '-'}
+              </TableCell>
+              <TableCell className="text-sm">
+                {container.trainEtd || '-'}
               </TableCell>
               <TableCell>
                 {container.dateTime ? new Date(container.dateTime).toLocaleString('en-US', {
