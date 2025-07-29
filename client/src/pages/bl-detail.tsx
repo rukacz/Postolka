@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Printer, Scissors, Edit, CheckCircle, MessageCircle } from "lucide-react";
+import { ArrowLeft, Printer, Scissors, Edit, CheckCircle, MessageCircle, Plus } from "lucide-react";
 import { BLDetail, Container, BLSummary } from "@shared/schema";
 import { BLStatus, UserGroup, CarrierStatus, MedlogStatus } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -269,44 +269,60 @@ export default function BLDetailPage() {
 
         {/* Tab Navigation */}
         <div className="border-b border-gray-200 mb-6">
-          <nav className="flex space-x-8" aria-label="Tabs">
-            <button
-              onClick={() => setActiveTab('containers')}
-              className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'containers'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Containers
-            </button>
-            <button
-              onClick={() => setActiveTab('chat')}
-              className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
-                activeTab === 'chat'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <MessageCircle className="h-4 w-4" />
-              Chat
-              {blSummary?.unreadChatCount && blSummary.unreadChatCount > 0 && (
-                <Badge variant="destructive" className="bg-red-500 text-white ml-1 px-1.5 py-0.5 text-xs">
-                  {blSummary.unreadChatCount}
-                </Badge>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('log')}
-              className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
-                activeTab === 'log'
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Log
-            </button>
-          </nav>
+          <div className="flex justify-between items-center">
+            <nav className="flex space-x-8" aria-label="Tabs">
+              <button
+                onClick={() => setActiveTab('containers')}
+                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'containers'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Containers ({containers?.length || 0})
+              </button>
+              <button
+                onClick={() => setActiveTab('chat')}
+                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
+                  activeTab === 'chat'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <MessageCircle className="h-4 w-4" />
+                Chat
+                {blSummary?.unreadChatCount && blSummary.unreadChatCount > 0 && (
+                  <Badge variant="destructive" className="bg-red-500 text-white ml-1 px-1.5 py-0.5 text-xs">
+                    {blSummary.unreadChatCount}
+                  </Badge>
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('log')}
+                className={`whitespace-nowrap py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'log'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Log
+              </button>
+            </nav>
+            {activeTab === 'containers' && (
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="mb-2"
+                onClick={() => {
+                  // Navigate to new order form to add container
+                  setLocation(`/new-order?bl=${blDetail.blNumber}&addContainer=true`);
+                }}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add Container
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Tab Content */}
