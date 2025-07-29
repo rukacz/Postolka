@@ -11,7 +11,7 @@ import { FileText, AlertTriangle, Undo2, Scale, ChevronRight, Flame } from "luci
 import DangerousGoodsFlag from "@/components/dangerous-goods-flag";
 import CarrierStatusBadge from "@/components/carrier-status-badge";
 import MedlogStatusBadge from "@/components/medlog-status-badge";
-import BulkNoteModal from "@/components/bulk-note-modal";
+import BulkNoteModal from "./bulk-note-modal";
 import { UserGroup } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -227,7 +227,9 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
               {/* DG Column */}
               <TableHead className="h-auto p-2">
                 <Switch
-                  checked={false}
+                  checked={selectedContainers.every(id => 
+                    containers.find(c => c.id === id)?.dangerousCargo
+                  )}
                   onCheckedChange={(checked) => {
                     handleBulkHazardous(checked);
                   }}
