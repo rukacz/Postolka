@@ -559,7 +559,9 @@ export default function NewOrder() {
                     name="eta"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm">ETA</FormLabel>
+                        <FormLabel className="text-sm">
+                          {watchedOrderType === "Export" ? "Vessel closing" : "ETA"}
+                        </FormLabel>
                         <FormControl>
                           <Input 
                             type="datetime-local" 
