@@ -681,10 +681,10 @@ export default function NewOrder() {
                   )}
                 </div>
 
-                {/* Additional Export fields row - aligned right */}
+                {/* Additional Export fields row - aligned right like ETA but sized like Customs Documents */}
                 {watchedOrderType === "Export" && (
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <div className="md:col-span-2">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div>
                       {/* Empty space on the left */}
                     </div>
                     <FormField
