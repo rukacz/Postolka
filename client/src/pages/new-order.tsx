@@ -573,56 +573,7 @@ export default function NewOrder() {
                   />
                 </div>
 
-                {/* Export-specific fields aligned with ETA */}
-                {watchedOrderType === "Export" && (
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                    <div className="md:col-span-2">
-                      {/* Empty space on the left */}
-                    </div>
-                    <FormField
-                      control={form.control}
-                      name="bthRequest"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm">BTH Request</FormLabel>
-                          <FormControl>
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger className="h-9">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="Yes">Yes</SelectItem>
-                                <SelectItem value="No">No</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="goodsInTransit"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm">Goods in transit (T1, T2L)</FormLabel>
-                          <FormControl>
-                            <Select onValueChange={field.onChange} value={field.value}>
-                              <SelectTrigger className="h-9">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="No">No</SelectItem>
-                                <SelectItem value="Yes">Yes</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                )}
+
 
                 {/* Second Row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -729,6 +680,57 @@ export default function NewOrder() {
                     </>
                   )}
                 </div>
+
+                {/* Additional Export fields row */}
+                {watchedOrderType === "Export" && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <FormField
+                      control={form.control}
+                      name="bthRequest"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm">BTH Request</FormLabel>
+                          <FormControl>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger className="h-9">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Yes">Yes</SelectItem>
+                                <SelectItem value="No">No</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="goodsInTransit"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-sm">Goods in transit (T1, T2L)</FormLabel>
+                          <FormControl>
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger className="h-9">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="No">No</SelectItem>
+                                <SelectItem value="Yes">Yes</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div>
+                      {/* Empty space for alignment */}
+                    </div>
+                  </div>
+                )}
 
                 {/* Date/time section */}
                 <div className="border-t pt-4">
