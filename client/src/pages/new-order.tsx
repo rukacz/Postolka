@@ -619,6 +619,7 @@ export default function NewOrder() {
                               <SelectContent>
                                 <SelectItem value="In Port">In Port</SelectItem>
                                 <SelectItem value="Inland depot">Inland depot</SelectItem>
+                                <SelectItem value="Customs Office">Customs Office</SelectItem>
                                 <SelectItem value="At customer">At customer</SelectItem>
                                 <SelectItem value="Metrans">Metrans</SelectItem>
                                 <SelectItem value="Melnik">Melnik</SelectItem>
