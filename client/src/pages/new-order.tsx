@@ -681,9 +681,12 @@ export default function NewOrder() {
                   )}
                 </div>
 
-                {/* Additional Export fields row */}
+                {/* Additional Export fields row - aligned right */}
                 {watchedOrderType === "Export" && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div className="md:col-span-2">
+                      {/* Empty space on the left */}
+                    </div>
                     <FormField
                       control={form.control}
                       name="bthRequest"
@@ -726,9 +729,6 @@ export default function NewOrder() {
                         </FormItem>
                       )}
                     />
-                    <div>
-                      {/* Empty space for alignment */}
-                    </div>
                   </div>
                 )}
 
