@@ -74,9 +74,14 @@ const TrainStatusWithDeliveryCheck = ({ bl }: { bl: BLSummary }) => {
     enabled: !!bl.blNumber
   });
 
-  // Check if delivery is not possible for imports
+  // Check if there are any trains scheduled for this BL
+  const hasTrainScheduled = containers.some(container => 
+    container.trainName && container.trainEtd
+  );
+
+  // For imports, check if delivery is not possible (train departure after delivery date)
   const isDeliveryNotPossible = bl.type === 'Import' && containers.some(container => {
-    if (!container.trainEtd || !container.dateTime) return false;
+    if (!container.trainName || !container.trainEtd || !container.dateTime) return false;
     
     // Parse train departure date and delivery date
     const trainDate = new Date(container.trainEtd);
@@ -88,7 +93,7 @@ const TrainStatusWithDeliveryCheck = ({ bl }: { bl: BLSummary }) => {
 
   return (
     <TrainStatusIcon 
-      isScheduled={bl.trainScheduled || false} 
+      isScheduled={hasTrainScheduled} 
       isDeliveryNotPossible={isDeliveryNotPossible}
     />
   );

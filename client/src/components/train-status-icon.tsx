@@ -6,9 +6,23 @@ interface TrainStatusIconProps {
 }
 
 export default function TrainStatusIcon({ isScheduled, isDeliveryNotPossible = false }: TrainStatusIconProps) {
-  // Red when delivery is not possible, green when scheduled, gray when not scheduled
-  const color = isDeliveryNotPossible ? 'text-red-600' : (isScheduled ? 'text-green-600' : 'text-gray-400');
-  const filled = isScheduled || isDeliveryNotPossible;
+  // Logic:
+  // Red: Train exists BUT delivery not possible (train date > delivery date)
+  // Green: Train exists AND delivery possible
+  // Gray: No train scheduled
+  
+  let color = 'text-gray-400'; // Default: no train
+  let filled = false;
+  
+  if (isScheduled) {
+    if (isDeliveryNotPossible) {
+      color = 'text-red-600'; // Train exists but delivery impossible
+      filled = true;
+    } else {
+      color = 'text-green-600'; // Train exists and delivery possible
+      filled = true;
+    }
+  }
 
   return (
     <div className="flex justify-center">
