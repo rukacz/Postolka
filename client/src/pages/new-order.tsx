@@ -82,19 +82,17 @@ const newOrderSchema = z.object({
   customsClearance: z.enum(["In Port", "Inland depot", "At customer", "Metrans", "Melnik", "Mosnov", "Obrnice", "Bratislava"]).optional(),
   
   // Export specific
-  vgmRequested: z.enum(["Yes", "No"]).default("No"),
-  customsDocuments: z.enum(["By email", "At loading place"]).optional(),
-  bthRequest: z.enum(["Yes", "No"]).default("Yes"),
-  goodsInTransit: z.enum(["No", "Yes"]).default("No"),
+  vgmRequested: z.enum(["Yes", "No"]).nullable().default(null),
+  customsDocuments: z.enum(["By email", "At loading place"]).nullable().default(null),
+  bthRequest: z.enum(["Yes", "No"]).nullable().default(null),
+  goodsInTransit: z.enum(["No", "Yes"]).nullable().default(null),
   
 
 }).refine((data) => {
   if (data.orderType === "Import") {
     return data.blBookingNumber && data.blBookingNumber.length > 0 && data.customsClearance;
   }
-  if (data.orderType === "Export") {
-    return data.customsDocuments;
-  }
+  // Export fields are no longer mandatory
   return true;
 }, {
   message: "Required fields missing for order type",
@@ -642,11 +640,11 @@ export default function NewOrder() {
                         name="customsDocuments"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-sm">Customs Documents *</FormLabel>
+                            <FormLabel className="text-sm">Customs Documents</FormLabel>
                             <FormControl>
-                              <Select onValueChange={field.onChange} value={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value || ""}>
                                 <SelectTrigger className="h-9">
-                                  <SelectValue />
+                                  <SelectValue placeholder="—" />
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="By email">By email</SelectItem>
@@ -666,9 +664,9 @@ export default function NewOrder() {
                           <FormItem>
                             <FormLabel className="text-sm">VGM requested</FormLabel>
                             <FormControl>
-                              <Select onValueChange={field.onChange} value={field.value}>
+                              <Select onValueChange={field.onChange} value={field.value || ""}>
                                 <SelectTrigger className="h-9">
-                                  <SelectValue />
+                                  <SelectValue placeholder="—" />
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectItem value="Yes">Yes</SelectItem>
@@ -695,11 +693,11 @@ export default function NewOrder() {
                       name="bthRequest"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-sm">BTH Request</FormLabel>
+                          <FormLabel className="text-sm">BTH/ZAPP/TCC Request</FormLabel>
                           <FormControl>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value || ""}>
                               <SelectTrigger className="h-9">
-                                <SelectValue />
+                                <SelectValue placeholder="—" />
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="Yes">Yes</SelectItem>
@@ -718,9 +716,9 @@ export default function NewOrder() {
                         <FormItem>
                           <FormLabel className="text-sm">Goods in transit (T1, T2L)</FormLabel>
                           <FormControl>
-                            <Select onValueChange={field.onChange} value={field.value}>
+                            <Select onValueChange={field.onChange} value={field.value || ""}>
                               <SelectTrigger className="h-9">
-                                <SelectValue />
+                                <SelectValue placeholder="—" />
                               </SelectTrigger>
                               <SelectContent>
                                 <SelectItem value="No">No</SelectItem>
