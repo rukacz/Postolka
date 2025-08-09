@@ -147,10 +147,10 @@ export default function NewOrder() {
       globalDischargingDateTime: "",
       blBookingNumber: "",
       customsClearance: "In Port",
-      vgmRequested: "No",
-      customsDocuments: "By email",
-      bthRequest: "Yes",
-      goodsInTransit: "No",
+      vgmRequested: null,
+      customsDocuments: null,
+      bthRequest: null,
+      goodsInTransit: null,
     }
   });
 
@@ -185,8 +185,10 @@ export default function NewOrder() {
         globalDischargingDateTime: "",
         blBookingNumber: existingBLSummary.blNumber,
         customsClearance: "In Port" as any,
-        vgmRequested: "No" as any,
-        customsDocuments: "By email" as any,
+        vgmRequested: null,
+        customsDocuments: null,
+        bthRequest: null,
+        goodsInTransit: null,
       });
     }
   }, [existingBLSummary, existingBLDetail, existingContainers, form, isEditMode]);
