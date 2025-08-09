@@ -28,15 +28,24 @@ export default function Dashboard() {
   // Simulated current user group - in real app this would come from auth context
   const currentUserGroup = 'medlog'; // 'carrier' | 'medlog'
 
-  // Filter data based on current filters and search
+  // Enhanced search that includes containers and trains
   const filteredData = blSummaries.filter(bl => {
+    const blContainers = allContainers.filter(container => container.blNumber === bl.blNumber);
+    
     const matchesSearch = !searchValue || 
       bl.blNumber.toLowerCase().includes(searchValue.toLowerCase()) ||
       bl.client.toLowerCase().includes(searchValue.toLowerCase()) ||
-      bl.destination.toLowerCase().includes(searchValue.toLowerCase());
+      bl.destination.toLowerCase().includes(searchValue.toLowerCase()) ||
+      // Search in container numbers
+      blContainers.some(container => 
+        container.containerNumber.toLowerCase().includes(searchValue.toLowerCase()) ||
+        container.destination?.toLowerCase().includes(searchValue.toLowerCase()) ||
+        container.unloadAddress?.toLowerCase().includes(searchValue.toLowerCase()) ||
+        // Search in train names
+        container.trainName?.toLowerCase().includes(searchValue.toLowerCase())
+      );
 
-    // Get containers for this BL to check city and date filters
-    const blContainers = allContainers.filter(container => container.blNumber === bl.blNumber);
+    // Get containers for this BL to check city and date filters (already defined above for search)
     
     // Un/Load City filter - check destinations and unload addresses of containers
     const matchesUnloadCity = !filters.unloadCity || 
@@ -59,7 +68,6 @@ export default function Dashboard() {
       });
 
     const matchesFilters = 
-      (!filters.blNumber || bl.blNumber.toLowerCase().includes(filters.blNumber.toLowerCase())) &&
       (!filters.client || bl.client === filters.client) &&
       (!filters.podPol || bl.podPol === filters.podPol) &&
       (!filters.medlogStatus || bl.medlogStatus === filters.medlogStatus) &&

@@ -1,5 +1,4 @@
 export interface FilterState {
-  blNumber?: string;
   client?: string;
   podPol?: string;
   eta?: string;

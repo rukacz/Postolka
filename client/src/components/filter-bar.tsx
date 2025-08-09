@@ -43,17 +43,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
-      <div className="grid grid-cols-11 gap-4 items-end">
-        <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">BL/Booking</Label>
-          <Input
-            type="text"
-            placeholder="Enter BL number"
-            value={filters.blNumber || ""}
-            onChange={(e) => updateFilter('blNumber', e.target.value)}
-            className="focus:ring-2 focus:ring-primary focus:border-transparent"
-          />
-        </div>
+      <div className="grid grid-cols-10 gap-4 items-end">
         
         <div>
           <Label className="text-sm font-medium text-gray-700 mb-1">Client</Label>
