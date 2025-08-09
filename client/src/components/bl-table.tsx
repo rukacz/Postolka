@@ -92,6 +92,7 @@ function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps)
               Changes
             </TableHead>
             <TableHead className="w-8 px-4 py-3 text-left text-sm font-semibold text-gray-900">Type</TableHead>
+            <TableHead className="w-8 px-4 py-3 text-center text-sm font-semibold text-gray-900">DG</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
               <Button
                 variant="ghost"
@@ -140,6 +141,15 @@ function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps)
                 <Badge className={bl.type === 'Import' ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"}>
                   {bl.type}
                 </Badge>
+              </TableCell>
+              <TableCell className="px-4 py-3 text-center">
+                {bl.dangerousCargo ? (
+                  <Badge className="bg-red-100 text-red-800 text-xs px-2 py-1">
+                    DG
+                  </Badge>
+                ) : (
+                  <span className="text-gray-400 text-xs">—</span>
+                )}
               </TableCell>
               <TableCell className="px-4 py-3">
                 <button className="text-primary font-medium hover:underline">
