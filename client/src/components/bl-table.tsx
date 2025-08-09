@@ -87,7 +87,7 @@ const TrainStatusWithDeliveryCheck = ({ bl }: { bl: BLSummary }) => {
     const trainDate = new Date(container.trainEtd);
     const deliveryDate = new Date(container.dateTime);
     
-    // Delivery not possible if train departure is after delivery date
+    // Delivery not possible if train departure is AFTER delivery date (for imports)
     return trainDate.getTime() > deliveryDate.getTime();
   });
 
