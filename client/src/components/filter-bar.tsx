@@ -176,7 +176,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
       </div>
       
       {/* Additional Filter Checkboxes */}
-      <div className="grid grid-cols-4 gap-6 mt-4 pt-4 border-t border-gray-200">
+      <div className="grid grid-cols-4 gap-3 mt-4 pt-4 border-t border-gray-200">
         <div className="flex items-center space-x-2">
           <Checkbox 
             id="dgFilter"
