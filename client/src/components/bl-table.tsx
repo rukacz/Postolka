@@ -67,6 +67,33 @@ const DangerousGoodsIndicator = ({ blNumber }: { blNumber: string }) => {
   );
 };
 
+// Component to check delivery possibility and render train icon
+const TrainStatusWithDeliveryCheck = ({ bl }: { bl: BLSummary }) => {
+  const { data: containers = [] } = useQuery<Container[]>({
+    queryKey: ['/api/containers', bl.blNumber],
+    enabled: !!bl.blNumber
+  });
+
+  // Check if delivery is not possible for imports
+  const isDeliveryNotPossible = bl.type === 'Import' && containers.some(container => {
+    if (!container.trainEtd || !container.dateTime) return false;
+    
+    // Parse train departure date and delivery date
+    const trainDate = new Date(container.trainEtd);
+    const deliveryDate = new Date(container.dateTime);
+    
+    // Delivery not possible if train departure is after delivery date
+    return trainDate.getTime() > deliveryDate.getTime();
+  });
+
+  return (
+    <TrainStatusIcon 
+      isScheduled={bl.trainScheduled || false} 
+      isDeliveryNotPossible={isDeliveryNotPossible}
+    />
+  );
+};
+
 function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps) {
   const [, setLocation] = useLocation();
   const [sortConfig, setSortConfig] = useState<{ key: keyof BLSummary | null; direction: 'asc' | 'desc' }>({
@@ -182,7 +209,7 @@ function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps)
                 </Badge>
               </TableCell>
               <TableCell className="px-4 py-3">
-                <TrainStatusIcon isScheduled={bl.trainScheduled || false} />
+                <TrainStatusWithDeliveryCheck bl={bl} />
               </TableCell>
               <TableCell className="px-4 py-3">
                 <CarrierStatusBadge status={bl.carrierStatus as CarrierStatus} />
