@@ -5,13 +5,13 @@ import { BLSummary, Container } from "@shared/schema";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUpDown, MoreVertical } from "lucide-react";
+import { ArrowUpDown, MoreVertical, Flame } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import CarrierStatusBadge from "./carrier-status-badge";
 import MedlogStatusBadge from "./medlog-status-badge";
 import TrainStatusIcon from "./train-status-icon";
 import ChangeIndicatorDot from "./change-indicator-dot";
-import DangerousGoodsFlag from "./dangerous-goods-flag";
+
 import { CarrierStatus, MedlogStatus, JobType, UserGroup } from "@/lib/types";
 
 interface BLTableProps {
@@ -59,7 +59,7 @@ const DangerousGoodsIndicator = ({ blNumber }: { blNumber: string }) => {
   return (
     <div className="flex justify-center">
       {hasDangerousGoods ? (
-        <DangerousGoodsFlag />
+        <Flame className="w-4 h-4 text-red-500" />
       ) : (
         <span className="text-gray-400 text-xs">—</span>
       )}
