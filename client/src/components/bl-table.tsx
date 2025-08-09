@@ -11,6 +11,7 @@ import CarrierStatusBadge from "./carrier-status-badge";
 import MedlogStatusBadge from "./medlog-status-badge";
 import TrainStatusIcon from "./train-status-icon";
 import ChangeIndicatorDot from "./change-indicator-dot";
+import DangerousGoodsFlag from "./dangerous-goods-flag";
 import { CarrierStatus, MedlogStatus, JobType, UserGroup } from "@/lib/types";
 
 interface BLTableProps {
@@ -43,6 +44,26 @@ const BLChangeIndicator = ({ bl, currentUserGroup, onClick }: {
       type={changeType}
       onClick={onClick}
     />
+  );
+};
+
+// Component to display dangerous goods indicator for a BL
+const DangerousGoodsIndicator = ({ blNumber }: { blNumber: string }) => {
+  const { data: containers = [] } = useQuery<Container[]>({
+    queryKey: ['/api/containers', blNumber],
+    enabled: !!blNumber
+  });
+
+  const hasDangerousGoods = containers.some(container => container.dangerousCargo);
+
+  return (
+    <div className="flex justify-center">
+      {hasDangerousGoods ? (
+        <DangerousGoodsFlag />
+      ) : (
+        <span className="text-gray-400 text-xs">—</span>
+      )}
+    </div>
   );
 };
 
@@ -143,13 +164,7 @@ function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps)
                 </Badge>
               </TableCell>
               <TableCell className="px-4 py-3 text-center">
-                {bl.dangerousCargo ? (
-                  <Badge className="bg-red-100 text-red-800 text-xs px-2 py-1">
-                    DG
-                  </Badge>
-                ) : (
-                  <span className="text-gray-400 text-xs">—</span>
-                )}
+                <DangerousGoodsIndicator blNumber={bl.blNumber} />
               </TableCell>
               <TableCell className="px-4 py-3">
                 <button className="text-primary font-medium hover:underline">
