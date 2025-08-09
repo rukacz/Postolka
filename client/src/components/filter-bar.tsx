@@ -195,7 +195,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
             onCheckedChange={(checked) => updateFilter('onlyEdited', !!checked)}
           />
           <Label htmlFor="onlyEdited" className="text-sm font-medium text-gray-700">
-            Only Edited
+            Changed Only
           </Label>
         </div>
         
