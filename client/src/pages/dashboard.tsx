@@ -35,6 +35,29 @@ export default function Dashboard() {
       bl.client.toLowerCase().includes(searchValue.toLowerCase()) ||
       bl.destination.toLowerCase().includes(searchValue.toLowerCase());
 
+    // Get containers for this BL to check city and date filters
+    const blContainers = allContainers.filter(container => container.blNumber === bl.blNumber);
+    
+    // Un/Load City filter - check destinations and unload addresses of containers
+    const matchesUnloadCity = !filters.unloadCity || 
+      bl.destination?.toLowerCase().includes(filters.unloadCity.toLowerCase()) ||
+      blContainers.some(container => 
+        container.destination?.toLowerCase().includes(filters.unloadCity?.toLowerCase() || '') ||
+        container.unloadAddress?.toLowerCase().includes(filters.unloadCity?.toLowerCase() || '')
+      );
+
+    // Un/Load Date filter - check container date/time within range
+    const matchesUnloadDateRange = (!filters.unloadDateFrom && !filters.unloadDateTo) ||
+      blContainers.some(container => {
+        if (!container.dateTime) return false;
+        const containerDate = new Date(container.dateTime).toISOString().split('T')[0]; // Get YYYY-MM-DD format
+        const fromDate = filters.unloadDateFrom;
+        const toDate = filters.unloadDateTo;
+        
+        return (!fromDate || containerDate >= fromDate) && 
+               (!toDate || containerDate <= toDate);
+      });
+
     const matchesFilters = 
       (!filters.blNumber || bl.blNumber.toLowerCase().includes(filters.blNumber.toLowerCase())) &&
       (!filters.client || bl.client === filters.client) &&
@@ -42,19 +65,15 @@ export default function Dashboard() {
       (!filters.medlogStatus || bl.medlogStatus === filters.medlogStatus) &&
       (!filters.carrierStatus || bl.carrierStatus === filters.carrierStatus) &&
       (!filters.carrier || bl.carrier === filters.carrier) &&
-      (!filters.pic || bl.pic === filters.pic);
+      (!filters.pic || bl.pic === filters.pic) &&
+      matchesUnloadCity &&
+      matchesUnloadDateRange;
 
-    // Handle unseen changes filter
+    // Handle unseen changes 
     const unseenChangesCount = currentUserGroup === 'medlog' ? (bl.unseenChangesMedlog || 0) : (bl.unseenChangesCarrier || 0);
-    const matchesUnseenChanges = 
-      !filters.unseenChanges || 
-      filters.unseenChanges === 'all' ||
-      (filters.unseenChanges === 'unseen' && unseenChangesCount > 0) ||
-      (filters.unseenChanges === 'acknowledged' && unseenChangesCount === 0);
 
     // Handle new checkbox filters
     // DG Filter: Check if any containers for this BL have dangerous cargo
-    const blContainers = allContainers.filter(container => container.blNumber === bl.blNumber);
     const hasDangerousGoods = blContainers.some(container => container.dangerousCargo);
     const matchesDG = !filters.dgFilter || hasDangerousGoods;
 
@@ -64,17 +83,19 @@ export default function Dashboard() {
     // New Train Filter: Check for train-related changes (simplified - check if train is scheduled)
     const matchesNewTrain = !filters.newTrain || bl.trainScheduled;
 
-    // Delivery not possible Filter: For imports where train departure + 1 > delivery date
-    // Using etaClosing as a proxy for delivery timing (simplified for now)
+    // Delivery not possible Filter: For imports where train departure after delivery date
     const matchesDeliveryNotPossible = !filters.deliveryNotPossible || (
       bl.type === 'Import' && 
-      bl.etaClosing &&
-      new Date(bl.etaClosing).getTime() < new Date().getTime()
+      blContainers.some(container => {
+        if (!container.trainName || !container.trainEtd || !container.dateTime) return false;
+        const trainDate = new Date(container.trainEtd);
+        const deliveryDate = new Date(container.dateTime);
+        return trainDate.getTime() > deliveryDate.getTime();
+      })
     );
 
     return matchesSearch && 
            matchesFilters && 
-           matchesUnseenChanges && 
            matchesDG && 
            matchesOnlyEdited && 
            matchesNewTrain && 

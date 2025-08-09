@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -6,6 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { X } from "lucide-react";
 import { FilterState } from "@/lib/types";
+import { useQuery } from "@tanstack/react-query";
+import { Container } from "@shared/schema";
 
 interface FilterBarProps {
   filters: FilterState;
@@ -23,6 +25,21 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
       onFiltersChange({ ...filters, [key]: value === 'all' ? undefined : value || undefined });
     }
   };
+
+  // Get all containers to extract unique cities
+  const { data: allContainers = [] } = useQuery<Container[]>({
+    queryKey: ['/api/containers'],
+  });
+
+  // Extract unique cities from containers
+  const uniqueCities = useMemo(() => {
+    const cities = new Set<string>();
+    allContainers.forEach(container => {
+      if (container.destination) cities.add(container.destination);
+      if (container.unloadAddress) cities.add(container.unloadAddress);
+    });
+    return Array.from(cities).sort();
+  }, [allContainers]);
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
@@ -154,17 +171,40 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         </div>
         
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">Changes</Label>
-          <Select value={filters.unseenChanges || "all"} onValueChange={(value) => updateFilter('unseenChanges', value)}>
-            <SelectTrigger className="focus:ring-2 focus:ring-primary">
-              <SelectValue placeholder="All" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="unseen">Only with changes</SelectItem>
-              <SelectItem value="acknowledged">Only acknowledged</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label className="text-sm font-medium text-gray-700 mb-1">Un/Load City</Label>
+          <Input
+            type="text"
+            placeholder="Enter city or select..."
+            value={filters.unloadCity || ""}
+            onChange={(e) => updateFilter('unloadCity', e.target.value)}
+            list="city-suggestions"
+            className="focus:ring-2 focus:ring-primary focus:border-transparent"
+          />
+          <datalist id="city-suggestions">
+            {uniqueCities.map(city => (
+              <option key={city} value={city} />
+            ))}
+          </datalist>
+        </div>
+
+        <div>
+          <Label className="text-sm font-medium text-gray-700 mb-1">Un/Load Date From</Label>
+          <Input
+            type="date"
+            value={filters.unloadDateFrom || ""}
+            onChange={(e) => updateFilter('unloadDateFrom', e.target.value)}
+            className="focus:ring-2 focus:ring-primary focus:border-transparent"
+          />
+        </div>
+
+        <div>
+          <Label className="text-sm font-medium text-gray-700 mb-1">Un/Load Date To</Label>
+          <Input
+            type="date"
+            value={filters.unloadDateTo || ""}
+            onChange={(e) => updateFilter('unloadDateTo', e.target.value)}
+            className="focus:ring-2 focus:ring-primary focus:border-transparent"
+          />
         </div>
         
         <div>

@@ -5,7 +5,7 @@ import { BLSummary, Container } from "@shared/schema";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUpDown, MoreVertical, Flame } from "lucide-react";
+import { ArrowUpDown, MoreVertical, Flame, AlertTriangle } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import CarrierStatusBadge from "./carrier-status-badge";
 import MedlogStatusBadge from "./medlog-status-badge";
@@ -104,6 +104,35 @@ const TrainStatusWithDeliveryCheck = ({ bl }: { bl: BLSummary }) => {
   );
 };
 
+// Component to check if containers have different Un/Load cities and show red exclamation mark
+const UnloadCityIndicator = ({ bl }: { bl: BLSummary }) => {
+  const { data: containers = [] } = useQuery<Container[]>({
+    queryKey: ['/api/containers', bl.blNumber],
+    enabled: !!bl.blNumber
+  });
+
+  // Get unique cities from containers
+  const uniqueCities = new Set<string>();
+  containers.forEach(container => {
+    if (container.destination) uniqueCities.add(container.destination);
+    if (container.unloadAddress) uniqueCities.add(container.unloadAddress);
+  });
+
+  const hasMultipleCities = uniqueCities.size > 1;
+  const primaryCity = containers.length > 0 ? (containers[0].destination || containers[0].unloadAddress || bl.destination) : bl.destination;
+
+  return (
+    <div className="flex items-center gap-1">
+      <span className="text-sm text-gray-600">{primaryCity}</span>
+      {hasMultipleCities && (
+        <div title="Multiple Un/Load cities in containers">
+          <AlertTriangle className="w-4 h-4 text-red-500" />
+        </div>
+      )}
+    </div>
+  );
+};
+
 function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps) {
   const [, setLocation] = useLocation();
   const [sortConfig, setSortConfig] = useState<{ key: keyof BLSummary | null; direction: 'asc' | 'desc' }>({
@@ -170,7 +199,7 @@ function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps)
                 Client <ArrowUpDown className="ml-1 h-4 w-4" />
               </Button>
             </TableHead>
-            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Destination</TableHead>
+            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Un/loading city</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">POD/POL</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">ETA/Closing</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Containers</TableHead>
@@ -210,7 +239,9 @@ function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps)
               </TableCell>
 
               <TableCell className="px-4 py-3 font-medium">{bl.client}</TableCell>
-              <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.destination}</TableCell>
+              <TableCell className="px-4 py-3">
+                <UnloadCityIndicator bl={bl} />
+              </TableCell>
               <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.podPol}</TableCell>
               <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.etaClosing}</TableCell>
               <TableCell className="px-4 py-3 text-center">

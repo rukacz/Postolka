@@ -7,7 +7,11 @@ export interface FilterState {
   carrierStatus?: string;
   carrier?: string;
   pic?: string;
-  unseenChanges?: 'all' | 'unseen' | 'acknowledged';
+  // Replaced fields
+  unloadCity?: string;
+  unloadDateFrom?: string;
+  unloadDateTo?: string;
+  // Additional filter checkboxes
   dgFilter?: boolean;
   onlyEdited?: boolean;
   newTrain?: boolean;
