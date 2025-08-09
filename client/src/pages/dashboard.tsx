@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Download, RefreshCw, Plus } from "lucide-react";
 import { Link } from "wouter";
-import { BLSummary } from "@shared/schema";
+import { BLSummary, Container } from "@shared/schema";
 import { FilterState } from "@/lib/types";
 
 export default function Dashboard() {
@@ -18,6 +18,11 @@ export default function Dashboard() {
 
   const { data: blSummaries = [], isLoading, refetch } = useQuery<BLSummary[]>({
     queryKey: ['/api/bl-summaries'],
+  });
+
+  // Get all containers for DG filtering
+  const { data: allContainers = [] } = useQuery<Container[]>({
+    queryKey: ['/api/containers'],
   });
 
   // Simulated current user group - in real app this would come from auth context
@@ -47,7 +52,33 @@ export default function Dashboard() {
       (filters.unseenChanges === 'unseen' && unseenChangesCount > 0) ||
       (filters.unseenChanges === 'acknowledged' && unseenChangesCount === 0);
 
-    return matchesSearch && matchesFilters && matchesUnseenChanges;
+    // Handle new checkbox filters
+    // DG Filter: Check if any containers for this BL have dangerous cargo
+    const blContainers = allContainers.filter(container => container.blNumber === bl.blNumber);
+    const hasDangerousGoods = blContainers.some(container => container.dangerousCargo);
+    const matchesDG = !filters.dgFilter || hasDangerousGoods;
+
+    // Only Edited Filter: Show only BLs with unseen changes
+    const matchesOnlyEdited = !filters.onlyEdited || unseenChangesCount > 0;
+
+    // New Train Filter: Check for train-related changes (simplified - check if train is scheduled)
+    const matchesNewTrain = !filters.newTrain || bl.trainScheduled;
+
+    // Delivery not possible Filter: For imports where train departure + 1 > delivery date
+    // Using etaClosing as a proxy for delivery timing (simplified for now)
+    const matchesDeliveryNotPossible = !filters.deliveryNotPossible || (
+      bl.type === 'Import' && 
+      bl.etaClosing &&
+      new Date(bl.etaClosing).getTime() < new Date().getTime()
+    );
+
+    return matchesSearch && 
+           matchesFilters && 
+           matchesUnseenChanges && 
+           matchesDG && 
+           matchesOnlyEdited && 
+           matchesNewTrain && 
+           matchesDeliveryNotPossible;
   });
 
   // Calculate pagination

@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { X } from "lucide-react";
 import { FilterState } from "@/lib/types";
 
@@ -15,8 +16,12 @@ interface FilterBarProps {
 export default function FilterBar({ filters, onFiltersChange, onClearFilters }: FilterBarProps) {
   const [showMoreFilters, setShowMoreFilters] = useState(false);
 
-  const updateFilter = (key: keyof FilterState, value: string) => {
-    onFiltersChange({ ...filters, [key]: value === 'all' ? undefined : value || undefined });
+  const updateFilter = (key: keyof FilterState, value: string | boolean) => {
+    if (typeof value === 'boolean') {
+      onFiltersChange({ ...filters, [key]: value });
+    } else {
+      onFiltersChange({ ...filters, [key]: value === 'all' ? undefined : value || undefined });
+    }
   };
 
   return (
@@ -170,6 +175,52 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         </div>
       </div>
       
+      {/* Additional Filter Checkboxes */}
+      <div className="grid grid-cols-4 gap-6 mt-4 pt-4 border-t border-gray-200">
+        <div className="flex items-center space-x-2">
+          <Checkbox 
+            id="dgFilter"
+            checked={filters.dgFilter || false}
+            onCheckedChange={(checked) => updateFilter('dgFilter', !!checked)}
+          />
+          <Label htmlFor="dgFilter" className="text-sm font-medium text-gray-700">
+            DG
+          </Label>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <Checkbox 
+            id="onlyEdited"
+            checked={filters.onlyEdited || false}
+            onCheckedChange={(checked) => updateFilter('onlyEdited', !!checked)}
+          />
+          <Label htmlFor="onlyEdited" className="text-sm font-medium text-gray-700">
+            Only Edited
+          </Label>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <Checkbox 
+            id="newTrain"
+            checked={filters.newTrain || false}
+            onCheckedChange={(checked) => updateFilter('newTrain', !!checked)}
+          />
+          <Label htmlFor="newTrain" className="text-sm font-medium text-gray-700">
+            New Train
+          </Label>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <Checkbox 
+            id="deliveryNotPossible"
+            checked={filters.deliveryNotPossible || false}
+            onCheckedChange={(checked) => updateFilter('deliveryNotPossible', !!checked)}
+          />
+          <Label htmlFor="deliveryNotPossible" className="text-sm font-medium text-gray-700">
+            Delivery not possible
+          </Label>
+        </div>
+      </div>
 
     </div>
   );

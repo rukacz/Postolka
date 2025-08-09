@@ -26,6 +26,7 @@ export interface IStorage {
   updateBLDetail(blNumber: string, bl: Partial<BLDetail>): Promise<BLDetail | undefined>;
   
   // Container methods
+  getAllContainers(): Promise<Container[]>;
   getContainersByBL(blNumber: string): Promise<Container[]>;
   createContainer(container: InsertContainer): Promise<Container>;
   updateContainer(id: number, container: Partial<Container>): Promise<Container | undefined>;
@@ -278,6 +279,10 @@ export class MemStorage implements IStorage {
   }
 
   // Container methods
+  async getAllContainers(): Promise<Container[]> {
+    return Array.from(this.containers.values());
+  }
+
   async getContainersByBL(blNumber: string): Promise<Container[]> {
     return Array.from(this.containers.values()).filter(
       container => container.blNumber === blNumber
@@ -426,6 +431,10 @@ export class DatabaseStorage implements IStorage {
   }
 
   // Container methods
+  async getAllContainers(): Promise<Container[]> {
+    return await db.select().from(containers);
+  }
+
   async getContainersByBL(blNumber: string): Promise<Container[]> {
     return await db.select().from(containers).where(eq(containers.blNumber, blNumber));
   }

@@ -8,6 +8,10 @@ export interface FilterState {
   carrier?: string;
   pic?: string;
   unseenChanges?: 'all' | 'unseen' | 'acknowledged';
+  dgFilter?: boolean;
+  onlyEdited?: boolean;
+  newTrain?: boolean;
+  deliveryNotPossible?: boolean;
 }
 
 export type UserGroup = 'carrier' | 'medlog';

@@ -87,6 +87,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Container routes
+  app.get("/api/containers", async (req, res) => {
+    try {
+      const containers = await storage.getAllContainers();
+      res.json(containers);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch all containers" });
+    }
+  });
+
   app.get("/api/containers/:blNumber", async (req, res) => {
     try {
       const { blNumber } = req.params;
