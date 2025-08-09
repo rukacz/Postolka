@@ -69,18 +69,23 @@ const DangerousGoodsIndicator = ({ blNumber }: { blNumber: string }) => {
 
 // Component to check delivery possibility and render train icon
 const TrainStatusWithDeliveryCheck = ({ bl }: { bl: BLSummary }) => {
+  // Don't show train icon for Export orders
+  if (bl.type === 'Export') {
+    return <div className="flex justify-center">—</div>;
+  }
+
   const { data: containers = [] } = useQuery<Container[]>({
     queryKey: ['/api/containers', bl.blNumber],
-    enabled: !!bl.blNumber
+    enabled: !!bl.blNumber && bl.type === 'Import'
   });
 
-  // Check if there are any trains scheduled for this BL
+  // Check if there are any trains scheduled for this BL (only for imports)
   const hasTrainScheduled = containers.some(container => 
     container.trainName && container.trainEtd
   );
 
   // For imports, check if delivery is not possible (train departure after delivery date)
-  const isDeliveryNotPossible = bl.type === 'Import' && containers.some(container => {
+  const isDeliveryNotPossible = containers.some(container => {
     if (!container.trainName || !container.trainEtd || !container.dateTime) return false;
     
     // Parse train departure date and delivery date
