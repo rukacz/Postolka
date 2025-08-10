@@ -97,6 +97,12 @@ The application is designed for containerized deployment with:
 - Session management ready with `connect-pg-simple`
 
 ### Recent Changes
+- **2025-01-29**: Terminology standardization and booking details enhancement
+  - Standardized all references from "City" and "Destination" to "Location" throughout the application
+  - Updated filter bar to use "Un/Load Location" instead of "Un/Load City" 
+  - Added Load/Unload location field to booking details InfoBar based on Import/Export job type
+  - Enhanced copy-to-clipboard format header to use "Location" instead of "Destination"
+  - Fixed container deletion API to use proper apiRequest method structure
 - **2025-01-29**: Route column removal and UI improvements
   - Removed route column from container table as requested
   - Updated destination fields to show only city names (Mladá Boleslav, Praha, Koper, etc.)

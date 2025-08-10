@@ -321,7 +321,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
             <TableHead className="w-28">Train</TableHead>
             <TableHead className="w-32">Train Date</TableHead>
             <TableHead className="w-32">Date/Time</TableHead>
-            <TableHead className="w-24">Destination</TableHead>
+            <TableHead className="w-24">Location</TableHead>
             {blDetail?.jobType === 'Import' && <TableHead className="w-32">Customs Clearance</TableHead>}
             {blDetail?.jobType === 'Export' && <TableHead className="w-20">VGM</TableHead>}
             <TableHead className="w-36">Carrier Status</TableHead>
@@ -418,10 +418,10 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 />
               </TableHead>
 
-              {/* Destination Column */}
+              {/* Location Column */}
               <TableHead className="h-auto p-2">
                 <Input
-                  placeholder="City name"
+                  placeholder="Location name"
                   className="h-7 text-xs w-full"
                   onBlur={(e) => {
                     if (e.target.value) {
@@ -560,7 +560,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 <Input
                   value={newContainer.destination}
                   onChange={(e) => setNewContainer({...newContainer, destination: e.target.value})}
-                  placeholder="Destination"
+                  placeholder="Location"
                   className="w-full"
                 />
               </TableCell>

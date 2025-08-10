@@ -126,9 +126,7 @@ export default function BLDetailPage() {
 
   const deleteContainerMutation = useMutation({
     mutationFn: async (containerId: string) => {
-      return await apiRequest(`/api/containers/${containerId}`, {
-        method: 'DELETE',
-      });
+      return apiRequest("DELETE", `/api/containers/${containerId}`, {});
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/containers', blNumber] });
@@ -156,7 +154,7 @@ export default function BLDetailPage() {
     const location = container.destination || container.unloadAddress || 'N/A';
     const dateTime = container.dateTime ? formatDate(container.dateTime) : 'N/A';
     
-    return `${container.containerNumber}\t${container.containerType || 'N/A'}\t${location}\t${dateTime}`;
+    return `${container.containerNumber}\t${container.sizeType || 'N/A'}\t${location}\t${dateTime}`;
   };
 
   const copyAllContainersToClipboard = async () => {
@@ -332,6 +330,14 @@ export default function BLDetailPage() {
               <FieldWrapper fieldName="pic" className="inline-block rounded px-2 py-1">
                 <span className="text-gray-700">{blSummary?.pic || 'Not assigned'}</span>
               </FieldWrapper>
+              <FieldWrapper fieldName="loadUnloadLocation" className="inline-block rounded px-2 py-1">
+                <span className="text-gray-700">
+                  {blSummary?.type === 'Import' ? 
+                    `Unload: ${blDetail?.toAddress || 'N/A'}` : 
+                    `Load: ${blDetail?.toAddress || 'N/A'}`
+                  }
+                </span>
+              </FieldWrapper>
             </div>
             <div className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4 text-gray-600" />
@@ -427,7 +433,11 @@ export default function BLDetailPage() {
             <ContainerTable 
               containers={containers || []} 
               userGroup={currentUserGroup}
-              blDetail={{...blDetail, blNumber}}
+              blDetail={{
+                jobType: blDetail?.jobType as 'Import' | 'Export',
+                toLocation: blDetail?.toAddress,
+                blNumber: blNumber
+              }}
               onNoteChange={handleNoteChange}
               onHazardousChange={handleHazardousChange}
               changedFields={blSummary?.changedFields || []}

@@ -161,10 +161,10 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         </div>
         
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">Un/Load City</Label>
+          <Label className="text-sm font-medium text-gray-700 mb-1">Un/Load Location</Label>
           <Input
             type="text"
-            placeholder="Enter city or select..."
+            placeholder="Enter location or select..."
             value={filters.unloadCity || ""}
             onChange={(e) => updateFilter('unloadCity', e.target.value)}
             list="city-suggestions"
