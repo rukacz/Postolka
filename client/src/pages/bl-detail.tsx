@@ -93,8 +93,14 @@ export default function BLDetailPage() {
         note
       });
       
-      // Invalidate container queries to refresh data
+      // Invalidate container queries to refresh data  
       queryClient.invalidateQueries({ queryKey: ['/api/containers'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/containers', blNumber] });
+      
+      toast({
+        title: "Note updated",
+        description: `${group === 'carrier' ? 'Carrier' : 'Medlog'} note updated successfully`,
+      });
       
     } catch (error) {
       toast({

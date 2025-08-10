@@ -82,7 +82,7 @@ const ContainerBlock = ({
             {container.dangerousCargo && <DangerousGoodsFlag />}
           </div>
           <div className={`text-sm ${container.changedFields?.includes('sizeType') ? 'bg-yellow-100 px-2 py-1 rounded border-l-2 border-yellow-400' : ''}`}>
-            {container.size}/{container.containerType}
+            {container.sizeType}
           </div>
           <div className={`text-sm ${container.changedFields?.includes('dateTime') ? 'bg-yellow-100 px-2 py-1 rounded border-l-2 border-yellow-400' : ''}`}>
             {container.dateTime ? new Date(container.dateTime).toLocaleString('en-US', {
