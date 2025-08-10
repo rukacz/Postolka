@@ -53,6 +53,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
   const [showBulkNoteModal, setShowBulkNoteModal] = useState(false);
   const [lastAction, setLastAction] = useState<{ type: string; data: any } | null>(null);
   const [editingFields, setEditingFields] = useState<{[key: string]: boolean}>({});
+  const [containerQty, setContainerQty] = useState(1);
   const [newContainer, setNewContainer] = useState<{
     containerNumber: string;
     sizeType: string;
@@ -127,7 +128,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
   }, [addContainerMode]);
 
   // Function to save new container
-  const handleSaveNewContainer = () => {
+  const handleSaveNewContainer = (qty = 1) => {
     if (!newContainer || !newContainer.containerNumber) {
       toast({
         title: "Validation Error",
@@ -146,22 +147,44 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
       return;
     }
 
-    const containerData = {
-      blNumber: blDetail?.blNumber || containers[0]?.blNumber,
-      jobNumber: '1', // Default job number
-      containerNumber: newContainer.containerNumber,
-      sizeType: newContainer.sizeType,
-      status: 'Active',
-      routeStep: 'W',
-      destination: newContainer.destination,
-      carrierStatus: 'Pre-Order',
-      medlogStatus: 'New',
-      dangerousCargo: newContainer.dangerousCargo,
-      carrierNote: '',
-      medlogNote: ''
-    };
+    // Generate multiple containers based on quantity
+    const containers = [];
+    const baseContainerNumber = newContainer.containerNumber.slice(0, -1); // Remove last digit
+    const lastDigit = parseInt(newContainer.containerNumber.slice(-1));
 
-    createContainerMutation.mutate(containerData);
+    for (let i = 0; i < qty; i++) {
+      const newLastDigit = (lastDigit + i) % 10;
+      const containerNumber = baseContainerNumber + newLastDigit.toString();
+      
+      containers.push({
+        blNumber: blDetail?.blNumber || containers[0]?.blNumber,
+        jobNumber: '1',
+        containerNumber: containerNumber,
+        sizeType: newContainer.sizeType,
+        status: 'Active',
+        routeStep: 'W',
+        destination: newContainer.destination,
+        carrierStatus: 'Pre-Order',
+        medlogStatus: 'New',
+        dangerousCargo: newContainer.dangerousCargo,
+        carrierNote: '',
+        medlogNote: ''
+      });
+    }
+
+    // Create containers in sequence
+    containers.forEach((containerData, index) => {
+      setTimeout(() => {
+        createContainerMutation.mutate(containerData);
+      }, index * 100); // Small delay between creations
+    });
+
+    if (qty > 1) {
+      toast({
+        title: "Containers Created",
+        description: `${qty} containers added successfully.`,
+      });
+    }
   };
 
   // Function to cancel new container
@@ -581,16 +604,43 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
               <TableCell>
                 <MedlogStatusBadge status="New" />
               </TableCell>
-              <TableCell className="w-48">
-                <div className="flex gap-2">
-                  <Button
-                    onClick={handleSaveNewContainer}
-                    disabled={createContainerMutation.isPending}
-                    size="sm"
-                    className="bg-green-600 hover:bg-green-700 text-white"
-                  >
-                    Save
-                  </Button>
+              <TableCell className="w-64">
+                <div className="flex items-center gap-2 justify-end">
+                  {/* Qty input with dropdown */}
+                  <div className="flex items-center gap-1">
+                    <Label className="text-xs text-gray-600">Qty:</Label>
+                    <div className="relative">
+                      <Input
+                        type="number"
+                        min="1"
+                        max="999"
+                        value={containerQty}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 1;
+                          setContainerQty(Math.max(1, Math.min(999, value)));
+                        }}
+                        className="h-7 w-16 text-xs text-center pr-6"
+                      />
+                      <Select 
+                        value={containerQty <= 10 ? containerQty.toString() : "custom"} 
+                        onValueChange={(value) => {
+                          if (value !== "custom") {
+                            setContainerQty(parseInt(value));
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="absolute right-0 top-0 h-7 w-5 border-0 bg-transparent p-0">
+                          <div className="w-2 h-2 border-l border-t border-gray-400 rotate-45 -translate-y-0.5" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                            <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
                   <Button
                     onClick={handleCancelNewContainer}
                     disabled={createContainerMutation.isPending}
@@ -598,6 +648,18 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                     size="sm"
                   >
                     Cancel
+                  </Button>
+                  <Button
+                    onClick={() => handleSaveNewContainer(containerQty)}
+                    disabled={createContainerMutation.isPending}
+                    size="sm"
+                    className={`${
+                      containerQty > 1 
+                        ? "bg-green-600 hover:bg-green-700 border-2 border-green-400 text-white" 
+                        : "bg-green-600 hover:bg-green-700 text-white"
+                    }`}
+                  >
+                    Save {containerQty > 1 ? `${containerQty}x` : ""}
                   </Button>
                 </div>
               </TableCell>
