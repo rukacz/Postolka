@@ -199,7 +199,7 @@ function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps)
                 Client <ArrowUpDown className="ml-1 h-4 w-4" />
               </Button>
             </TableHead>
-            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Un/loading city</TableHead>
+            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Un/Load Location</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">POD/POL</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">ETA/Closing</TableHead>
             <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Containers</TableHead>
