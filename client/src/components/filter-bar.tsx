@@ -250,6 +250,28 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
             Delivery not possible
           </Label>
         </div>
+        
+        <div className="flex items-center space-x-2">
+          <Checkbox 
+            id="importOnly"
+            checked={filters.importOnly || false}
+            onCheckedChange={(checked) => updateFilter('importOnly', !!checked)}
+          />
+          <Label htmlFor="importOnly" className="text-sm font-medium text-gray-700">
+            Import only
+          </Label>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <Checkbox 
+            id="exportOnly"
+            checked={filters.exportOnly || false}
+            onCheckedChange={(checked) => updateFilter('exportOnly', !!checked)}
+          />
+          <Label htmlFor="exportOnly" className="text-sm font-medium text-gray-700">
+            Export only
+          </Label>
+        </div>
       </div>
 
     </div>

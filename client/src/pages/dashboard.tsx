@@ -102,12 +102,20 @@ export default function Dashboard() {
       })
     );
 
+    // Import Only Filter: Show only Import BLs
+    const matchesImportOnly = !filters.importOnly || bl.type === 'Import';
+
+    // Export Only Filter: Show only Export BLs
+    const matchesExportOnly = !filters.exportOnly || bl.type === 'Export';
+
     return matchesSearch && 
            matchesFilters && 
            matchesDG && 
            matchesOnlyEdited && 
            matchesNewTrain && 
-           matchesDeliveryNotPossible;
+           matchesDeliveryNotPossible &&
+           matchesImportOnly &&
+           matchesExportOnly;
   });
 
   // Calculate pagination

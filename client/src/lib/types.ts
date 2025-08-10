@@ -15,6 +15,8 @@ export interface FilterState {
   onlyEdited?: boolean;
   newTrain?: boolean;
   deliveryNotPossible?: boolean;
+  importOnly?: boolean;
+  exportOnly?: boolean;
 }
 
 export type UserGroup = 'carrier' | 'medlog';
