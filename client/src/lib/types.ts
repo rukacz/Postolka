@@ -1,15 +1,15 @@
 export interface FilterState {
   client?: string;
   podPol?: string;
-  eta?: string;
   medlogStatus?: string;
   carrierStatus?: string;
   carrier?: string;
   pic?: string;
   // Replaced fields
   unloadCity?: string;
-  unloadDateFrom?: string;
-  unloadDateTo?: string;
+  // Consolidated date filters
+  dateFilter1?: string;
+  dateFilter2?: string;
   // Additional filter checkboxes
   dgFilter?: boolean;
   onlyEdited?: boolean;

@@ -97,6 +97,11 @@ The application is designed for containerized deployment with:
 - Session management ready with `connect-pg-simple`
 
 ### Recent Changes
+- **2025-01-29**: Date filter consolidation and UI improvements
+  - Consolidated 4 date filters (ETA/Closing, Un/Load Date From/To) into 2 universal date filters
+  - New date filters work as either interval (both dates set) or exact date (one date set)
+  - Date filtering logic now checks both container dates and BL ETA/Closing dates
+  - Updated filter labels to "Date From/Exact" and "Date To (optional)" for better user clarity
 - **2025-01-29**: Terminology standardization and booking details enhancement
   - Standardized all references from "City" and "Destination" to "Location" throughout the application
   - Updated filter bar to use "Un/Load Location" instead of "Un/Load City" 
