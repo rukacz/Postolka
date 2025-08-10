@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { FileText, AlertTriangle, Undo2, Scale, ChevronRight, Flame } from "lucide-react";
+import { FileText, AlertTriangle, Undo2, Scale, ChevronRight, Flame, Copy, Trash2 } from "lucide-react";
 import DangerousGoodsFlag from "@/components/dangerous-goods-flag";
 import CarrierStatusBadge from "@/components/carrier-status-badge";
 import MedlogStatusBadge from "@/components/medlog-status-badge";
@@ -26,6 +26,8 @@ interface ContainerTableProps {
   changedFields?: string[];
   addContainerMode?: boolean;
   onAddContainerComplete?: () => void;
+  onCopyContainer?: (container: Container) => void;
+  onDeleteContainer?: (containerId: string) => void;
 }
 
 const sizeTypeOptions = [
@@ -46,7 +48,7 @@ const validateContainerNumber = (containerNumber: string): boolean => {
   return regex.test(containerNumber);
 };
 
-const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazardousChange, changedFields = [], addContainerMode = false, onAddContainerComplete }: ContainerTableProps) => {
+const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazardousChange, changedFields = [], addContainerMode = false, onAddContainerComplete, onCopyContainer, onDeleteContainer }: ContainerTableProps) => {
   const [selectedContainers, setSelectedContainers] = useState<number[]>([]);
   const [showBulkNoteModal, setShowBulkNoteModal] = useState(false);
   const [lastAction, setLastAction] = useState<{ type: string; data: any } | null>(null);
@@ -325,6 +327,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
             <TableHead className="w-36">Carrier Status</TableHead>
             <TableHead className="w-28">Medlog Status</TableHead>
             <TableHead className="w-48">Note</TableHead>
+            <TableHead className="w-20">Actions</TableHead>
           </TableRow>
           {/* Bulk Editing Row */}
           {selectedContainers.length > 0 && (
@@ -507,6 +510,9 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                   Add Note
                 </Button>
               </TableHead>
+              <TableHead className="h-auto p-2">
+                <span className="text-xs text-gray-500">Actions</span>
+              </TableHead>
             </TableRow>
           )}
         </TableHeader>
@@ -594,6 +600,10 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                     Cancel
                   </Button>
                 </div>
+              </TableCell>
+              <TableCell>
+                {/* No actions for new container row */}
+                -
               </TableCell>
             </TableRow>
           )}
@@ -683,6 +693,28 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                       </Button>
                     ) : null}
                   </div>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onCopyContainer?.(container)}
+                    className="h-6 w-6 p-0"
+                    title="Copy container data"
+                  >
+                    <Copy className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onDeleteContainer?.(container.id.toString())}
+                    className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                    title="Delete container"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
                 </div>
               </TableCell>
             </TableRow>

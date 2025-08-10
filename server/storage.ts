@@ -33,6 +33,7 @@ export interface IStorage {
   updateContainerNote(id: number, group: 'carrier' | 'medlog', note: string): Promise<Container | undefined>;
   updateContainerHazardous(id: number, hazardous: boolean): Promise<Container | undefined>;
   getContainer(id: number): Promise<Container | undefined>;
+  deleteContainer(id: number): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -481,6 +482,11 @@ export class DatabaseStorage implements IStorage {
   async getContainer(id: number): Promise<Container | undefined> {
     const [container] = await db.select().from(containers).where(eq(containers.id, id));
     return container || undefined;
+  }
+
+  async deleteContainer(id: number): Promise<boolean> {
+    const result = await db.delete(containers).where(eq(containers.id, id));
+    return result.rowCount !== undefined && result.rowCount > 0;
   }
 }
 

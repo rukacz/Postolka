@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Printer, Scissors, Edit, CheckCircle, MessageCircle, Plus } from "lucide-react";
+import { ArrowLeft, Printer, Scissors, Edit, CheckCircle, MessageCircle, Plus, Copy, Trash2 } from "lucide-react";
 import { BLDetail, Container, BLSummary } from "@shared/schema";
 import { BLStatus, UserGroup, CarrierStatus, MedlogStatus } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
@@ -19,6 +19,7 @@ import CarrierStatusBadge from "@/components/carrier-status-badge";
 import MedlogStatusBadge from "@/components/medlog-status-badge";
 import TrainStatusIcon from "@/components/train-status-icon";
 import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 export default function BLDetailPage() {
   const [, params] = useRoute("/bl/:blNumber");
@@ -28,6 +29,8 @@ export default function BLDetailPage() {
   const [activeTab, setActiveTab] = useState("containers");
   const [newChatMessage, setNewChatMessage] = useState("");
   const [addContainerMode, setAddContainerMode] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [containerToDelete, setContainerToDelete] = useState<string | null>(null);
   
   // Simulated current user group - in real app this would come from auth context
   const currentUserGroup: UserGroup = 'medlog';
@@ -118,6 +121,90 @@ export default function BLDetailPage() {
         description: "Failed to update hazardous cargo status",
         variant: "destructive"
       });
+    }
+  };
+
+  const deleteContainerMutation = useMutation({
+    mutationFn: async (containerId: string) => {
+      return await apiRequest(`/api/containers/${containerId}`, {
+        method: 'DELETE',
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/containers', blNumber] });
+      toast({
+        title: "Container deleted",
+        description: "The container has been successfully removed.",
+      });
+      setDeleteDialogOpen(false);
+      setContainerToDelete(null);
+    },
+  });
+
+  const formatContainerForClipboard = (container: Container) => {
+    const formatDate = (dateStr: string) => {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: true 
+      });
+    };
+
+    const location = container.destination || container.unloadAddress || 'N/A';
+    const dateTime = container.dateTime ? formatDate(container.dateTime) : 'N/A';
+    
+    return `${container.containerNumber}\t${container.containerType || 'N/A'}\t${location}\t${dateTime}`;
+  };
+
+  const copyAllContainersToClipboard = async () => {
+    const header = "Ctr\t\ttype/size\tLocation\tDate/time";
+    const containerLines = containers.map(container => formatContainerForClipboard(container));
+    const clipboardText = [header, ...containerLines].join('\n');
+    
+    try {
+      await navigator.clipboard.writeText(clipboardText);
+      toast({
+        title: "Copied to clipboard",
+        description: "All container data has been copied to clipboard.",
+      });
+    } catch (err) {
+      toast({
+        title: "Copy failed",
+        description: "Failed to copy to clipboard. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const copyContainerToClipboard = async (container: Container) => {
+    const clipboardText = formatContainerForClipboard(container);
+    
+    try {
+      await navigator.clipboard.writeText(clipboardText);
+      toast({
+        title: "Copied to clipboard",
+        description: "Container data has been copied to clipboard.",
+      });
+    } catch (err) {
+      toast({
+        title: "Copy failed",
+        description: "Failed to copy to clipboard. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteContainer = (containerId: string) => {
+    setContainerToDelete(containerId);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteContainer = () => {
+    if (containerToDelete) {
+      deleteContainerMutation.mutate(containerToDelete);
     }
   };
 
@@ -310,15 +397,26 @@ export default function BLDetailPage() {
               </button>
             </nav>
             {activeTab === 'containers' && (
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="mb-2"
-                onClick={() => setAddContainerMode(true)}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add Container
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="mb-2"
+                  onClick={() => setAddContainerMode(true)}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Container
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="mb-2"
+                  onClick={copyAllContainersToClipboard}
+                >
+                  <Copy className="h-4 w-4 mr-2" />
+                  Copy to clipboard
+                </Button>
+              </div>
             )}
           </div>
         </div>
@@ -335,6 +433,8 @@ export default function BLDetailPage() {
               changedFields={blSummary?.changedFields || []}
               addContainerMode={addContainerMode}
               onAddContainerComplete={() => setAddContainerMode(false)}
+              onCopyContainer={copyContainerToClipboard}
+              onDeleteContainer={handleDeleteContainer}
             />
           </div>
         )}
@@ -434,6 +534,33 @@ export default function BLDetailPage() {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Container</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this container? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button 
+              variant="outline" 
+              onClick={() => setDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={confirmDeleteContainer}
+              disabled={deleteContainerMutation.isPending}
+            >
+              {deleteContainerMutation.isPending ? "Deleting..." : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
