@@ -274,9 +274,17 @@ export default function BLDetailPage() {
               <span>Back to Overview</span>
             </Button>
 {/* Change indicator removed for now - will be shown in InfoBar instead */}
-            <h1 className="text-2xl font-bold text-gray-900">
-              Booking Details – {blDetail.blNumber} – {blDetail.customerName}
-            </h1>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Booking Details – {blDetail.blNumber} – {blDetail.customerName}
+              </h1>
+              <p className="text-sm text-gray-600 mt-1">
+                {blSummary?.type === 'Import' ? 'Unload: ' : 'Load: '}
+                <FieldWrapper fieldName="loadUnloadLocation" className="inline rounded px-1">
+                  {blDetail?.toAddress || 'N/A'}
+                </FieldWrapper>
+              </p>
+            </div>
           </div>
           
           <div className="flex space-x-2">
@@ -330,14 +338,7 @@ export default function BLDetailPage() {
               <FieldWrapper fieldName="pic" className="inline-block rounded px-2 py-1">
                 <span className="text-gray-700">{blSummary?.pic || 'Not assigned'}</span>
               </FieldWrapper>
-              <FieldWrapper fieldName="loadUnloadLocation" className="inline-block rounded px-2 py-1">
-                <span className="text-gray-700">
-                  {blSummary?.type === 'Import' ? 
-                    `Unload: ${blDetail?.toAddress || 'N/A'}` : 
-                    `Load: ${blDetail?.toAddress || 'N/A'}`
-                  }
-                </span>
-              </FieldWrapper>
+
             </div>
             <div className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4 text-gray-600" />

@@ -75,16 +75,20 @@ export default function Dashboard() {
       // Also check ETA/Closing date on BL level
       (() => {
         if (!bl.etaClosing) return false;
-        const blDate = new Date(bl.etaClosing).toISOString().split('T')[0];
+        try {
+          const blDate = new Date(bl.etaClosing).toISOString().split('T')[0];
         
-        if (filters.dateFilter1 && filters.dateFilter2) {
-          const fromDate = filters.dateFilter1 <= filters.dateFilter2 ? filters.dateFilter1 : filters.dateFilter2;
-          const toDate = filters.dateFilter1 <= filters.dateFilter2 ? filters.dateFilter2 : filters.dateFilter1;
-          return blDate >= fromDate && blDate <= toDate;
+          if (filters.dateFilter1 && filters.dateFilter2) {
+            const fromDate = filters.dateFilter1 <= filters.dateFilter2 ? filters.dateFilter1 : filters.dateFilter2;
+            const toDate = filters.dateFilter1 <= filters.dateFilter2 ? filters.dateFilter2 : filters.dateFilter1;
+            return blDate >= fromDate && blDate <= toDate;
+          }
+        
+          const targetDate = filters.dateFilter1 || filters.dateFilter2;
+          return blDate === targetDate;
+        } catch (e) {
+          return false;
         }
-        
-        const targetDate = filters.dateFilter1 || filters.dateFilter2;
-        return blDate === targetDate;
       })();
 
     const matchesFilters = 
