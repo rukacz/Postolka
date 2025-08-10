@@ -200,80 +200,83 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
           />
         </div>
         
+      </div>
+      
+      {/* Additional Filter Checkboxes */}
+      <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200">
+        <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="dgFilter"
+              checked={filters.dgFilter || false}
+              onCheckedChange={(checked) => updateFilter('dgFilter', !!checked)}
+            />
+            <Label htmlFor="dgFilter" className="text-sm font-medium text-gray-700">
+              DG
+            </Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="onlyEdited"
+              checked={filters.onlyEdited || false}
+              onCheckedChange={(checked) => updateFilter('onlyEdited', !!checked)}
+            />
+            <Label htmlFor="onlyEdited" className="text-sm font-medium text-gray-700">
+              Changed Only
+            </Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="newTrain"
+              checked={filters.newTrain || false}
+              onCheckedChange={(checked) => updateFilter('newTrain', !!checked)}
+            />
+            <Label htmlFor="newTrain" className="text-sm font-medium text-gray-700">
+              New Train
+            </Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="deliveryNotPossible"
+              checked={filters.deliveryNotPossible || false}
+              onCheckedChange={(checked) => updateFilter('deliveryNotPossible', !!checked)}
+            />
+            <Label htmlFor="deliveryNotPossible" className="text-sm font-medium text-gray-700">
+              Delivery not possible
+            </Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="importOnly"
+              checked={filters.importOnly || false}
+              onCheckedChange={(checked) => updateFilter('importOnly', !!checked)}
+            />
+            <Label htmlFor="importOnly" className="text-sm font-medium text-gray-700">
+              Import only
+            </Label>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Checkbox 
+              id="exportOnly"
+              checked={filters.exportOnly || false}
+              onCheckedChange={(checked) => updateFilter('exportOnly', !!checked)}
+            />
+            <Label htmlFor="exportOnly" className="text-sm font-medium text-gray-700">
+              Export only
+            </Label>
+          </div>
+        </div>
+        
         <div>
           <Button variant="outline" onClick={onClearFilters} className="border-gray-300 text-gray-700 hover:bg-gray-50">
             <X className="w-4 h-4 mr-2" />
             Clear
           </Button>
-        </div>
-      </div>
-      
-      {/* Additional Filter Checkboxes */}
-      <div className="flex items-center space-x-6 mt-4 pt-4 border-t border-gray-200">
-        <div className="flex items-center space-x-2">
-          <Checkbox 
-            id="dgFilter"
-            checked={filters.dgFilter || false}
-            onCheckedChange={(checked) => updateFilter('dgFilter', !!checked)}
-          />
-          <Label htmlFor="dgFilter" className="text-sm font-medium text-gray-700">
-            DG
-          </Label>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Checkbox 
-            id="onlyEdited"
-            checked={filters.onlyEdited || false}
-            onCheckedChange={(checked) => updateFilter('onlyEdited', !!checked)}
-          />
-          <Label htmlFor="onlyEdited" className="text-sm font-medium text-gray-700">
-            Changed Only
-          </Label>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Checkbox 
-            id="newTrain"
-            checked={filters.newTrain || false}
-            onCheckedChange={(checked) => updateFilter('newTrain', !!checked)}
-          />
-          <Label htmlFor="newTrain" className="text-sm font-medium text-gray-700">
-            New Train
-          </Label>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Checkbox 
-            id="deliveryNotPossible"
-            checked={filters.deliveryNotPossible || false}
-            onCheckedChange={(checked) => updateFilter('deliveryNotPossible', !!checked)}
-          />
-          <Label htmlFor="deliveryNotPossible" className="text-sm font-medium text-gray-700">
-            Delivery not possible
-          </Label>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Checkbox 
-            id="importOnly"
-            checked={filters.importOnly || false}
-            onCheckedChange={(checked) => updateFilter('importOnly', !!checked)}
-          />
-          <Label htmlFor="importOnly" className="text-sm font-medium text-gray-700">
-            Import only
-          </Label>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <Checkbox 
-            id="exportOnly"
-            checked={filters.exportOnly || false}
-            onCheckedChange={(checked) => updateFilter('exportOnly', !!checked)}
-          />
-          <Label htmlFor="exportOnly" className="text-sm font-medium text-gray-700">
-            Export only
-          </Label>
         </div>
       </div>
 
