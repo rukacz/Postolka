@@ -298,10 +298,7 @@ export default function BLDetailPage() {
                 Acknowledge Changes
               </Button>
             )}
-            <Button variant="outline" size="sm">
-              <Scissors className="h-4 w-4 mr-2" />
-              Export
-            </Button>
+
             <Button 
               variant="outline" 
               size="sm"
