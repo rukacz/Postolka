@@ -314,6 +314,9 @@ export default function BLDetailPage() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-6">
+              <FieldWrapper fieldName="type" className="inline-block rounded px-2 py-1">
+                <span className="font-semibold text-blue-700">{blSummary?.type || 'N/A'}</span>
+              </FieldWrapper>
               <FieldWrapper fieldName="carrier" className="inline-block rounded px-2 py-1">
                 <span className="font-semibold">{blSummary?.carrier || 'MSC'}</span>
               </FieldWrapper>
