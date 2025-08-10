@@ -27,24 +27,22 @@ const ContainerBlock = ({
   const isCarrier = userGroup === "carrier";
   const isMedlog = userGroup === "medlog";
 
-  // Local state for notes
+  // Use local state for immediate UI updates, sync with container props
   const [carrierNote, setCarrierNote] = useState(container.carrierNote || "");
   const [medlogNote, setMedlogNote] = useState(container.medlogNote || "");
+  
+  // Sync with container props when they change
+  useEffect(() => {
+    setCarrierNote(container.carrierNote || "");
+    setMedlogNote(container.medlogNote || "");
+  }, [container.id, container.carrierNote, container.medlogNote]); // Added container.id as key
   
   // Refs for timeouts
   const carrierTimeoutRef = useRef<NodeJS.Timeout>();
   const medlogTimeoutRef = useRef<NodeJS.Timeout>();
 
-  // Update local state when container data changes from external source
-  useEffect(() => {
-    setCarrierNote(container.carrierNote || "");
-    setMedlogNote(container.medlogNote || "");
-  }, [container.carrierNote, container.medlogNote]);
-
   // Handle carrier note change with debounce
   const handleCarrierNoteChange = (value: string) => {
-    setCarrierNote(value);
-    
     if (carrierTimeoutRef.current) {
       clearTimeout(carrierTimeoutRef.current);
     }
@@ -56,8 +54,6 @@ const ContainerBlock = ({
 
   // Handle medlog note change with debounce
   const handleMedlogNoteChange = (value: string) => {
-    setMedlogNote(value);
-    
     if (medlogTimeoutRef.current) {
       clearTimeout(medlogTimeoutRef.current);
     }
