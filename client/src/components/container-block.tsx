@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Container } from "@shared/schema";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -27,35 +27,57 @@ const ContainerBlock = ({
   const isCarrier = userGroup === "carrier";
   const isMedlog = userGroup === "medlog";
 
-  // Local state for notes to avoid constant API calls
+  // Local state for notes
   const [carrierNote, setCarrierNote] = useState(container.carrierNote || "");
   const [medlogNote, setMedlogNote] = useState(container.medlogNote || "");
+  
+  // Refs for timeouts
+  const carrierTimeoutRef = useRef<NodeJS.Timeout>();
+  const medlogTimeoutRef = useRef<NodeJS.Timeout>();
 
-  // Update local state when container data changes
+  // Update local state when container data changes from external source
   useEffect(() => {
     setCarrierNote(container.carrierNote || "");
     setMedlogNote(container.medlogNote || "");
   }, [container.carrierNote, container.medlogNote]);
 
-  // Debounced save for carrier note
-  useEffect(() => {
-    if (carrierNote !== (container.carrierNote || "")) {
-      const timer = setTimeout(() => {
-        onNoteChange(container.id, 'carrier', carrierNote);
-      }, 1000); // Wait 1 second after user stops typing
-      return () => clearTimeout(timer);
+  // Handle carrier note change with debounce
+  const handleCarrierNoteChange = (value: string) => {
+    setCarrierNote(value);
+    
+    if (carrierTimeoutRef.current) {
+      clearTimeout(carrierTimeoutRef.current);
     }
-  }, [carrierNote, container.carrierNote, container.id, onNoteChange]);
+    
+    carrierTimeoutRef.current = setTimeout(() => {
+      onNoteChange(container.id, 'carrier', value);
+    }, 1000);
+  };
 
-  // Debounced save for medlog note
-  useEffect(() => {
-    if (medlogNote !== (container.medlogNote || "")) {
-      const timer = setTimeout(() => {
-        onNoteChange(container.id, 'medlog', medlogNote);
-      }, 1000); // Wait 1 second after user stops typing
-      return () => clearTimeout(timer);
+  // Handle medlog note change with debounce
+  const handleMedlogNoteChange = (value: string) => {
+    setMedlogNote(value);
+    
+    if (medlogTimeoutRef.current) {
+      clearTimeout(medlogTimeoutRef.current);
     }
-  }, [medlogNote, container.medlogNote, container.id, onNoteChange]);
+    
+    medlogTimeoutRef.current = setTimeout(() => {
+      onNoteChange(container.id, 'medlog', value);
+    }, 1000);
+  };
+
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (carrierTimeoutRef.current) {
+        clearTimeout(carrierTimeoutRef.current);
+      }
+      if (medlogTimeoutRef.current) {
+        clearTimeout(medlogTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Check if this container is newly added
   const isNewContainer = container.isNewContainer;
@@ -125,7 +147,7 @@ const ContainerBlock = ({
                 !isCarrier ? "bg-gray-100 text-gray-600" : ""
               }`}
               value={carrierNote}
-              onChange={(e) => setCarrierNote(e.target.value)}
+              onChange={(e) => handleCarrierNoteChange(e.target.value)}
               readOnly={!isCarrier}
               placeholder="Note"
             />
@@ -142,7 +164,7 @@ const ContainerBlock = ({
                 !isMedlog ? "bg-gray-100 text-gray-600" : ""
               }`}
               value={medlogNote}
-              onChange={(e) => setMedlogNote(e.target.value)}
+              onChange={(e) => handleMedlogNoteChange(e.target.value)}
               readOnly={!isMedlog}
               placeholder="Note"
             />

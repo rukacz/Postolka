@@ -93,9 +93,10 @@ export default function BLDetailPage() {
         note
       });
       
-      // Invalidate container queries to refresh data  
-      queryClient.invalidateQueries({ queryKey: ['/api/containers'] });
-      queryClient.invalidateQueries({ queryKey: ['/api/containers', blNumber] });
+      // Force refresh all container data
+      await queryClient.invalidateQueries({ queryKey: ['/api/containers'] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/containers', blNumber] });
+      await queryClient.refetchQueries({ queryKey: ['/api/containers', blNumber] });
       
       toast({
         title: "Note updated",
