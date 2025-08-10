@@ -110,7 +110,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
             ]}
             value={Array.isArray(filters.medlogStatus) ? filters.medlogStatus : filters.medlogStatus ? [filters.medlogStatus] : []}
             onValueChange={(value) => updateFilter('medlogStatus', value)}
-            placeholder="All Medlog Status"
+            placeholder="All statuses"
             className="focus:ring-2 focus:ring-primary"
           />
         </div>
@@ -126,7 +126,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
             ]}
             value={Array.isArray(filters.carrierStatus) ? filters.carrierStatus : filters.carrierStatus ? [filters.carrierStatus] : []}
             onValueChange={(value) => updateFilter('carrierStatus', value)}
-            placeholder="All Carrier Status"
+            placeholder="All statuses"
             className="focus:ring-2 focus:ring-primary"
           />
         </div>
