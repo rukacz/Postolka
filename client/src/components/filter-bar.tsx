@@ -87,13 +87,12 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         </div>
         
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">Date From/Exact</Label>
+          <Label className="text-sm font-medium text-gray-700 mb-1">ETA/Closing</Label>
           <Input
             type="date"
-            value={filters.dateFilter1 || ""}
-            onChange={(e) => updateFilter('dateFilter1', e.target.value)}
+            value={filters.eta || ""}
+            onChange={(e) => updateFilter('eta', e.target.value)}
             className="focus:ring-2 focus:ring-primary focus:border-transparent"
-            title="Start date for range or exact date if used alone"
           />
         </div>
         
@@ -179,13 +178,22 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         </div>
 
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">Date To (optional)</Label>
+          <Label className="text-sm font-medium text-gray-700 mb-1">Un/Load Date From</Label>
           <Input
             type="date"
-            value={filters.dateFilter2 || ""}
-            onChange={(e) => updateFilter('dateFilter2', e.target.value)}
+            value={filters.unloadDateFrom || ""}
+            onChange={(e) => updateFilter('unloadDateFrom', e.target.value)}
             className="focus:ring-2 focus:ring-primary focus:border-transparent"
-            title="End date for range (leave empty for exact date)"
+          />
+        </div>
+
+        <div>
+          <Label className="text-sm font-medium text-gray-700 mb-1">Un/Load Date To</Label>
+          <Input
+            type="date"
+            value={filters.unloadDateTo || ""}
+            onChange={(e) => updateFilter('unloadDateTo', e.target.value)}
+            className="focus:ring-2 focus:ring-primary focus:border-transparent"
           />
         </div>
         

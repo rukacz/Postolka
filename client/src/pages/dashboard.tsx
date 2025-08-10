@@ -55,41 +55,17 @@ export default function Dashboard() {
         container.unloadAddress?.toLowerCase().includes(filters.unloadCity?.toLowerCase() || '')
       );
 
-    // Date filter logic - works as interval if both dates set, or single date if only one set
-    const matchesDateFilters = (!filters.dateFilter1 && !filters.dateFilter2) ||
+    // Un/Load Date filter - check container date/time within range
+    const matchesUnloadDateRange = (!filters.unloadDateFrom && !filters.unloadDateTo) ||
       blContainers.some(container => {
         if (!container.dateTime) return false;
         const containerDate = new Date(container.dateTime).toISOString().split('T')[0]; // Get YYYY-MM-DD format
+        const fromDate = filters.unloadDateFrom;
+        const toDate = filters.unloadDateTo;
         
-        // If both dates are set, use as date range
-        if (filters.dateFilter1 && filters.dateFilter2) {
-          const fromDate = filters.dateFilter1 <= filters.dateFilter2 ? filters.dateFilter1 : filters.dateFilter2;
-          const toDate = filters.dateFilter1 <= filters.dateFilter2 ? filters.dateFilter2 : filters.dateFilter1;
-          return containerDate >= fromDate && containerDate <= toDate;
-        }
-        
-        // If only one date is set, match exact date
-        const targetDate = filters.dateFilter1 || filters.dateFilter2;
-        return containerDate === targetDate;
-      }) ||
-      // Also check ETA/Closing date on BL level
-      (() => {
-        if (!bl.etaClosing) return false;
-        try {
-          const blDate = new Date(bl.etaClosing).toISOString().split('T')[0];
-        
-          if (filters.dateFilter1 && filters.dateFilter2) {
-            const fromDate = filters.dateFilter1 <= filters.dateFilter2 ? filters.dateFilter1 : filters.dateFilter2;
-            const toDate = filters.dateFilter1 <= filters.dateFilter2 ? filters.dateFilter2 : filters.dateFilter1;
-            return blDate >= fromDate && blDate <= toDate;
-          }
-        
-          const targetDate = filters.dateFilter1 || filters.dateFilter2;
-          return blDate === targetDate;
-        } catch (e) {
-          return false;
-        }
-      })();
+        return (!fromDate || containerDate >= fromDate) && 
+               (!toDate || containerDate <= toDate);
+      });
 
     const matchesFilters = 
       (!filters.client || bl.client === filters.client) &&
@@ -99,7 +75,7 @@ export default function Dashboard() {
       (!filters.carrier || bl.carrier === filters.carrier) &&
       (!filters.pic || bl.pic === filters.pic) &&
       matchesUnloadCity &&
-      matchesDateFilters;
+      matchesUnloadDateRange;
 
     // Handle unseen changes 
     const unseenChangesCount = currentUserGroup === 'medlog' ? (bl.unseenChangesMedlog || 0) : (bl.unseenChangesCarrier || 0);
