@@ -1,11 +1,11 @@
 export interface FilterState {
-  client?: string;
-  podPol?: string;
+  client?: string | string[];
+  podPol?: string | string[];
   eta?: string;
-  medlogStatus?: string;
-  carrierStatus?: string;
-  carrier?: string;
-  pic?: string;
+  medlogStatus?: string | string[];
+  carrierStatus?: string | string[];
+  carrier?: string | string[];
+  pic?: string | string[];
   // Replaced fields
   unloadCity?: string;
   unloadDateFrom?: string;

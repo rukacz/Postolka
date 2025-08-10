@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MultiSelect } from "@/components/ui/multi-select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { X } from "lucide-react";
 import { FilterState } from "@/lib/types";
@@ -18,9 +19,11 @@ interface FilterBarProps {
 export default function FilterBar({ filters, onFiltersChange, onClearFilters }: FilterBarProps) {
   const [showMoreFilters, setShowMoreFilters] = useState(false);
 
-  const updateFilter = (key: keyof FilterState, value: string | boolean) => {
+  const updateFilter = (key: keyof FilterState, value: string | boolean | string[]) => {
     if (typeof value === 'boolean') {
       onFiltersChange({ ...filters, [key]: value });
+    } else if (Array.isArray(value)) {
+      onFiltersChange({ ...filters, [key]: value.length === 0 ? undefined : value });
     } else {
       onFiltersChange({ ...filters, [key]: value === 'all' ? undefined : value || undefined });
     }
@@ -47,43 +50,43 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         
         <div>
           <Label className="text-sm font-medium text-gray-700 mb-1">Client</Label>
-          <Select value={filters.client || "all"} onValueChange={(value) => updateFilter('client', value)}>
-            <SelectTrigger className="focus:ring-2 focus:ring-primary">
-              <SelectValue placeholder="All Clients" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Clients</SelectItem>
-              <SelectItem value="ŠKODA AUTO">ŠKODA AUTO</SelectItem>
-              <SelectItem value="TESCO">TESCO</SelectItem>
-              <SelectItem value="IKEA">IKEA</SelectItem>
-              <SelectItem value="NTB">NTB</SelectItem>
-              <SelectItem value="AUDI">AUDI</SelectItem>
-              <SelectItem value="VOLKSWAGEN">VOLKSWAGEN</SelectItem>
-            </SelectContent>
-          </Select>
+          <MultiSelect
+            options={[
+              { label: "ŠKODA AUTO", value: "ŠKODA AUTO" },
+              { label: "TESCO", value: "TESCO" },
+              { label: "IKEA", value: "IKEA" },
+              { label: "NTB", value: "NTB" },
+              { label: "AUDI", value: "AUDI" },
+              { label: "VOLKSWAGEN", value: "VOLKSWAGEN" }
+            ]}
+            value={Array.isArray(filters.client) ? filters.client : filters.client ? [filters.client] : []}
+            onValueChange={(value) => updateFilter('client', value)}
+            placeholder="All Clients"
+            className="focus:ring-2 focus:ring-primary"
+          />
         </div>
         
         <div>
           <Label className="text-sm font-medium text-gray-700 mb-1">POD/POL</Label>
-          <Select value={filters.podPol || "all"} onValueChange={(value) => updateFilter('podPol', value)}>
-            <SelectTrigger className="focus:ring-2 focus:ring-primary">
-              <SelectValue placeholder="All POD/POL" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All POD/POL</SelectItem>
-              <SelectItem value="HAM CTA">HAM CTA</SelectItem>
-              <SelectItem value="HAM CTB">HAM CTB</SelectItem>
-              <SelectItem value="HAM CTT">HAM CTT</SelectItem>
-              <SelectItem value="BRV MSC">BRV MSC</SelectItem>
-              <SelectItem value="BRV NTB">BRV NTB</SelectItem>
-              <SelectItem value="Rotterdam">Rotterdam</SelectItem>
-              <SelectItem value="Antwerpen">Antwerpen</SelectItem>
-              <SelectItem value="Trieste">Trieste</SelectItem>
-              <SelectItem value="Koper">Koper</SelectItem>
-              <SelectItem value="Gdansk">Gdansk</SelectItem>
-              <SelectItem value="Gdynia">Gdynia</SelectItem>
-            </SelectContent>
-          </Select>
+          <MultiSelect
+            options={[
+              { label: "HAM CTA", value: "HAM CTA" },
+              { label: "HAM CTB", value: "HAM CTB" },
+              { label: "HAM CTT", value: "HAM CTT" },
+              { label: "BRV MSC", value: "BRV MSC" },
+              { label: "BRV NTB", value: "BRV NTB" },
+              { label: "Rotterdam", value: "Rotterdam" },
+              { label: "Antwerpen", value: "Antwerpen" },
+              { label: "Trieste", value: "Trieste" },
+              { label: "Koper", value: "Koper" },
+              { label: "Gdansk", value: "Gdansk" },
+              { label: "Gdynia", value: "Gdynia" }
+            ]}
+            value={Array.isArray(filters.podPol) ? filters.podPol : filters.podPol ? [filters.podPol] : []}
+            onValueChange={(value) => updateFilter('podPol', value)}
+            placeholder="All POD/POL"
+            className="focus:ring-2 focus:ring-primary"
+          />
         </div>
         
         <div>
@@ -98,66 +101,66 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         
         <div>
           <Label className="text-sm font-medium text-gray-700 mb-1">Medlog Status</Label>
-          <Select value={filters.medlogStatus || "all"} onValueChange={(value) => updateFilter('medlogStatus', value)}>
-            <SelectTrigger className="focus:ring-2 focus:ring-primary">
-              <SelectValue placeholder="All Medlog Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Medlog Status</SelectItem>
-              <SelectItem value="New">New</SelectItem>
-              <SelectItem value="Approved">Approved</SelectItem>
-              <SelectItem value="Rejected">Rejected</SelectItem>
-              <SelectItem value="Changed">Changed</SelectItem>
-            </SelectContent>
-          </Select>
+          <MultiSelect
+            options={[
+              { label: "New", value: "New" },
+              { label: "Approved", value: "Approved" },
+              { label: "Rejected", value: "Rejected" },
+              { label: "Changed", value: "Changed" }
+            ]}
+            value={Array.isArray(filters.medlogStatus) ? filters.medlogStatus : filters.medlogStatus ? [filters.medlogStatus] : []}
+            onValueChange={(value) => updateFilter('medlogStatus', value)}
+            placeholder="All Medlog Status"
+            className="focus:ring-2 focus:ring-primary"
+          />
         </div>
         
         <div>
           <Label className="text-sm font-medium text-gray-700 mb-1">Carrier Status</Label>
-          <Select value={filters.carrierStatus || "all"} onValueChange={(value) => updateFilter('carrierStatus', value)}>
-            <SelectTrigger className="focus:ring-2 focus:ring-primary">
-              <SelectValue placeholder="All Carrier Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Carrier Status</SelectItem>
-              <SelectItem value="Pre-Order">Pre-Order</SelectItem>
-              <SelectItem value="MIPS Send">MIPS Send</SelectItem>
-              <SelectItem value="Do Not Release">Do Not Release</SelectItem>
-              <SelectItem value="Cancelled">Cancelled</SelectItem>
-            </SelectContent>
-          </Select>
+          <MultiSelect
+            options={[
+              { label: "Pre-Order", value: "Pre-Order" },
+              { label: "MIPS Send", value: "MIPS Send" },
+              { label: "Do Not Release", value: "Do Not Release" },
+              { label: "Cancelled", value: "Cancelled" }
+            ]}
+            value={Array.isArray(filters.carrierStatus) ? filters.carrierStatus : filters.carrierStatus ? [filters.carrierStatus] : []}
+            onValueChange={(value) => updateFilter('carrierStatus', value)}
+            placeholder="All Carrier Status"
+            className="focus:ring-2 focus:ring-primary"
+          />
         </div>
         
         <div>
           <Label className="text-sm font-medium text-gray-700 mb-1">Carrier</Label>
-          <Select value={filters.carrier || "all"} onValueChange={(value) => updateFilter('carrier', value)}>
-            <SelectTrigger className="focus:ring-2 focus:ring-primary">
-              <SelectValue placeholder="All Carriers" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Carriers</SelectItem>
-              <SelectItem value="MSC">MSC</SelectItem>
-              <SelectItem value="Hapag-Lloyd">Hapag-Lloyd</SelectItem>
-              <SelectItem value="ONE">ONE</SelectItem>
-            </SelectContent>
-          </Select>
+          <MultiSelect
+            options={[
+              { label: "MSC", value: "MSC" },
+              { label: "Hapag-Lloyd", value: "Hapag-Lloyd" },
+              { label: "ONE", value: "ONE" }
+            ]}
+            value={Array.isArray(filters.carrier) ? filters.carrier : filters.carrier ? [filters.carrier] : []}
+            onValueChange={(value) => updateFilter('carrier', value)}
+            placeholder="All Carriers"
+            className="focus:ring-2 focus:ring-primary"
+          />
         </div>
 
         <div>
           <Label className="text-sm font-medium text-gray-700 mb-1">PIC</Label>
-          <Select value={filters.pic || "all"} onValueChange={(value) => updateFilter('pic', value)}>
-            <SelectTrigger className="focus:ring-2 focus:ring-primary">
-              <SelectValue placeholder="All PIC" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All PIC</SelectItem>
-              <SelectItem value="Jan Novák">Jan Novák</SelectItem>
-              <SelectItem value="Eva Svobodová">Eva Svobodová</SelectItem>
-              <SelectItem value="Tomáš Dvořák">Tomáš Dvořák</SelectItem>
-              <SelectItem value="Marie Černá">Marie Černá</SelectItem>
-              <SelectItem value="Petr Procházka">Petr Procházka</SelectItem>
-            </SelectContent>
-          </Select>
+          <MultiSelect
+            options={[
+              { label: "Jan Novák", value: "Jan Novák" },
+              { label: "Eva Svobodová", value: "Eva Svobodová" },
+              { label: "Tomáš Dvořák", value: "Tomáš Dvořák" },
+              { label: "Marie Černá", value: "Marie Černá" },
+              { label: "Petr Procházka", value: "Petr Procházka" }
+            ]}
+            value={Array.isArray(filters.pic) ? filters.pic : filters.pic ? [filters.pic] : []}
+            onValueChange={(value) => updateFilter('pic', value)}
+            placeholder="All PIC"
+            className="focus:ring-2 focus:ring-primary"
+          />
         </div>
         
         <div>

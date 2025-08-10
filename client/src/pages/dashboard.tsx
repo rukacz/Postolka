@@ -67,13 +67,22 @@ export default function Dashboard() {
                (!toDate || containerDate <= toDate);
       });
 
+    // Helper function to check multiselect filters
+    const matchesMultiSelectFilter = (filterValue: string | string[] | undefined, blValue: string | null) => {
+      if (!filterValue || !blValue) return !filterValue;
+      if (Array.isArray(filterValue)) {
+        return filterValue.length === 0 || filterValue.includes(blValue);
+      }
+      return filterValue === blValue;
+    };
+
     const matchesFilters = 
-      (!filters.client || bl.client === filters.client) &&
-      (!filters.podPol || bl.podPol === filters.podPol) &&
-      (!filters.medlogStatus || bl.medlogStatus === filters.medlogStatus) &&
-      (!filters.carrierStatus || bl.carrierStatus === filters.carrierStatus) &&
-      (!filters.carrier || bl.carrier === filters.carrier) &&
-      (!filters.pic || bl.pic === filters.pic) &&
+      matchesMultiSelectFilter(filters.client, bl.client) &&
+      matchesMultiSelectFilter(filters.podPol, bl.podPol) &&
+      matchesMultiSelectFilter(filters.medlogStatus, bl.medlogStatus) &&
+      matchesMultiSelectFilter(filters.carrierStatus, bl.carrierStatus) &&
+      matchesMultiSelectFilter(filters.carrier, bl.carrier) &&
+      matchesMultiSelectFilter(filters.pic, bl.pic) &&
       matchesUnloadCity &&
       matchesUnloadDateRange;
 
