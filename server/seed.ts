@@ -3,12 +3,11 @@ import { blSummaries, blDetails, containers } from "@shared/schema";
 
 export async function seedDatabase() {
   try {
-    // Check if data already exists
-    const existingBLs = await db.select().from(blSummaries).limit(1);
-    if (existingBLs.length > 0) {
-      console.log("Database already seeded, skipping...");
-      return;
-    }
+    // Clear existing data to ensure clean state
+    console.log("Clearing existing data...");
+    await db.delete(containers);
+    await db.delete(blDetails);
+    await db.delete(blSummaries);
 
     console.log("Seeding database with sample data...");
 
@@ -226,8 +225,7 @@ export async function seedDatabase() {
         blNumber: "MEDU123456",
         jobNumber: "MEDU123456-1",
         containerNumber: "COSU1044551",
-        size: "20",
-        containerType: "DV",
+        sizeType: "20DV",
         dateTime: "2025-01-24T12:30:00", // Changed from 10:30 - shows time change
         status: "In Progress",
         routeStep: "D",
@@ -240,14 +238,15 @@ export async function seedDatabase() {
         trainEtd: "2025W30R1",
         lastChangedBy: "system",
         lastChangedAt: "2025-01-22 14:30",
-        changedFields: ["size", "containerType"] // Changed from 40HC to 20DV
+        changedFields: ["size", "containerType"], // Changed from 40HC to 20DV
+        carrierNote: "",
+        medlogNote: "Kontejner připraven k vyzvednutí"
       },
       {
         blNumber: "MEDU123456", 
         jobNumber: "MEDU123456-2",
         containerNumber: "COSU9004547",
-        size: "40",
-        containerType: "HC", 
+        sizeType: "40HC",
         dateTime: "2025-01-24T16:45:00", // Changed from 14:45 - shows time change
         status: "Delayed", // Changed from "In Progress" - shows status change
         routeStep: "C",
@@ -260,14 +259,15 @@ export async function seedDatabase() {
         trainEtd: "2025W30R3",
         lastChangedBy: "carrier",
         lastChangedAt: "2025-01-22 16:15",
-        changedFields: ["dateTime", "status"]
+        changedFields: ["dateTime", "status"],
+        carrierNote: "Zpoždění kvůli dopravě",
+        medlogNote: ""
       },
       {
         blNumber: "TCLU345678",
         jobNumber: "TCLU345678-1",
         containerNumber: "TCLU8899001",
-        size: "40",
-        containerType: "HC",
+        sizeType: "40HC",
         dateTime: "2025-01-27T08:00:00",
         status: "Ready",
         routeStep: "W",
@@ -280,14 +280,15 @@ export async function seedDatabase() {
         trainEtd: "2025W32R2",
         lastChangedBy: null,
         lastChangedAt: null,
-        changedFields: []
+        changedFields: [],
+        carrierNote: "",
+        medlogNote: ""
       },
       {
         blNumber: "TCLU345678",
         jobNumber: "TCLU345678-2",
         containerNumber: "TCLU8899002",
-        size: "40",
-        containerType: "HC",
+        sizeType: "40HC",
         dateTime: "2025-01-27T08:15:00",
         status: "Ready",
         routeStep: "W",
@@ -300,14 +301,15 @@ export async function seedDatabase() {
         trainEtd: "2025W32R2",
         lastChangedBy: null,
         lastChangedAt: null,
-        changedFields: []
+        changedFields: [],
+        carrierNote: "",
+        medlogNote: ""
       },
       {
         blNumber: "TCLU345678",
         jobNumber: "TCLU345678-3",
         containerNumber: "TCLU8899003", 
-        size: "20",
-        containerType: "DV",
+        sizeType: "20DV",
         dateTime: "2025-01-27T09:00:00",
         status: "Issues", // Problem container
         routeStep: "W",
@@ -320,14 +322,15 @@ export async function seedDatabase() {
         trainEtd: "2025W32R2",
         lastChangedBy: "carrier",
         lastChangedAt: "2025-01-22 09:45",
-        changedFields: ["status"] // Changed to Issues status
+        changedFields: ["status"], // Changed to Issues status
+        carrierNote: "Kontejner zrušen kvůli poškození",
+        medlogNote: "Nutná výměna kontejneru"
       },
       {
         blNumber: "NTBG456789",
         jobNumber: "NTBG456789-1",
         containerNumber: "NTBU5566789",
-        size: "40",
-        containerType: "HC",
+        sizeType: "40HC",
         dateTime: "2025-01-22T11:15:00", // Recently added container
         status: "Confirmed",
         routeStep: "R",
@@ -340,14 +343,15 @@ export async function seedDatabase() {
         trainEtd: "2025W34R4",
         lastChangedBy: "medlog",
         lastChangedAt: "2025-01-22 11:00",
-        changedFields: ["containerNumber", "sealNumber"] // Newly added container
+        changedFields: ["containerNumber", "sealNumber"], // Newly added container
+        carrierNote: "",
+        medlogNote: "Potvrzeno - připraven k expedici"
       },
       {
         blNumber: "NTBG456789",
         jobNumber: "NTBG456789-2",
         containerNumber: "NTBU5566790",
-        size: "20",
-        containerType: "DV",
+        sizeType: "20DV",
         dateTime: "2025-01-22T11:30:00", // Recently added container
         status: "Confirmed",
         routeStep: "R",
@@ -360,7 +364,9 @@ export async function seedDatabase() {
         trainEtd: "2025W34R4",
         lastChangedBy: "medlog",
         lastChangedAt: "2025-01-22 11:15",
-        changedFields: ["containerNumber", "sealNumber"] // Newly added container
+        changedFields: ["containerNumber", "sealNumber"], // Newly added container
+        carrierNote: "",
+        medlogNote: "Kontrola dokončena"
       }
     ];
 
