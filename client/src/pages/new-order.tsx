@@ -108,6 +108,7 @@ export default function NewOrder() {
   const [isLoadingFromMSC, setIsLoadingFromMSC] = useState(false);
   const [isLoadingFromOVA, setIsLoadingFromOVA] = useState(false);
   const [containerDataLoaded, setContainerDataLoaded] = useState(false);
+  const [containerQty, setContainerQty] = useState(1);
   
   // Check if this is edit mode from URL params
   const urlParams = new URLSearchParams(window.location.search);
@@ -865,10 +866,98 @@ export default function NewOrder() {
                                 )}
                               />
                             </div>
+                            
+                            {/* Container action buttons */}
+                            <div className="flex justify-end gap-2 mt-3 p-3 bg-gray-50 rounded">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => remove(index)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4 mr-1" />
+                                Remove
+                              </Button>
+                            </div>
                           </AccordionContent>
                         </AccordionItem>
                       ))}
                     </Accordion>
+                    
+                    {/* Add Container Section */}
+                    <div className="flex justify-between items-center mt-4 p-3 bg-gray-50 rounded border">
+                      <span className="text-sm font-medium">Add Container</span>
+                      <div className="flex items-center gap-2">
+                        {/* Qty input with dropdown */}
+                        <div className="flex items-center gap-2">
+                          <Label className="text-xs text-gray-600">Qty:</Label>
+                          <div className="relative">
+                            <Input
+                              type="number"
+                              min="1"
+                              max="999"
+                              value={containerQty}
+                              onChange={(e) => {
+                                const value = parseInt(e.target.value) || 1;
+                                setContainerQty(Math.max(1, Math.min(999, value)));
+                              }}
+                              className="h-8 w-20 text-xs text-center pr-8"
+                            />
+                            <Select 
+                              value={containerQty <= 10 ? containerQty.toString() : "custom"} 
+                              onValueChange={(value) => {
+                                if (value !== "custom") {
+                                  setContainerQty(parseInt(value));
+                                }
+                              }}
+                            >
+                              <SelectTrigger className="absolute right-0 top-0 h-8 w-6 border-0 bg-transparent p-0">
+                                <div className="w-3 h-3 border-l border-t border-gray-400 rotate-45 -translate-y-0.5" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                                  <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        
+                        {/* Cancel and Save buttons */}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setContainerQty(1)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={() => {
+                            for (let i = 0; i < containerQty; i++) {
+                              append({
+                                containerNumber: "",
+                                destination: "",
+                                loadingDateTime: "",
+                                dischargingDateTime: "",
+                                dangerousCargo: false
+                              });
+                            }
+                            setContainerQty(1);
+                          }}
+                          className={`${
+                            containerQty > 1 
+                              ? "bg-green-600 hover:bg-green-700 border-2 border-green-400" 
+                              : "bg-primary hover:bg-blue-700"
+                          }`}
+                        >
+                          Save {containerQty > 1 ? `${containerQty}x` : ""}
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 )}
 
