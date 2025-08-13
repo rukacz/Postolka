@@ -11,7 +11,16 @@ import { BLSummary, Container } from "@shared/schema";
 import { FilterState } from "@/lib/types";
 
 export default function Dashboard() {
-  const [filters, setFilters] = useState<FilterState>({});
+  // Load default filters from localStorage on initialization
+  const [filters, setFilters] = useState<FilterState>(() => {
+    try {
+      const savedFilters = localStorage.getItem('defaultFilters');
+      return savedFilters ? JSON.parse(savedFilters) : {};
+    } catch (error) {
+      console.error('Failed to load default filters:', error);
+      return {};
+    }
+  });
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
