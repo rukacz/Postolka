@@ -14,7 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { ArrowLeft, Save, FileText, Loader2, Trash2 } from "lucide-react";
+import { ArrowLeft, FileText, Loader2, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { insertBLSummarySchema } from "@shared/schema";
 
@@ -339,27 +339,9 @@ export default function NewOrder() {
     }
   });
 
-  const saveDraftMutation = useMutation({
-    mutationFn: async (data: NewOrderFormData) => {
-      console.log("Saving as draft:", data);
-      return { success: true };
-    },
-    onSuccess: () => {
-      toast({
-        title: "Success",
-        description: "Order saved as draft.",
-      });
-    },
-  });
-
   const onSubmit = (data: NewOrderFormData) => {
     console.log("Form submitted with data:", data);
     createOrderMutation.mutate(data);
-  };
-
-  const onSaveDraft = () => {
-    const data = form.getValues();
-    saveDraftMutation.mutate(data);
   };
 
   return (
@@ -971,16 +953,6 @@ export default function NewOrder() {
                     onClick={() => setLocation('/dashboard')}
                   >
                     Cancel
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={onSaveDraft}
-                    disabled={saveDraftMutation.isPending}
-                  >
-                    {saveDraftMutation.isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                    <Save className="w-4 h-4 mr-2" />
-                    Save as Draft
                   </Button>
                   <Button
                     type="button"
