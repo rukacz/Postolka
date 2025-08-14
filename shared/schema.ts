@@ -7,7 +7,6 @@ export const blSummaries = pgTable("bl_summaries", {
   blNumber: text("bl_number").notNull().unique(),
   date: text("date").notNull(),
   client: text("client").notNull(),
-  notificationEmail: text("notification_email"),
   destination: text("destination").notNull(),
   pic: text("pic").notNull(), // Person in Charge
   podPol: text("pod_pol").notNull(), // Port of Discharge/Port of Loading

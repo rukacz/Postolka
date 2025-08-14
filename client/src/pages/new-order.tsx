@@ -64,7 +64,6 @@ const containerSchema = z.object({
 const newOrderSchema = z.object({
   orderType: z.enum(["Import", "Export"]),
   client: z.string().min(1, "Client is required"),
-  notificationEmail: z.string().email("Please enter a valid email address").optional().or(z.literal("")),
   destination: z.string().min(1, "Destination is required"),
   polPod: z.string().min(1, "POL/POD is required"),
   vessel: z.string().min(1, "Vessel is required"),
@@ -137,7 +136,6 @@ export default function NewOrder() {
     defaultValues: {
       orderType: "Import",
       client: "",
-      notificationEmail: "",
       destination: "",
       polPod: "",
       vessel: "",
@@ -166,11 +164,10 @@ export default function NewOrder() {
   
   // Load existing data into form when available
   useEffect(() => {
-    if (isEditMode && existingBLSummary && 'type' in existingBLSummary && existingBLDetail && 'vesselName' in existingBLDetail) {
+    if (isEditMode && existingBLSummary && existingBLDetail) {
       form.reset({
         orderType: existingBLSummary.type as "Import" | "Export",
         client: existingBLSummary.client,
-        notificationEmail: existingBLSummary.notificationEmail || "",
         destination: existingBLSummary.destination,
         polPod: existingBLSummary.podPol,
         vessel: existingBLDetail.vesselName || "",
@@ -284,7 +281,6 @@ export default function NewOrder() {
         blNumber: data.blBookingNumber || `AUTO-${Date.now()}`,
         date: new Date().toISOString().split('T')[0],
         client: data.client,
-        notificationEmail: data.notificationEmail,
         consignee: data.client,
         destination: data.destination,
         pic: data.pic || "Not assigned",
@@ -466,8 +462,8 @@ export default function NewOrder() {
 
                 </div>
 
-                {/* Client Row */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {/* Basic Information Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                   <FormField
                     control={form.control}
                     name="client"
@@ -492,10 +488,7 @@ export default function NewOrder() {
                       </FormItem>
                     )}
                   />
-                </div>
 
-                {/* Basic Information Row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   <FormField
                     control={form.control}
                     name="destination"
@@ -539,29 +532,11 @@ export default function NewOrder() {
                   />
                 </div>
 
-                {/* ETA and Notification Email Row */}
+                {/* ETA Row - positioned on the right */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                  <div className="md:col-span-2">
+                  <div className="md:col-span-3">
                     {/* Empty space on the left */}
                   </div>
-                  <FormField
-                    control={form.control}
-                    name="notificationEmail"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm">Notification Email</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="email" 
-                            placeholder="Enter email address" 
-                            {...field} 
-                            className="h-9" 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                   <FormField
                     control={form.control}
                     name="eta"
