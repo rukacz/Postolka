@@ -64,7 +64,7 @@ const containerSchema = z.object({
 const newOrderSchema = z.object({
   orderType: z.enum(["Import", "Export"]),
   client: z.string().min(1, "Client is required"),
-  notificationEmail: z.string().email("Please enter a valid email address").min(1, "Notification email is required"),
+  notificationEmail: z.string().email("Please enter a valid email address").optional().or(z.literal("")),
   destination: z.string().min(1, "Destination is required"),
   polPod: z.string().min(1, "POL/POD is required"),
   vessel: z.string().min(1, "Vessel is required"),
@@ -166,7 +166,7 @@ export default function NewOrder() {
   
   // Load existing data into form when available
   useEffect(() => {
-    if (isEditMode && existingBLSummary && existingBLDetail) {
+    if (isEditMode && existingBLSummary && 'type' in existingBLSummary && existingBLDetail && 'vesselName' in existingBLDetail) {
       form.reset({
         orderType: existingBLSummary.type as "Import" | "Export",
         client: existingBLSummary.client,
@@ -466,8 +466,8 @@ export default function NewOrder() {
 
                 </div>
 
-                {/* Client and Notification Email Row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {/* Client Row */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <FormField
                     control={form.control}
                     name="client"
@@ -487,25 +487,6 @@ export default function NewOrder() {
                               <SelectItem value="AUDI">AUDI</SelectItem>
                             </SelectContent>
                           </Select>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="notificationEmail"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-sm">Notification Email *</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="email" 
-                            placeholder="Enter email address" 
-                            {...field} 
-                            className="h-9" 
-                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -558,11 +539,29 @@ export default function NewOrder() {
                   />
                 </div>
 
-                {/* ETA Row - positioned on the right */}
+                {/* ETA and Notification Email Row */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                  <div className="md:col-span-3">
+                  <div className="md:col-span-2">
                     {/* Empty space on the left */}
                   </div>
+                  <FormField
+                    control={form.control}
+                    name="notificationEmail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm">Notification Email</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="email" 
+                            placeholder="Enter email address" 
+                            {...field} 
+                            className="h-9" 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name="eta"
