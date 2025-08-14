@@ -64,7 +64,7 @@ const containerSchema = z.object({
 const newOrderSchema = z.object({
   orderType: z.enum(["Import", "Export"]),
   client: z.string().min(1, "Client is required"),
-  notificationEmail: z.string().email("Please enter a valid email address").min(1, "Notification email is required"),
+  notificationEmail: z.string().email("Please enter a valid email address").optional().or(z.literal("")),
   destination: z.string().min(1, "Destination is required"),
   polPod: z.string().min(1, "POL/POD is required"),
   vessel: z.string().min(1, "Vessel is required"),
@@ -541,7 +541,7 @@ export default function NewOrder() {
                     name="notificationEmail"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-sm">Notification email *</FormLabel>
+                        <FormLabel className="text-sm">Notification email</FormLabel>
                         <FormControl>
                           <Input 
                             type="email"
