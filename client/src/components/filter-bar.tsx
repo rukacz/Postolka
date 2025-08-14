@@ -298,7 +298,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
           </Button>
           <Button variant="outline" onClick={saveDefaultFilters} className="border-blue-300 text-blue-700 hover:bg-blue-50">
             <Bookmark className="w-4 h-4 mr-2" />
-            Set default filters
+            Save as Default
           </Button>
         </div>
       </div>
