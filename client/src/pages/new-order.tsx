@@ -64,6 +64,7 @@ const containerSchema = z.object({
 const newOrderSchema = z.object({
   orderType: z.enum(["Import", "Export"]),
   client: z.string().min(1, "Client is required"),
+  notificationEmail: z.string().email("Please enter a valid email address").min(1, "Notification email is required"),
   destination: z.string().min(1, "Destination is required"),
   polPod: z.string().min(1, "POL/POD is required"),
   vessel: z.string().min(1, "Vessel is required"),
@@ -136,6 +137,7 @@ export default function NewOrder() {
     defaultValues: {
       orderType: "Import",
       client: "",
+      notificationEmail: "",
       destination: "",
       polPod: "",
       vessel: "",
@@ -532,10 +534,28 @@ export default function NewOrder() {
                   />
                 </div>
 
-                {/* ETA Row - positioned on the right */}
+                {/* Notification Email and ETA Row */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                  <div className="md:col-span-3">
-                    {/* Empty space on the left */}
+                  <FormField
+                    control={form.control}
+                    name="notificationEmail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm">Notification email *</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="email"
+                            placeholder="Enter notification email"
+                            {...field} 
+                            className="h-9"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="md:col-span-2">
+                    {/* Empty space in the middle */}
                   </div>
                   <FormField
                     control={form.control}
