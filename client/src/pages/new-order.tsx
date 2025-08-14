@@ -64,6 +64,7 @@ const containerSchema = z.object({
 const newOrderSchema = z.object({
   orderType: z.enum(["Import", "Export"]),
   client: z.string().min(1, "Client is required"),
+  notificationEmail: z.string().email("Please enter a valid email address").min(1, "Notification email is required"),
   destination: z.string().min(1, "Destination is required"),
   polPod: z.string().min(1, "POL/POD is required"),
   vessel: z.string().min(1, "Vessel is required"),
@@ -136,6 +137,7 @@ export default function NewOrder() {
     defaultValues: {
       orderType: "Import",
       client: "",
+      notificationEmail: "",
       destination: "",
       polPod: "",
       vessel: "",
@@ -168,6 +170,7 @@ export default function NewOrder() {
       form.reset({
         orderType: existingBLSummary.type as "Import" | "Export",
         client: existingBLSummary.client,
+        notificationEmail: existingBLSummary.notificationEmail || "",
         destination: existingBLSummary.destination,
         polPod: existingBLSummary.podPol,
         vessel: existingBLDetail.vesselName || "",
@@ -281,6 +284,7 @@ export default function NewOrder() {
         blNumber: data.blBookingNumber || `AUTO-${Date.now()}`,
         date: new Date().toISOString().split('T')[0],
         client: data.client,
+        notificationEmail: data.notificationEmail,
         consignee: data.client,
         destination: data.destination,
         pic: data.pic || "Not assigned",
@@ -462,8 +466,8 @@ export default function NewOrder() {
 
                 </div>
 
-                {/* Basic Information Row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                {/* Client and Notification Email Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <FormField
                     control={form.control}
                     name="client"
@@ -489,6 +493,28 @@ export default function NewOrder() {
                     )}
                   />
 
+                  <FormField
+                    control={form.control}
+                    name="notificationEmail"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-sm">Notification Email *</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="email" 
+                            placeholder="Enter email address" 
+                            {...field} 
+                            className="h-9" 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Basic Information Row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   <FormField
                     control={form.control}
                     name="destination"
