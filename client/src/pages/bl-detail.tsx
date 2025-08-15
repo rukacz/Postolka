@@ -213,6 +213,25 @@ export default function BLDetailPage() {
     }
   };
 
+  const handleSendMessage = () => {
+    if (!newChatMessage.trim()) return;
+    
+    // For now, just show a toast notification since we don't have a backend chat endpoint
+    toast({
+      title: "Message sent",
+      description: `Your message "${newChatMessage}" has been sent.`,
+    });
+    
+    // Clear the input field
+    setNewChatMessage("");
+    
+    // TODO: Implement actual chat API when backend is ready
+    // This would involve:
+    // 1. POST request to /api/chat/${blNumber}/messages
+    // 2. Invalidate chat queries to refresh messages
+    // 3. Update last message and unread count in BL summary
+  };
+
   // Helper component for changed field styling
   const FieldWrapper = ({ fieldName, children, className = "" }: { 
     fieldName: string; 
@@ -500,9 +519,23 @@ export default function BLDetailPage() {
                   <input
                     type="text"
                     placeholder="Type a message..."
+                    value={newChatMessage}
+                    onChange={(e) => setNewChatMessage(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSendMessage();
+                      }
+                    }}
                     className="flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
-                  <Button size="sm">Send</Button>
+                  <Button 
+                    size="sm" 
+                    onClick={handleSendMessage}
+                    disabled={!newChatMessage.trim()}
+                  >
+                    Send
+                  </Button>
                 </div>
               </CardContent>
             </Card>
