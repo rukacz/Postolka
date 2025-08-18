@@ -1,4 +1,4 @@
-import { Search, ChevronDown } from "lucide-react";
+import { Search, ChevronDown, User } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -35,8 +35,9 @@ export default function NavigationHeader({ searchValue = "", onSearchChange }: N
             {/* User Menu */}
             <div className="flex items-center space-x-2">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&w=40&h=40&fit=crop&crop=face" />
-                <AvatarFallback>JS</AvatarFallback>
+                <AvatarFallback className="bg-blue-700 text-white">
+                  <User className="h-4 w-4" />
+                </AvatarFallback>
               </Avatar>
               <span className="text-sm">John Smith</span>
               <ChevronDown className="h-4 w-4" />
