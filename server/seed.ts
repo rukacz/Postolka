@@ -1,5 +1,5 @@
 import { db } from "./db";
-import { blSummaries, blDetails, containers } from "@shared/schema";
+import { blSummaries, blDetails, containers, users } from "@shared/schema";
 
 export async function seedDatabase() {
   try {
@@ -8,6 +8,7 @@ export async function seedDatabase() {
     await db.delete(containers);
     await db.delete(blDetails);
     await db.delete(blSummaries);
+    await db.delete(users);
 
     console.log("Seeding database with sample data...");
 
@@ -379,7 +380,57 @@ export async function seedDatabase() {
 
     await db.insert(containers).values(sampleContainers);
 
-    console.log("Database seeded successfully!");
+    // Create test users with role-based permissions
+    const testUsers = [
+      {
+        username: "msc_cz_import",
+        password: "password123", // In production, this should be properly hashed
+        name: "MSC CZ Import User",
+        email: "msc.cz.import@test.com",
+        orgRole: "msc",
+        orderTypeRole: "import_only",
+        defaultCarrier: "MSC CZ",
+        carrierWhitelist: ["MSC SK"], // Can only switch to MSC SK
+        isActive: true
+      },
+      {
+        username: "msc_cz_export",
+        password: "password123",
+        name: "MSC CZ Export User", 
+        email: "msc.cz.export@test.com",
+        orgRole: "msc",
+        orderTypeRole: "export_only",
+        defaultCarrier: "MSC CZ",
+        carrierWhitelist: ["MSC SK"], // Can only switch to MSC SK
+        isActive: true
+      },
+      {
+        username: "msc_sk_import",
+        password: "password123",
+        name: "MSC SK Import User",
+        email: "msc.sk.import@test.com", 
+        orgRole: "msc",
+        orderTypeRole: "import_only",
+        defaultCarrier: "MSC SK",
+        carrierWhitelist: ["MSC CZ"], // Can only switch to MSC CZ
+        isActive: true
+      },
+      {
+        username: "msc_sk_export",
+        password: "password123",
+        name: "MSC SK Export User",
+        email: "msc.sk.export@test.com",
+        orgRole: "msc", 
+        orderTypeRole: "export_only",
+        defaultCarrier: "MSC SK",
+        carrierWhitelist: ["MSC CZ"], // Can only switch to MSC CZ
+        isActive: true
+      }
+    ];
+
+    await db.insert(users).values(testUsers);
+
+    console.log("Database seeded successfully with test users!");
   } catch (error) {
     console.error("Error seeding database:", error);
     throw error;
