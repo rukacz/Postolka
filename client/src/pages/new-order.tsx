@@ -594,7 +594,8 @@ export default function NewOrder() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="MSC">MSC</SelectItem>
+                              <SelectItem value="MSC CZ">MSC CZ</SelectItem>
+                              <SelectItem value="MSC SK">MSC SK</SelectItem>
                               <SelectItem value="ONE">ONE</SelectItem>
                               <SelectItem value="Hapag-Lloyd">Hapag-Lloyd</SelectItem>
                               <SelectItem value="Maersk">Maersk</SelectItem>

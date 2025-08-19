@@ -97,6 +97,15 @@ The application is designed for containerized deployment with:
 - Session management ready with `connect-pg-simple`
 
 ### Recent Changes
+- **2025-01-29**: Carrier separation and role-based authentication system
+  - Separated single MSC carrier into MSC CZ and MSC SK carriers across all components
+  - Updated seed data, filter bar, and new order form to use separate MSC carriers
+  - Implemented comprehensive role-based authentication with PostgreSQL integration
+  - Added four test users with password "password123": MSC CZ Import/Export and MSC SK Import/Export
+  - Created authentication context with role-based permissions and carrier whitelists
+  - Updated navigation header to display user roles, carrier badges, and logout functionality
+  - MSC CZ users default to MSC CZ carrier and can switch to MSC SK via whitelist
+  - MSC SK users default to MSC SK carrier and can switch to MSC CZ via whitelist
 - **2025-01-29**: Terminology standardization and booking details enhancement
   - Standardized all references from "City" and "Destination" to "Location" throughout the application
   - Updated filter bar to use "Un/Load Location" instead of "Un/Load City" 

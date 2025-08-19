@@ -154,7 +154,8 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
           <Label className="text-sm font-medium text-gray-700 mb-1">Carrier</Label>
           <MultiSelect
             options={[
-              { label: "MSC", value: "MSC" },
+              { label: "MSC CZ", value: "MSC CZ" },
+              { label: "MSC SK", value: "MSC SK" },
               { label: "Hapag-Lloyd", value: "Hapag-Lloyd" },
               { label: "ONE", value: "ONE" }
             ]}
