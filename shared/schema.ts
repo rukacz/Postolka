@@ -128,17 +128,33 @@ export type InsertContainer = z.infer<typeof insertContainerSchema>;
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 
-// Keep existing user schema for consistency
+// Enhanced user schema with role-based permissions
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
+  name: text("name").notNull(),
+  email: text("email"),
+  // Role system
+  orgRole: text("org_role").notNull(), // 'medlog' | 'msc'
+  orderTypeRole: text("order_type_role"), // 'import_only' | 'export_only' | null (both)
+  defaultCarrier: text("default_carrier"), // 'MSC CZ' | 'MSC SK' | null
+  carrierWhitelist: text("carrier_whitelist").array().default([]), // Allowed carriers this user can switch to
+  isActive: boolean("is_active").default(true),
+  lastLogin: timestamp("last_login"),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  lastLogin: true,
+  createdAt: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+
+// User role types for better type safety
+export type OrgRole = 'medlog' | 'msc';
+export type OrderTypeRole = 'import_only' | 'export_only' | null;
+export type CarrierType = 'MSC CZ' | 'MSC SK' | 'ONE' | 'Hapag-Lloyd' | 'Maersk' | null;
