@@ -98,6 +98,7 @@ export const containers = pgTable("containers", {
   changedFields: text("changed_fields").array(),
   isNewContainer: boolean("is_new_container").default(false),
   dangerousCargo: boolean("dangerous_cargo").default(false),
+  directTransport: boolean("direct_transport").default(false),
 });
 
 export const insertBLSummarySchema = createInsertSchema(blSummaries).omit({

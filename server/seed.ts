@@ -240,7 +240,8 @@ export async function seedDatabase() {
         lastChangedAt: "2025-01-22 14:30",
         changedFields: ["size", "containerType"], // Changed from 40HC to 20DV
         carrierNote: "",
-        medlogNote: "Kontejner připraven k vyzvednutí"
+        medlogNote: "Kontejner připraven k vyzvednutí",
+        directTransport: true
       },
       {
         blNumber: "MEDU123456", 
@@ -261,7 +262,8 @@ export async function seedDatabase() {
         lastChangedAt: "2025-01-22 16:15",
         changedFields: ["dateTime", "status"],
         carrierNote: "Zpoždění kvůli dopravě",
-        medlogNote: ""
+        medlogNote: "",
+        directTransport: false
       },
       {
         blNumber: "TCLU345678",
@@ -282,7 +284,8 @@ export async function seedDatabase() {
         lastChangedAt: null,
         changedFields: [],
         carrierNote: "",
-        medlogNote: ""
+        medlogNote: "",
+        directTransport: false
       },
       {
         blNumber: "TCLU345678",
@@ -303,7 +306,8 @@ export async function seedDatabase() {
         lastChangedAt: null,
         changedFields: [],
         carrierNote: "",
-        medlogNote: ""
+        medlogNote: "",
+        directTransport: true
       },
       {
         blNumber: "TCLU345678",
@@ -324,7 +328,8 @@ export async function seedDatabase() {
         lastChangedAt: "2025-01-22 09:45",
         changedFields: ["status"], // Changed to Issues status
         carrierNote: "Kontejner zrušen kvůli poškození",
-        medlogNote: "Nutná výměna kontejneru"
+        medlogNote: "Nutná výměna kontejneru",
+        directTransport: false
       },
       {
         blNumber: "NTBG456789",
@@ -345,7 +350,8 @@ export async function seedDatabase() {
         lastChangedAt: "2025-01-22 11:00",
         changedFields: ["containerNumber", "sealNumber"], // Newly added container
         carrierNote: "",
-        medlogNote: "Potvrzeno - připraven k expedici"
+        medlogNote: "Potvrzeno - připraven k expedici",
+        directTransport: false
       },
       {
         blNumber: "NTBG456789",
@@ -366,7 +372,8 @@ export async function seedDatabase() {
         lastChangedAt: "2025-01-22 11:15",
         changedFields: ["containerNumber", "sealNumber"], // Newly added container
         carrierNote: "",
-        medlogNote: "Kontrola dokončena"
+        medlogNote: "Kontrola dokončena",
+        directTransport: true
       }
     ];
 

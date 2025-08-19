@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { FileText, AlertTriangle, Undo2, Scale, ChevronRight, Flame, Copy, Trash2 } from "lucide-react";
+import { FileText, AlertTriangle, Undo2, Scale, ChevronRight, Flame, Copy, Trash2, Truck } from "lucide-react";
 import DangerousGoodsFlag from "@/components/dangerous-goods-flag";
 import CarrierStatusBadge from "@/components/carrier-status-badge";
 import MedlogStatusBadge from "@/components/medlog-status-badge";
@@ -341,6 +341,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
             <TableHead className="w-12">DG</TableHead>
             <TableHead className="w-32">Container #</TableHead>
             <TableHead className="w-24">Size/Type</TableHead>
+            <TableHead className="w-12">DT</TableHead>
             <TableHead className="w-28">Train</TableHead>
             <TableHead className="w-32">Train Date</TableHead>
             <TableHead className="w-32">Date/Time</TableHead>
@@ -416,6 +417,19 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                     ))}
                   </SelectContent>
                 </Select>
+              </TableHead>
+
+              {/* DT Column */}
+              <TableHead className="h-auto p-2">
+                <Switch
+                  checked={selectedContainers.every(id => 
+                    containers.find(c => c.id === id)?.directTransport
+                  )}
+                  onCheckedChange={(checked) => {
+                    selectedContainers.forEach(id => handleFieldUpdate(id, 'directTransport', checked));
+                  }}
+                  className="scale-75"
+                />
               </TableHead>
 
               {/* Train Column - Read only */}
@@ -685,6 +699,9 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
               </TableCell>
               <TableCell>
                 {container.sizeType}
+              </TableCell>
+              <TableCell>
+                {container.directTransport && <Truck className="w-4 h-4 text-blue-500" />}
               </TableCell>
               <TableCell className="font-mono text-sm">
                 <FieldWrapper fieldName="trainName">
