@@ -14,10 +14,10 @@ interface AuthContextType {
 }
 
 interface FilterDefaults {
-  carrier?: string | string[];
+  carrier?: string;
   orderType?: 'Import' | 'Export';
-  importOnly?: boolean;
-  exportOnly?: boolean;
+  showImportOnly?: boolean;
+  showExportOnly?: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -97,10 +97,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Set order type defaults based on role
     if (user.orderTypeRole === 'import_only') {
-      filters.importOnly = true;
+      filters.showImportOnly = true;
       filters.orderType = 'Import';
     } else if (user.orderTypeRole === 'export_only') {
-      filters.exportOnly = true;
+      filters.showExportOnly = true;
       filters.orderType = 'Export';
     }
 

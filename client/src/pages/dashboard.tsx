@@ -15,36 +15,31 @@ export default function Dashboard() {
   const { getDefaultFilters } = useAuth();
   
   // Load default filters from localStorage and auth context on initialization
+  const { getDefaultFilters, user } = useAuth();
+  const STORAGE_KEY = `defaultFilters:v1:${user?.id ?? "anon"}`;
+  
   const [filters, setFilters] = useState<FilterState>(() => {
+    const authDefaults = getDefaultFilters();
     try {
-      // Get saved filters from localStorage
-      const savedFilters = localStorage.getItem('defaultFilters');
-      const localStorageFilters = savedFilters ? JSON.parse(savedFilters) : {};
-      
-      // Get default filters from auth context (includes default carrier for MSC CZ Import user)
-      const authDefaultFilters = getDefaultFilters();
-      
-      // Merge auth defaults with localStorage filters, with auth defaults taking precedence
-      const mergedFilters = { ...localStorageFilters, ...authDefaultFilters };
-      
-      return mergedFilters;
-    } catch (error) {
-      console.error('Failed to load default filters:', error);
-      // Fallback to just auth defaults if localStorage fails
-      return getDefaultFilters();
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return authDefaults;
+      const parsed = JSON.parse(saved);
+      // uživatel má prioritu, nové klíče doplní defaulty
+      return { ...authDefaults, ...parsed };
+    } catch {
+      return authDefaults;
     }
   });
+  
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
 
   // Update filters when user changes (e.g., after login/logout)
   useEffect(() => {
-    const authDefaultFilters = getDefaultFilters();
-    setFilters((prevFilters: FilterState) => {
-      // Merge current filters with auth defaults, with auth defaults taking precedence
-      return { ...prevFilters, ...authDefaultFilters };
-    });
+    if (!localStorage.getItem(STORAGE_KEY)) {
+      setFilters(prevFilters => ({ ...getDefaultFilters(), ...prevFilters }));
+    }
   }, [getDefaultFilters]);
 
   const { data: blSummaries = [], isLoading, refetch } = useQuery<BLSummary[]>({
