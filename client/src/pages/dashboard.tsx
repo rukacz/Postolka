@@ -9,21 +9,43 @@ import { Download, RefreshCw, Plus } from "lucide-react";
 import { Link } from "wouter";
 import { BLSummary, Container } from "@shared/schema";
 import { FilterState } from "@/lib/types";
+import { useAuth } from "@/contexts/auth-context";
 
 export default function Dashboard() {
-  // Load default filters from localStorage on initialization
+  const { getDefaultFilters } = useAuth();
+  
+  // Load default filters from localStorage and auth context on initialization
   const [filters, setFilters] = useState<FilterState>(() => {
     try {
+      // Get saved filters from localStorage
       const savedFilters = localStorage.getItem('defaultFilters');
-      return savedFilters ? JSON.parse(savedFilters) : {};
+      const localStorageFilters = savedFilters ? JSON.parse(savedFilters) : {};
+      
+      // Get default filters from auth context (includes default carrier for MSC CZ Import user)
+      const authDefaultFilters = getDefaultFilters();
+      
+      // Merge auth defaults with localStorage filters, with auth defaults taking precedence
+      const mergedFilters = { ...localStorageFilters, ...authDefaultFilters };
+      
+      return mergedFilters;
     } catch (error) {
       console.error('Failed to load default filters:', error);
-      return {};
+      // Fallback to just auth defaults if localStorage fails
+      return getDefaultFilters();
     }
   });
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
+
+  // Update filters when user changes (e.g., after login/logout)
+  useEffect(() => {
+    const authDefaultFilters = getDefaultFilters();
+    setFilters((prevFilters: FilterState) => {
+      // Merge current filters with auth defaults, with auth defaults taking precedence
+      return { ...prevFilters, ...authDefaultFilters };
+    });
+  }, [getDefaultFilters]);
 
   const { data: blSummaries = [], isLoading, refetch } = useQuery<BLSummary[]>({
     queryKey: ['/api/bl-summaries'],
@@ -34,8 +56,9 @@ export default function Dashboard() {
     queryKey: ['/api/containers'],
   });
 
-  // Simulated current user group - in real app this would come from auth context
-  const currentUserGroup = 'medlog'; // 'carrier' | 'medlog'
+  // Get current user group from auth context instead of hardcoded value
+  const { user } = useAuth();
+  const currentUserGroup = user?.orgRole === 'msc' ? 'carrier' : 'medlog';
 
   // Enhanced search that includes containers and trains
   const filteredData = blSummaries.filter(bl => {
