@@ -153,3 +153,5 @@ The application is designed for containerized deployment with:
 - **Replit Integration**: Special handling for Replit development environment
 
 The architecture supports easy scaling and can be deployed to any cloud provider supporting Node.js and PostgreSQL.
+
+test cursoru na github a nasledne replit
