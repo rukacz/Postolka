@@ -1,0 +1,10 @@
+[33mdf655de[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mznovu-filtry[m[33m, [m[1;31morigin/znovu-filtry[m[33m)[m new order presets
+[33m74974b2[m ukladani filtru do local_storage
+[33m5ecfd3a[m Revert "upraveny package.json"
+[33mbb860a4[m upraveny package.json
+[33m2910a7e[m user Medlog a omezeni MSC useru
+[33mdf7600a[m feat: implement default carrier filter for MSC CZ Import user - Add default carrier filter preset to 'MSC CZ' for msc_cz_import user - Update auth context to provide default filters based on user profile - Modify dashboard to merge auth defaults with localStorage filters - Ensure auth defaults take precedence over saved user preferences
+[33mde5709b[m pridan test do replit.md
+[33mcf2d510[m První commit projektu Postolka
+[33m24f5eba[m Separate MSC carriers into distinct CZ and SK options
+[33mf69503c[m Add user authentication and role-based access to the platform
