@@ -10,6 +10,7 @@ import { FilterState } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { Container } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/auth-context";
 
 interface FilterBarProps {
   filters: FilterState;
@@ -20,6 +21,7 @@ interface FilterBarProps {
 export default function FilterBar({ filters, onFiltersChange, onClearFilters }: FilterBarProps) {
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const { toast } = useToast();
+  const { hasPermission } = useAuth();
 
   const updateFilter = (key: keyof FilterState, value: string | boolean | string[]) => {
     if (typeof value === 'boolean') {
@@ -153,12 +155,22 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         <div>
           <Label className="text-sm font-medium text-gray-700 mb-1">Carrier</Label>
           <MultiSelect
-            options={[
-              { label: "MSC CZ", value: "MSC CZ" },
-              { label: "MSC SK", value: "MSC SK" },
-              { label: "Hapag-Lloyd", value: "Hapag-Lloyd" },
-              { label: "ONE", value: "ONE" }
-            ]}
+            options={(() => {
+              // If user has MSC carriers only permission, restrict to MSC CZ and MSC SK
+              if (hasPermission('view_msc_carriers_only')) {
+                return [
+                  { label: "MSC CZ", value: "MSC CZ" },
+                  { label: "MSC SK", value: "MSC SK" }
+                ];
+              }
+              // Otherwise show all carriers
+              return [
+                { label: "MSC CZ", value: "MSC CZ" },
+                { label: "MSC SK", value: "MSC SK" },
+                { label: "Hapag-Lloyd", value: "Hapag-Lloyd" },
+                { label: "ONE", value: "ONE" }
+              ];
+            })()}
             value={Array.isArray(filters.carrier) ? filters.carrier : filters.carrier ? [filters.carrier] : []}
             onValueChange={(value) => updateFilter('carrier', value)}
             placeholder="All Carriers"

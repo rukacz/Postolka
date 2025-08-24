@@ -17,6 +17,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { ArrowLeft, FileText, Loader2, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { insertBLSummarySchema } from "@shared/schema";
+import { useAuth } from "@/contexts/auth-context";
 
 // ISO 6346 container number validation
 const validateContainerNumber = (containerNum: string): boolean => {
@@ -106,6 +107,7 @@ export default function NewOrder() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { hasPermission } = useAuth();
   const [isLoadingFromMSC, setIsLoadingFromMSC] = useState(false);
   const [isLoadingFromOVA, setIsLoadingFromOVA] = useState(false);
   const [containerDataLoaded, setContainerDataLoaded] = useState(false);
@@ -594,12 +596,28 @@ export default function NewOrder() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="MSC CZ">MSC CZ</SelectItem>
-                              <SelectItem value="MSC SK">MSC SK</SelectItem>
-                              <SelectItem value="ONE">ONE</SelectItem>
-                              <SelectItem value="Hapag-Lloyd">Hapag-Lloyd</SelectItem>
-                              <SelectItem value="Maersk">Maersk</SelectItem>
-                              <SelectItem value="CMA CGM">CMA CGM</SelectItem>
+                              {(() => {
+                                // If user has MSC carriers only permission, restrict to MSC CZ and MSC SK
+                                if (hasPermission('view_msc_carriers_only')) {
+                                  return (
+                                    <>
+                                      <SelectItem value="MSC CZ">MSC CZ</SelectItem>
+                                      <SelectItem value="MSC SK">MSC SK</SelectItem>
+                                    </>
+                                  );
+                                }
+                                // Otherwise show all carriers
+                                return (
+                                  <>
+                                    <SelectItem value="MSC CZ">MSC CZ</SelectItem>
+                                    <SelectItem value="MSC SK">MSC SK</SelectItem>
+                                    <SelectItem value="ONE">ONE</SelectItem>
+                                    <SelectItem value="Hapag-Lloyd">Hapag-Lloyd</SelectItem>
+                                    <SelectItem value="Maersk">Maersk</SelectItem>
+                                    <SelectItem value="CMA CGM">CMA CGM</SelectItem>
+                                  </>
+                                );
+                              })()}
                             </SelectContent>
                           </Select>
                         </FormControl>

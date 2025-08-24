@@ -61,6 +61,7 @@ export default function Login() {
   };
 
   const testUsers = [
+    { username: 'medlog', name: 'Medlog User (Full Access)' },
     { username: 'msc_cz_import', name: 'MSC CZ Import User' },
     { username: 'msc_cz_export', name: 'MSC CZ Export User' },
     { username: 'msc_sk_import', name: 'MSC SK Import User' },

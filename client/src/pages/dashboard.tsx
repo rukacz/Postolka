@@ -57,7 +57,7 @@ export default function Dashboard() {
   });
 
   // Get current user group from auth context instead of hardcoded value
-  const { user } = useAuth();
+  const { user, hasPermission } = useAuth();
   const currentUserGroup = user?.orgRole === 'msc' ? 'carrier' : 'medlog';
 
   // Enhanced search that includes containers and trains
@@ -120,6 +120,11 @@ export default function Dashboard() {
 
     // Handle unseen changes 
     const unseenChangesCount = currentUserGroup === 'medlog' ? (bl.unseenChangesMedlog || 0) : (bl.unseenChangesCarrier || 0);
+
+    // MSC users can only see MSC CZ and MSC SK carriers
+    if (hasPermission('view_msc_carriers_only') && bl.carrier && !['MSC CZ', 'MSC SK'].includes(bl.carrier)) {
+      return false;
+    }
 
     // Handle new checkbox filters
     // DG Filter: Check if any containers for this BL have dangerous cargo

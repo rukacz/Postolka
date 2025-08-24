@@ -383,6 +383,17 @@ export async function seedDatabase() {
     // Create test users with role-based permissions
     const testUsers = [
       {
+        username: "medlog",
+        password: "password123", // In production, this should be properly hashed
+        name: "Medlog User",
+        email: "medlog@test.com",
+        orgRole: "medlog",
+        orderTypeRole: null, // Can see both Import and Export
+        defaultCarrier: null, // No default carrier restriction
+        carrierWhitelist: [], // Can see all carriers
+        isActive: true
+      },
+      {
         username: "msc_cz_import",
         password: "password123", // In production, this should be properly hashed
         name: "MSC CZ Import User",
