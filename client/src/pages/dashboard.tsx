@@ -14,12 +14,12 @@ import { useAuth } from "@/contexts/auth-context";
 export default function Dashboard() {
   const { getDefaultFilters } = useAuth();
   
-  // Load default filters from localStorage and auth context on initialization
+  // Load filters from localStorage and auth context on initialization
   const [filters, setFilters] = useState<FilterState>(() => {
     try {
-      // Get saved filters from localStorage
-      const savedFilters = localStorage.getItem('defaultFilters');
-      const localStorageFilters = savedFilters ? JSON.parse(savedFilters) : {};
+      // Get saved user filters from localStorage
+      const savedUserFilters = localStorage.getItem('userFilters');
+      const localStorageFilters = savedUserFilters ? JSON.parse(savedUserFilters) : {};
       
       // Get default filters from auth context (includes default carrier for MSC CZ Import user)
       const authDefaultFilters = getDefaultFilters();
@@ -29,7 +29,7 @@ export default function Dashboard() {
       
       return mergedFilters;
     } catch (error) {
-      console.error('Failed to load default filters:', error);
+      console.error('Failed to load user filters:', error);
       // Fallback to just auth defaults if localStorage fails
       return getDefaultFilters();
     }
@@ -46,6 +46,31 @@ export default function Dashboard() {
       return { ...prevFilters, ...authDefaultFilters };
     });
   }, [getDefaultFilters]);
+
+  // Save filters to localStorage whenever they change
+  useEffect(() => {
+    try {
+      // Don't save auth defaults to localStorage, only user's custom filter changes
+      const authDefaults = getDefaultFilters();
+      const userFilters = { ...filters };
+      
+      // Remove auth defaults from user filters to avoid storing them
+      Object.keys(authDefaults).forEach(key => {
+        if (JSON.stringify(userFilters[key as keyof FilterState]) === JSON.stringify(authDefaults[key as keyof FilterState])) {
+          delete userFilters[key as keyof FilterState];
+        }
+      });
+      
+      // Only save if there are actual user filter changes
+      if (Object.keys(userFilters).length > 0) {
+        localStorage.setItem('userFilters', JSON.stringify(userFilters));
+      } else {
+        localStorage.removeItem('userFilters');
+      }
+    } catch (error) {
+      console.error('Failed to save user filters:', error);
+    }
+  }, [filters, getDefaultFilters]);
 
   const { data: blSummaries = [], isLoading, refetch } = useQuery<BLSummary[]>({
     queryKey: ['/api/bl-summaries'],
@@ -177,6 +202,12 @@ export default function Dashboard() {
     setFilters({});
     setSearchValue("");
     setCurrentPage(1);
+    // Clear user filters from localStorage
+    try {
+      localStorage.removeItem('userFilters');
+    } catch (error) {
+      console.error('Failed to clear user filters from localStorage:', error);
+    }
   };
 
   const handleRefresh = () => {

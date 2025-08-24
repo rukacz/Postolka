@@ -5,11 +5,11 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { X, Bookmark } from "lucide-react";
+import { X } from "lucide-react";
 import { FilterState } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
 import { Container } from "@shared/schema";
-import { useToast } from "@/hooks/use-toast";
+
 import { useAuth } from "@/contexts/auth-context";
 
 interface FilterBarProps {
@@ -20,7 +20,6 @@ interface FilterBarProps {
 
 export default function FilterBar({ filters, onFiltersChange, onClearFilters }: FilterBarProps) {
   const [showMoreFilters, setShowMoreFilters] = useState(false);
-  const { toast } = useToast();
   const { hasPermission } = useAuth();
 
   const updateFilter = (key: keyof FilterState, value: string | boolean | string[]) => {
@@ -30,23 +29,6 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
       onFiltersChange({ ...filters, [key]: value.length === 0 ? undefined : value });
     } else {
       onFiltersChange({ ...filters, [key]: value === 'all' ? undefined : value || undefined });
-    }
-  };
-
-  const saveDefaultFilters = () => {
-    try {
-      localStorage.setItem('defaultFilters', JSON.stringify(filters));
-      toast({
-        title: "Success",
-        description: "Default filters saved to browser cookies.",
-      });
-    } catch (error) {
-      console.error('Failed to save default filters:', error);
-      toast({
-        title: "Error",
-        description: "Failed to save default filters. Please try again.",
-        variant: "destructive",
-      });
     }
   };
 
@@ -308,10 +290,6 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
           <Button variant="outline" onClick={onClearFilters} className="border-gray-300 text-gray-700 hover:bg-gray-50">
             <X className="w-4 h-4 mr-2" />
             Clear
-          </Button>
-          <Button variant="outline" onClick={saveDefaultFilters} className="border-blue-300 text-blue-700 hover:bg-blue-50">
-            <Bookmark className="w-4 h-4 mr-2" />
-            Save as Default
           </Button>
         </div>
       </div>

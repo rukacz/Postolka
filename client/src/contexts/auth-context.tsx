@@ -58,6 +58,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('currentUser');
+    // Clear user filters when logging out
+    try {
+      localStorage.removeItem('userFilters');
+    } catch (error) {
+      console.error('Failed to clear user filters on logout:', error);
+    }
   };
 
   const hasPermission = (permission: string): boolean => {
