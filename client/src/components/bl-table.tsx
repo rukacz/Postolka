@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { BLSummary, Container } from "@shared/schema";
+import { BL, Container, Company, User } from "@shared/schema";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,33 +14,63 @@ import ChangeIndicatorDot from "./change-indicator-dot";
 
 import { CarrierStatus, MedlogStatus, JobType, UserGroup } from "@/lib/types";
 
+// Extended BL type with company and user information
+interface BLWithDetails extends BL {
+  clientCompany?: Company;
+  carrierCompany?: Company;
+  picUser?: User;
+  localPortInfo?: { name: string; state: string };
+  locationCity?: { name: string; state: string };
+  // Change tracking fields from BL table
+  blNumberChange?: boolean;
+  picChange?: boolean;
+  clientChange?: boolean;
+  containerChange?: boolean;
+  directionChange?: boolean;
+  etaChange?: boolean;
+  hasDangerousChange?: boolean;
+  hasDtChange?: boolean;
+  localPortChange?: boolean;
+  medlogStatusChange?: boolean;
+  carrierStatusChange?: boolean;
+  locationChange?: boolean;
+  trainChange?: boolean;
+  medlogBulbChange?: boolean;
+  carrierBulbChange?: boolean;
+  vesselChange?: boolean;
+  voyageChange?: boolean;
+}
+
 interface BLTableProps {
-  data: BLSummary[];
+  data: BLWithDetails[];
   isLoading?: boolean;
   currentUserGroup?: UserGroup;
 }
 
-// Component to display change indicators using database counts
+// Component to display change indicators using new boolean flags
 const BLChangeIndicator = ({ bl, currentUserGroup, onClick }: { 
-  bl: BLSummary; 
+  bl: BLWithDetails; 
   currentUserGroup: UserGroup; 
   onClick: () => void 
 }) => {
-  // Use the pre-calculated counts from database based on user group
-  const totalUnseenChanges = currentUserGroup === 'carrier' 
-    ? (bl.unseenChangesCarrier || 0) + (bl.unreadChatCount || 0)
-    : (bl.unseenChangesMedlog || 0) + (bl.unreadChatCount || 0);
+  // Count changes based on new boolean flags
+  const changeFields = [
+    bl.blNumberChange, bl.picChange, bl.clientChange, bl.containerChange,
+    bl.directionChange, bl.etaChange, bl.hasDangerousChange, bl.hasDtChange,
+    bl.localPortChange, bl.medlogStatusChange, bl.carrierStatusChange,
+    bl.locationChange, bl.medlogBulbChange, bl.carrierBulbChange,
+    bl.vesselChange, bl.voyageChange
+  ];
+  
+  const totalChanges = changeFields.filter(Boolean).length;
 
   // Determine change type based on changed fields
-  const hasTimeChanges = bl.changedFields?.some(field => 
-    field.includes('eta') || field.includes('time') || field.includes('delivery') || field.includes('dateTime')
-  );
-  
+  const hasTimeChanges = bl.etaChange || bl.trainChange;
   const changeType = hasTimeChanges ? 'time' : 'other';
 
   return (
     <ChangeIndicatorDot 
-      count={totalUnseenChanges} 
+      count={totalChanges} 
       type={changeType}
       onClick={onClick}
     />
@@ -48,17 +78,11 @@ const BLChangeIndicator = ({ bl, currentUserGroup, onClick }: {
 };
 
 // Component to display dangerous goods indicator for a BL
-const DangerousGoodsIndicator = ({ blNumber }: { blNumber: string }) => {
-  const { data: containers = [] } = useQuery<Container[]>({
-    queryKey: ['/api/containers', blNumber],
-    enabled: !!blNumber
-  });
-
-  const hasDangerousGoods = containers.some(container => container.dangerousCargo);
-
+const DangerousGoodsIndicator = ({ bl }: { bl: BLWithDetails }) => {
+  // Use the new hasDangerous field from BL
   return (
     <div className="flex justify-center">
-      {hasDangerousGoods ? (
+      {bl.hasDangerous ? (
         <Flame className="w-4 h-4 text-red-500" />
       ) : (
         <span className="text-gray-400 text-xs">—</span>
@@ -68,211 +92,213 @@ const DangerousGoodsIndicator = ({ blNumber }: { blNumber: string }) => {
 };
 
 // Component to check delivery possibility and render train icon
-const TrainStatusWithDeliveryCheck = ({ bl }: { bl: BLSummary }) => {
-  // Don't show train icon for Export orders
-  if (bl.type === 'Export') {
-    return <div className="flex justify-center">—</div>;
-  }
-
-  const { data: containers = [] } = useQuery<Container[]>({
-    queryKey: ['/api/containers', bl.blNumber],
-    enabled: !!bl.blNumber && bl.type === 'Import'
+const TrainStatusWithDeliveryCheck = ({ bl }: { bl: BLWithDetails }) => {
+  // Train only exists at container level, not BL level
+  // Get containers for this BL using the junction table
+  const { data: containerInBls = [] } = useQuery({
+    queryKey: ['/api/container-in-bl'],
+    enabled: !!bl.id
   });
 
-  // Check if there are any trains scheduled for this BL (only for imports)
-  const hasTrainScheduled = containers.some(container => 
-    container.trainName && container.trainEtd
+  // Get containers for this specific BL
+  const blContainerIds = containerInBls
+    .filter(cib => cib.blId === bl.id)
+    .map(cib => cib.containerId);
+
+  const { data: allContainers = [] } = useQuery<Container[]>({
+    queryKey: ['/api/containers'],
+    enabled: blContainerIds.length > 0
+  });
+
+  // Get containers for this BL
+  const blContainers = allContainers.filter(container => 
+    blContainerIds.includes(container.containerIlu)
   );
 
-  // For imports, check if delivery is not possible (train departure after delivery date)
-  const isDeliveryNotPossible = containers.some(container => {
-    if (!container.trainName || !container.trainEtd || !container.dateTime) return false;
-    
-    // Parse train departure date and delivery date
-    const trainDate = new Date(container.trainEtd);
-    const deliveryDate = new Date(container.dateTime);
-    
-    // Delivery not possible if train departure is AFTER delivery date (for imports)
-    return trainDate.getTime() > deliveryDate.getTime();
-  });
+  // Check if there are any trains scheduled at container level
+  const hasTrainScheduled = blContainers.some(container => 
+    container.train && container.trainDate
+  );
 
+  // Check if delivery is not possible (backend calculates this)
+  const hasDeliveryIssues = blContainers.some(container => 
+    container.deliveryNotPossible
+  );
+
+  // Train status is based on container level information only
   return (
     <TrainStatusIcon 
-      isScheduled={hasTrainScheduled} 
-      isDeliveryNotPossible={isDeliveryNotPossible}
+      isScheduled={hasTrainScheduled}
+      isDeliveryNotPossible={hasDeliveryIssues}
     />
   );
 };
 
-// Component to check if containers have different Un/Load cities and show red exclamation mark
-const UnloadCityIndicator = ({ bl }: { bl: BLSummary }) => {
-  const { data: containers = [] } = useQuery<Container[]>({
-    queryKey: ['/api/containers', bl.blNumber],
-    enabled: !!bl.blNumber
-  });
-
-  // Get unique cities from containers
-  const uniqueCities = new Set<string>();
-  containers.forEach(container => {
-    if (container.destination) uniqueCities.add(container.destination);
-    if (container.unloadAddress) uniqueCities.add(container.unloadAddress);
-  });
-
-  const hasMultipleCities = uniqueCities.size > 1;
-  const primaryCity = containers.length > 0 ? (containers[0].destination || containers[0].unloadAddress || bl.destination) : bl.destination;
-
-  return (
-    <div className="flex items-center gap-1">
-      <span className="text-sm text-gray-600">{primaryCity}</span>
-      {hasMultipleCities && (
-        <div title="Multiple Un/Load cities in containers">
-          <AlertTriangle className="w-4 h-4 text-red-500" />
-        </div>
-      )}
-    </div>
-  );
-};
-
-function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps) {
+export default function BLTable({ data, isLoading, currentUserGroup }: BLTableProps) {
   const [, setLocation] = useLocation();
-  const [sortConfig, setSortConfig] = useState<{ key: keyof BLSummary | null; direction: 'asc' | 'desc' }>({
-    key: null,
-    direction: 'asc'
-  });
+  const [sortField, setSortField] = useState<keyof BLWithDetails>('blNumber');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
-  const handleSort = (key: keyof BLSummary) => {
-    setSortConfig(prev => ({
-      key,
-      direction: prev.key === key && prev.direction === 'asc' ? 'desc' : 'asc'
-    }));
+  const handleSort = (field: keyof BLWithDetails) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('asc');
+    }
   };
 
   const sortedData = [...data].sort((a, b) => {
-    if (!sortConfig.key) return 0;
-    
-    const aValue = a[sortConfig.key];
-    const bValue = b[sortConfig.key];
-    
-    if (aValue == null && bValue == null) return 0;
-    if (aValue == null) return 1;
-    if (bValue == null) return -1;
-    
-    if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
-    if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
-    return 0;
+    const aValue = a[sortField];
+    const bValue = b[sortField];
+
+    if (aValue === null || aValue === undefined) return 1;
+    if (bValue === null || bValue === undefined) return -1;
+
+    let comparison = 0;
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      comparison = aValue.localeCompare(bValue);
+    } else if (typeof aValue === 'number' && typeof bValue === 'number') {
+      comparison = aValue - bValue;
+    } else if (aValue instanceof Date && bValue instanceof Date) {
+      comparison = aValue.getTime() - bValue.getTime();
+    }
+
+    return sortDirection === 'asc' ? comparison : -comparison;
   });
 
-  const handleRowClick = (blNumber: string) => {
-    setLocation(`/bl/${blNumber}`);
-  };
-
   if (isLoading) {
-    return <div className="bg-white rounded-lg shadow-sm border p-8 text-center">Loading...</div>;
+    return (
+      <div className="bg-white rounded-lg shadow">
+        <div className="p-8 text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading shipments...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (data.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow">
+        <div className="p-8 text-center">
+          <p className="text-gray-600">No shipments found matching your criteria.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+    <div className="bg-white rounded-lg shadow overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-gray-50 border-b">
-            <TableHead className="w-8 px-4 py-3 text-center text-sm font-semibold text-gray-900">
-              Changes
-            </TableHead>
-            <TableHead className="w-8 px-4 py-3 text-left text-sm font-semibold text-gray-900">Type</TableHead>
-            <TableHead className="w-8 px-4 py-3 text-center text-sm font-semibold text-gray-900">DG</TableHead>
-            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
+          <TableRow>
+            <TableHead className="w-12">
               <Button
                 variant="ghost"
+                size="sm"
                 onClick={() => handleSort('blNumber')}
-                className="p-0 h-auto font-semibold hover:bg-gray-100"
+                className="h-8 flex items-center gap-1"
               >
-                BL/Booking <ArrowUpDown className="ml-1 h-4 w-4" />
+                BL Number
+                <ArrowUpDown className="h-4 w-4" />
               </Button>
             </TableHead>
-
-            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">
+            <TableHead className="w-32">
               <Button
                 variant="ghost"
-                onClick={() => handleSort('client')}
-                className="p-0 h-auto font-semibold hover:bg-gray-100"
+                size="sm"
+                onClick={() => handleSort('direction')}
+                className="h-8 flex items-center gap-1"
               >
-                Client <ArrowUpDown className="ml-1 h-4 w-4" />
+                Direction
+                <ArrowUpDown className="h-4 w-4" />
               </Button>
             </TableHead>
-            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Un/Load Location</TableHead>
-            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">POD/POL</TableHead>
-            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">ETA/Closing</TableHead>
-            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Containers</TableHead>
-            <TableHead className="w-8 px-4 py-3 text-left text-sm font-semibold text-gray-900">
-              Train
+            <TableHead className="w-32">Client</TableHead>
+            <TableHead className="w-32">Carrier</TableHead>
+            <TableHead className="w-24">PIC</TableHead>
+            <TableHead className="w-32">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => handleSort('eta')}
+                className="h-8 flex items-center gap-1"
+              >
+                ETA
+                <ArrowUpDown className="h-4 w-4" />
+              </Button>
             </TableHead>
-            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Carrier Status</TableHead>
-            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Medlog Status</TableHead>
-            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">Carrier</TableHead>
-            <TableHead className="px-4 py-3 text-left text-sm font-semibold text-gray-900">PIC</TableHead>
-
-            <TableHead className="w-16 px-4 py-3"></TableHead>
+            <TableHead className="w-24">Medlog Status</TableHead>
+            <TableHead className="w-24">Carrier Status</TableHead>
+            <TableHead className="w-16">DG</TableHead>
+            <TableHead className="w-16">Train</TableHead>
+            <TableHead className="w-16">Changes</TableHead>
+            <TableHead className="w-16">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {sortedData.map((bl) => (
-            <TableRow
-              key={bl.blNumber}
-              className="hover:bg-gray-50 cursor-pointer"
-              onClick={() => handleRowClick(bl.blNumber)}
-            >
-              <TableCell className="px-4 py-3 text-center" onClick={(e) => e.stopPropagation()}>
-                <BLChangeIndicator bl={bl} currentUserGroup={currentUserGroup} onClick={() => handleRowClick(bl.blNumber)} />
-              </TableCell>
-              <TableCell className="px-4 py-3">
-                <Badge className={bl.type === 'Import' ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"}>
-                  {bl.type}
-                </Badge>
-              </TableCell>
-              <TableCell className="px-4 py-3 text-center">
-                <DangerousGoodsIndicator blNumber={bl.blNumber} />
-              </TableCell>
-              <TableCell className="px-4 py-3">
-                <button className="text-primary font-medium hover:underline">
+            <TableRow key={bl.id} className="hover:bg-gray-50">
+              <TableCell className="font-medium">
+                <Button
+                  variant="link"
+                  className="p-0 h-auto font-medium text-blue-600 hover:text-blue-800"
+                  onClick={() => setLocation(`/bl/${bl.id}`)}
+                >
                   {bl.blNumber}
-                </button>
+                </Button>
               </TableCell>
-
-              <TableCell className="px-4 py-3 font-medium">{bl.client}</TableCell>
-              <TableCell className="px-4 py-3">
-                <UnloadCityIndicator bl={bl} />
-              </TableCell>
-              <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.podPol}</TableCell>
-              <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.etaClosing}</TableCell>
-              <TableCell className="px-4 py-3 text-center">
-                <Badge variant="secondary" className="bg-gray-100 text-gray-900">
-                  {bl.containerCount}
+              <TableCell>
+                <Badge variant={bl.direction === 'Import' ? 'default' : 'secondary'}>
+                  {bl.direction}
                 </Badge>
               </TableCell>
-              <TableCell className="px-4 py-3">
-                <TrainStatusWithDeliveryCheck bl={bl} />
+              <TableCell>
+                {bl.clientCompany?.name || `Company ${bl.client}`}
               </TableCell>
-              <TableCell className="px-4 py-3">
-                <CarrierStatusBadge status={bl.carrierStatus as CarrierStatus} />
+              <TableCell>
+                {bl.carrierCompany?.name || `Company ${bl.carrier}`}
               </TableCell>
-              <TableCell className="px-4 py-3">
+              <TableCell>
+                {bl.picUser?.name || `User ${bl.pic}`}
+              </TableCell>
+              <TableCell>
+                {bl.eta ? new Date(bl.eta).toLocaleDateString() : '—'}
+              </TableCell>
+              <TableCell>
                 <MedlogStatusBadge status={bl.medlogStatus as MedlogStatus} />
               </TableCell>
-              <TableCell className="px-4 py-3 text-sm text-gray-600">
-                {bl.carrier || "Not assigned"}
+              <TableCell>
+                <CarrierStatusBadge status={bl.carrierStatus as CarrierStatus} />
               </TableCell>
-              <TableCell className="px-4 py-3 text-sm text-gray-600">{bl.pic}</TableCell>
-
-              <TableCell className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+              <TableCell>
+                <DangerousGoodsIndicator bl={bl} />
+              </TableCell>
+              <TableCell>
+                <TrainStatusWithDeliveryCheck bl={bl} />
+              </TableCell>
+              <TableCell>
+                <BLChangeIndicator 
+                  bl={bl} 
+                  currentUserGroup={currentUserGroup || 'medlog'}
+                  onClick={() => setLocation(`/bl/${bl.id}`)}
+                />
+              </TableCell>
+              <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="p-1">
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>Edit</DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setLocation(`/bl/${bl.id}`)}>
+                      View Details
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setLocation(`/bl/${bl.id}/edit`)}>
+                      Edit
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>
@@ -283,5 +309,3 @@ function BLTable({ data, isLoading, currentUserGroup = 'medlog' }: BLTableProps)
     </div>
   );
 }
-
-export default BLTable;

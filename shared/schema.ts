@@ -1,160 +1,252 @@
-import { pgTable, text, serial, integer, boolean, timestamp, decimal } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, decimal, varchar } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-export const blSummaries = pgTable("bl_summaries", {
+// ============================================================================
+// NEW TABLES ACCORDING TO ERD
+// ============================================================================
+
+// Company table - stores information about companies (clients, carriers, etc.)
+export const company = pgTable("company", {
   id: serial("id").primaryKey(),
-  blNumber: text("bl_number").notNull().unique(),
-  date: text("date").notNull(),
-  client: text("client").notNull(),
-  destination: text("destination").notNull(),
-  pic: text("pic").notNull(), // Person in Charge
-  podPol: text("pod_pol").notNull(), // Port of Discharge/Port of Loading
-  etaClosing: text("eta_closing").notNull(), // ETA/Closing date
-  vesselVoyage: text("vessel_voyage"), // Vessel/Voyage info
-  containerCount: integer("container_count").notNull(),
-  type: text("type").notNull(), // 'Import' | 'Export'
-  carrier: text("carrier"),
-  carrierStatus: text("carrier_status").notNull(), // 'Pre-Order' | 'MIPS Send' | 'Do Not Release' | 'Cancelled'
-  medlogStatus: text("medlog_status").notNull(), // 'New' | 'Approved' | 'Rejected' | 'Changed'
-  trainScheduled: boolean("train_scheduled").default(false), // true = zelená ikonka, false = šedá ikonka
-  weight: text("weight").notNull(),
-  hasChanges: boolean("has_changes").default(false),
-  lastChangedBy: text("last_changed_by"), // 'carrier' | 'medlog'
-  lastChangedAt: timestamp("last_changed_at"),
-  unseenChangesCarrier: integer("unseen_changes_carrier").default(0),
-  unseenChangesMedlog: integer("unseen_changes_medlog").default(0),
-  changedFields: text("changed_fields").array().default([]), // Array of field names that were changed
-  // Chat fields
-  lastChatMessage: text("last_chat_message").default(""),
-  lastChatAuthor: text("last_chat_author").default(""),
-  unreadChatCount: integer("unread_chat_count").default(0),
-  dangerousCargo: boolean("dangerous_cargo").default(false),
+  name: varchar("name", { length: 255 }).notNull(),
+  address: varchar("address", { length: 500 }),
+  contact: varchar("contact", { length: 255 }),
+  type: varchar("type", { length: 100 }), // e.g., "Medlog", "MSC", "Client"
+  createdBy: integer("created_by").references(() => user.id).nullable(),
+  createdAt: timestamp("created_at").defaultNow(),
+  lastModifiedBy: integer("last_modified_by").references(() => user.id).nullable(),
+  lastModifiedAt: timestamp("last_modified_at"),
 });
 
+// Role table - defines different user roles within the system
+export const role = pgTable("role", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull(), // e.g., "Admin", "MSC User", "Medlog User"
+});
+
+// Port table - stores information about shipping ports
+export const port = pgTable("port", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  state: varchar("state", { length: 100 }),
+  address: varchar("address", { length: 500 }),
+  createdBy: integer("created_by").references(() => user.id).nullable(),
+  createdAt: timestamp("created_at").defaultNow(),
+  lastModifiedBy: integer("last_modified_by").references(() => user.id).nullable(),
+  lastModifiedAt: timestamp("last_modified_at"),
+});
+
+// City table - stores information about cities
+export const city = pgTable("city", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  state: varchar("state", { length: 100 }),
+  postalCode: integer("postal_code"),
+});
+
+// ============================================================================
+// RESTRUCTURED TABLES ACCORDING TO ERD
+// ============================================================================
+
+// User table - stores user account information (restructured according to ERD)
+export const user = pgTable("user", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  username: varchar("username", { length: 100 }).notNull(),
+  email: varchar("email", { length: 255 }),
+  password: varchar("password", { length: 255 }),
+  role: integer("role").references(() => role.id).notNull(),
+  office: varchar("office", { length: 100 }),
+  company: integer("company").references(() => company.id),
+  createdBy: integer("created_by").references(() => user.id).nullable(),
+  createdAt: timestamp("created_at").defaultNow(),
+  lastModifiedBy: integer("last_modified_by").references(() => user.id).nullable(),
+  lastModifiedAt: timestamp("last_modified_at"),
+});
+
+// BL table - represents a Bill of Lading (restructured according to ERD)
+export const bl = pgTable("bl", {
+  id: serial("id").primaryKey(),
+  blNumber: varchar("bl_number", { length: 100 }).notNull(),
+  pic: integer("pic").references(() => user.id), // Person in Charge
+  client: integer("client").references(() => company.id).notNull(),
+  containerAmount: integer("container_amount").notNull(),
+  direction: text("direction").notNull(), // 'Import' | 'Export'
+  eta: timestamp("eta").notNull(), // Estimated Time of Arrival
+  hasDangerous: boolean("has_dangerous").default(false),
+  hasDt: boolean("has_dt").default(false), // Direct Transport
+  localPort: integer("local_port").references(() => port.id),
+  lockTime: timestamp("lock_time"),
+  lockUser: varchar("lock_user", { length: 100 }),
+  medlogStatus: varchar("medlog_status", { length: 100 }).notNull(),
+  carrierStatus: varchar("carrier_status", { length: 100 }).notNull(),
+  location: integer("location").references(() => city.id),
+  medlogBulb: boolean("medlog_bulb").default(false),
+  carrierBulb: boolean("carrier_bulb").default(false),
+  voyage: varchar("voyage", { length: 100 }),
+  vessel: varchar("vessel", { length: 255 }),
+  carrier: integer("carrier").references(() => company.id),
+  notifyEmail: varchar("notify_email", { length: 255 }),
+  toBeNotified: boolean("to_be_notified").default(false),
+  use: boolean("use").default(true),
+  
+  // Change tracking fields (boolean flags for each field)
+  blNumberChange: boolean("bl_number_change").default(false),
+  picChange: boolean("pic_change").default(false),
+  clientChange: boolean("client_change").default(false),
+  containerChange: boolean("container_change").default(false),
+  directionChange: boolean("direction_change").default(false),
+  etaChange: boolean("eta_change").default(false),
+  hasDangerousChange: boolean("has_dangerous_change").default(false),
+  hasDtChange: boolean("has_dt_change").default(false),
+  localPortChange: boolean("local_port_change").default(false),
+  medlogStatusChange: boolean("medlog_status_change").default(false),
+  carrierStatusChange: boolean("carrier_status_change").default(false),
+  locationChange: boolean("location_change").default(false),
+  remotePortChange: boolean("remote_port_change").default(false),
+  medlogBulbChange: boolean("medlog_bulb_change").default(false),
+  carrierBulbChange: boolean("carrier_bulb_change").default(false),
+  vesselChange: boolean("vessel_change").default(false),
+  voyageChange: boolean("voyage_change").default(false),
+});
+
+// Container table - stores detailed information about individual shipping containers
+export const container = pgTable("container", {
+  id: serial("id").primaryKey(),
+  containerIlu: varchar("container_ilu", { length: 100 }).notNull(), // Container identification number
+  type: varchar("type", { length: 50 }).notNull(), // e.g., 20GP, 40HC
+  weight: decimal("weight", { precision: 10, scale: 2 }),
+  customs: varchar("customs", { length: 100 }),
+  isDangerous: boolean("is_dangerous").default(false),
+  deliveryDate: timestamp("delivery_date"),
+  isDirectTruck: boolean("is_direct_truck").default(false),
+  medlogStatus: varchar("medlog_status", { length: 100 }).notNull(),
+  carrierStatus: varchar("carrier_status", { length: 100 }).notNull(),
+  medlogNote: text("medlog_note"),
+  carrierNote: text("carrier_note"),
+  isSentInMips: boolean("is_sent_in_mips").default(false),
+  location: varchar("location", { length: 255 }),
+  zip: varchar("zip", { length: 20 }),
+  train: varchar("train", { length: 100 }),
+  trainDate: timestamp("train_date"),
+  deliveryNotPossible: boolean("delivery_not_possible").default(false),
+  use: boolean("use").default(true),
+  
+  // Change tracking fields (boolean flags for each field)
+  containerIluChange: boolean("container_ilu_change").default(false),
+  typeChange: boolean("type_change").default(false),
+  weightChange: boolean("weight_change").default(false),
+  customsChange: boolean("customs_change").default(false),
+  isDangerousChange: boolean("is_dangerous_change").default(false),
+  deliveryDateChange: boolean("delivery_date_change").default(false),
+  isDirectTruckChange: boolean("is_direct_truck_change").default(false),
+  medlogStatusChange: boolean("medlog_status_change").default(false),
+  mscStatusChange: boolean("msc_status_change").default(false),
+  medlogNoteChange: boolean("medlog_note_change").default(false),
+  mscNoteChange: boolean("msc_note_change").default(false),
+  isSentInMipsChange: boolean("is_sent_in_mips_change").default(false),
+  locationChange: boolean("location_change").default(false),
+  zipChange: boolean("zip_change").default(false),
+  trainChange: boolean("train_change").default(false),
+  trainDateChange: boolean("train_date_change").default(false),
+  deliveryNotPossibleChange: integer("delivery_not_possible_change").default(0), // Note: this is integer in ERD
+});
+
+// Container in BL junction table - links BL records to container records (M:N relationship)
+export const containerInBl = pgTable("container_in_bl", {
+  id: serial("id").primaryKey(),
+  blId: integer("bl_id").notNull().references(() => bl.id),
+  containerId: varchar("container_id", { length: 100 }).notNull().references(() => container.containerIlu),
+});
+
+// Chat messages table - stores chat messages related to a specific BL
 export const chatMessages = pgTable("chat_messages", {
   id: serial("id").primaryKey(),
-  blNumber: text("bl_number").notNull(),
-  author: text("author").notNull(),
+  blId: integer("bl_id").references(() => bl.id).notNull(),
+  user: integer("user").references(() => user.id).notNull(),
   message: text("message").notNull(),
-  timestamp: timestamp("timestamp").notNull().defaultNow(),
-  isRead: boolean("is_read").default(false),
+  sent: timestamp("sent").notNull().defaultNow(),
 });
 
-export const blDetails = pgTable("bl_details", {
-  id: serial("id").primaryKey(),
-  blNumber: text("bl_number").notNull().unique(),
-  customerRef: text("customer_ref").notNull(),
-  jobType: text("job_type").notNull(), // 'Import' | 'Export'
-  status: text("status").notNull(),
-  // Customer Info
-  customerName: text("customer_name").notNull(),
-  contactName: text("contact_name").notNull(),
-  contactPhone: text("contact_phone").notNull(),
-  consigneeName: text("consignee_name").notNull(),
-  // Vessel Info
-  vesselName: text("vessel_name").notNull(),
-  shippingLine: text("shipping_line").notNull(),
-  eta: text("eta").notNull(),
-  availability: text("availability").notNull(),
-  storageStart: text("storage_start").notNull(),
-  // Delivery Info
-  fromLocation: text("from_location").notNull(),
-  fromAddress: text("from_address").notNull(),
-  fromZone: text("from_zone").notNull(),
-  toLocation: text("to_location").notNull(),
-  toAddress: text("to_address").notNull(),
-  toZone: text("to_zone").notNull(),
-  hoursOfOperation: text("hours_of_operation").notNull(),
-});
+// ============================================================================
+// SCHEMAS AND TYPES
+// ============================================================================
 
-export const containers = pgTable("containers", {
-  id: serial("id").primaryKey(),
-  blNumber: text("bl_number").notNull(),
-  jobNumber: text("job_number").notNull(),
-  containerNumber: text("container_number").notNull(),
-  sizeType: text("size_type").notNull(),
-  dateTime: text("date_time"), // Changed from weight to dateTime
-  status: text("status").notNull(),
-  sealNumber: text("seal_number"),
-  temperature: integer("temperature"),
-  routeStep: text("route_step").notNull(), // Current step: 'W' | 'D' | 'C' | 'R'
-  unloadAddress: text("unload_address"), // Changed from transporter to unloadAddress
-  destination: text("destination"),
-  customsClearance: text("customs_clearance"),
-  weighingRequested: boolean("weighing_requested").default(false),
-  // Status fields
-  carrierStatus: text("carrier_status").notNull(),
-  medlogStatus: text("medlog_status").notNull(),
-  // Train fields
-  trainName: text("train_name"),
-  trainEtd: text("train_etd"),
-  // Notes fields
-  carrierNote: text("carrier_note").default(""),
-  medlogNote: text("medlog_note").default(""),
-  // Change tracking fields
-  lastChangedBy: text("last_changed_by"),
-  lastChangedAt: text("last_changed_at"),
-  changedFields: text("changed_fields").array(),
-  isNewContainer: boolean("is_new_container").default(false),
-  dangerousCargo: boolean("dangerous_cargo").default(false),
-  directTransport: boolean("direct_transport").default(false),
-});
-
-export const insertBLSummarySchema = createInsertSchema(blSummaries).omit({
+// Insert schemas
+export const insertCompanySchema = createInsertSchema(company).omit({
   id: true,
-  hasChanges: true,
+  createdAt: true,
+  lastModifiedAt: true,
 });
 
-export const insertBLDetailSchema = createInsertSchema(blDetails).omit({
+export const insertRoleSchema = createInsertSchema(role).omit({
   id: true,
 });
 
-export const insertContainerSchema = createInsertSchema(containers).omit({
+export const insertPortSchema = createInsertSchema(port).omit({
+  id: true,
+  createdAt: true,
+  lastModifiedAt: true,
+});
+
+export const insertCitySchema = createInsertSchema(city).omit({
+  id: true,
+});
+
+export const insertUserSchema = createInsertSchema(user).omit({
+  id: true,
+  createdAt: true,
+  lastModifiedAt: true,
+});
+
+export const insertBlSchema = createInsertSchema(bl).omit({
+  id: true,
+});
+
+export const insertContainerSchema = createInsertSchema(container).omit({
+  id: true,
+});
+
+export const insertContainerInBlSchema = createInsertSchema(containerInBl).omit({
   id: true,
 });
 
 export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
   id: true,
-  timestamp: true,
+  sent: true,
 });
 
-export type BLSummary = typeof blSummaries.$inferSelect;
-export type InsertBLSummary = z.infer<typeof insertBLSummarySchema>;
-export type BLDetail = typeof blDetails.$inferSelect;
-export type InsertBLDetail = z.infer<typeof insertBLDetailSchema>;
-export type Container = typeof containers.$inferSelect;
+// Export types
+export type Company = typeof company.$inferSelect;
+export type InsertCompany = z.infer<typeof insertCompanySchema>;
+
+export type Role = typeof role.$inferSelect;
+export type InsertRole = z.infer<typeof insertRoleSchema>;
+
+export type Port = typeof port.$inferSelect;
+export type InsertPort = z.infer<typeof insertPortSchema>;
+
+export type City = typeof city.$inferSelect;
+export type InsertCity = z.infer<typeof insertCitySchema>;
+
+export type User = typeof user.$inferSelect;
+export type InsertUser = z.infer<typeof insertUserSchema>;
+
+export type BL = typeof bl.$inferSelect;
+export type InsertBL = z.infer<typeof insertBlSchema>;
+
+export type Container = typeof container.$inferSelect;
 export type InsertContainer = z.infer<typeof insertContainerSchema>;
+
+export type ContainerInBl = typeof containerInBl.$inferSelect;
+export type InsertContainerInBl = z.infer<typeof insertContainerInBlSchema>;
+
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 
-// Enhanced user schema with role-based permissions
-export const users = pgTable("users", {
-  id: serial("id").primaryKey(),
-  username: text("username").notNull().unique(),
-  password: text("password").notNull(),
-  name: text("name").notNull(),
-  email: text("email"),
-  // Role system
-  orgRole: text("org_role").notNull(), // 'medlog' | 'msc'
-  orderTypeRole: text("order_type_role"), // 'import_only' | 'export_only' | null (both)
-  defaultCarrier: text("default_carrier"), // 'MSC CZ' | 'MSC SK' | null
-  carrierWhitelist: text("carrier_whitelist").array().default([]), // Allowed carriers this user can switch to
-  isActive: boolean("is_active").default(true),
-  lastLogin: timestamp("last_login"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export const insertUserSchema = createInsertSchema(users).omit({
-  id: true,
-  lastLogin: true,
-  createdAt: true,
-});
-
-export type InsertUser = z.infer<typeof insertUserSchema>;
-export type User = typeof users.$inferSelect;
-
-// User role types for better type safety
-export type OrgRole = 'medlog' | 'msc';
-export type OrderTypeRole = 'import_only' | 'export_only' | null;
-export type CarrierType = 'MSC CZ' | 'MSC SK' | 'ONE' | 'Hapag-Lloyd' | 'Maersk' | null;
+// Legacy type aliases for backward compatibility during transition
+export type BLSummary = BL;
+export type InsertBLSummary = InsertBL;
+export type BLDetail = BL;
+export type InsertBLDetail = InsertBL;

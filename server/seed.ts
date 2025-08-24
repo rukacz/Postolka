@@ -1,447 +1,539 @@
 import { db } from "./db";
-import { blSummaries, blDetails, containers, users } from "@shared/schema";
+import { 
+  company, 
+  role, 
+  port, 
+  city, 
+  user, 
+  bl, 
+  container, 
+  containerInBl, 
+  chatMessages 
+} from "@shared/schema";
 
 export async function seedDatabase() {
   try {
     // Clear existing data to ensure clean state
     console.log("Clearing existing data...");
-    await db.delete(containers);
-    await db.delete(blDetails);
-    await db.delete(blSummaries);
-    await db.delete(users);
+    await db.delete(chatMessages);
+    await db.delete(containerInBl);
+    await db.delete(container);
+    await db.delete(bl);
+    await db.delete(user);
+    await db.delete(city);
+    await db.delete(port);
+    await db.delete(role);
+    await db.delete(company);
 
-    console.log("Seeding database with sample data...");
+    console.log("Seeding database with new schema...");
 
-    // Sample BL Summaries
-    const sampleBLSummaries = [
+    // ============================================================================
+    // SEED ROLES
+    // ============================================================================
+    const sampleRoles = [
+      { name: "Admin" },
+      { name: "Medlog User" },
+      { name: "MSC User" },
+      { name: "Client User" }
+    ];
+    const insertedRoles = await db.insert(role).values(sampleRoles).returning();
+
+    // ============================================================================
+    // SEED COMPANIES
+    // ============================================================================
+    const sampleCompanies = [
+      { 
+        name: "Medlog", 
+        address: "Praha, Česká republika",
+        contact: "info@medlog.cz",
+        type: "Medlog"
+      },
+      { 
+        name: "MSC CZ", 
+        address: "Praha, Česká republika",
+        contact: "info@msc.cz",
+        type: "MSC"
+      },
+      { 
+        name: "MSC SK", 
+        address: "Bratislava, Slovensko",
+        contact: "info@msc.sk",
+        type: "MSC"
+      },
+      { 
+        name: "ŠKODA AUTO", 
+        address: "Mladá Boleslav, Česká republika",
+        contact: "info@skoda-auto.cz",
+        type: "Client"
+      },
+      { 
+        name: "TESCO", 
+        address: "Praha, Česká republika",
+        contact: "info@tesco.cz",
+        type: "Client"
+      },
+      { 
+        name: "IKEA", 
+        address: "Praha, Česká republika",
+        contact: "info@ikea.cz",
+        type: "Client"
+      },
+      { 
+        name: "NTB", 
+        address: "Praha, Česká republika",
+        contact: "info@ntb.cz",
+        type: "Client"
+      },
+      { 
+        name: "AUDI", 
+        address: "Ingolstadt, Německo",
+        contact: "info@audi.de",
+        type: "Client"
+      },
+      { 
+        name: "ONE", 
+        address: "Tokyo, Japonsko",
+        contact: "info@one-line.com",
+        type: "Carrier"
+      },
+      { 
+        name: "Hapag-Lloyd", 
+        address: "Hamburg, Německo",
+        contact: "info@hapag-lloyd.com",
+        type: "Carrier"
+      }
+    ];
+    const insertedCompanies = await db.insert(company).values(sampleCompanies).returning();
+
+    // ============================================================================
+    // SEED PORTS
+    // ============================================================================
+    const samplePorts = [
+      { 
+        name: "Port of Hamburg", 
+        state: "Hamburg",
+        address: "Waltershof Terminal, Hamburg 21129"
+      },
+      { 
+        name: "Port of Rotterdam", 
+        state: "South Holland",
+        address: "Maasvlakte Plaza 1, 3199 DB Rotterdam"
+      },
+      { 
+        name: "Port of Koper", 
+        state: "Koper",
+        address: "Vojkovo nabrežje 38, 6000 Koper"
+      },
+      { 
+        name: "Port of Antwerpen", 
+        state: "Antwerp",
+        address: "Antwerp Port Authority, 2000 Antwerp"
+      }
+    ];
+    const insertedPorts = await db.insert(port).values(samplePorts).returning();
+
+    // ============================================================================
+    // SEED CITIES
+    // ============================================================================
+    const sampleCities = [
+      { 
+        name: "Mladá Boleslav", 
+        state: "Středočeský kraj",
+        postalCode: 29301
+      },
+      { 
+        name: "Praha", 
+        state: "Praha",
+        postalCode: 11000
+      },
+      { 
+        name: "Gan", 
+        state: "Bratislavský kraj",
+        postalCode: 90001
+      },
+      { 
+        name: "Ružomberok", 
+        state: "Žilinský kraj",
+        postalCode: 3401
+      },
+      { 
+        name: "Ingolstadt", 
+        state: "Bavaria",
+        postalCode: 85049
+      },
+      { 
+        name: "Brandýs nad Labem", 
+        state: "Středočeský kraj",
+        postalCode: 25001
+      }
+    ];
+    const insertedCities = await db.insert(city).values(sampleCities).returning();
+
+    // ============================================================================
+    // SEED USERS
+    // ============================================================================
+    const sampleUsers = [
+      {
+        name: "Medlog Admin",
+        username: "medlog_admin",
+        email: "admin@medlog.cz",
+        password: "medlog123",
+        role: insertedRoles.find((r: any) => r.name === "Medlog User")!.id,
+        office: "Praha",
+        company: insertedCompanies.find((c: any) => c.name === "Medlog")!.id
+      },
+      {
+        name: "MSC CZ Import User",
+        username: "msc_cz_import",
+        email: "import.cz@msc.com",
+        password: "msc123",
+        role: insertedRoles.find((r: any) => r.name === "MSC User")!.id,
+        office: "Praha",
+        company: insertedCompanies.find((c: any) => c.name === "MSC CZ")!.id
+      },
+      {
+        name: "MSC CZ Export User",
+        username: "msc_cz_export",
+        email: "export.cz@msc.com",
+        password: "msc123",
+        role: insertedRoles.find((r: any) => r.name === "MSC User")!.id,
+        office: "Praha",
+        company: insertedCompanies.find((c: any) => c.name === "MSC CZ")!.id
+      },
+      {
+        name: "MSC SK Import User",
+        username: "msc_sk_import",
+        email: "import.sk@msc.com",
+        password: "msc123",
+        role: insertedRoles.find((r: any) => r.name === "MSC User")!.id,
+        office: "Bratislava",
+        company: insertedCompanies.find((c: any) => c.name === "MSC SK")!.id
+      },
+      {
+        name: "MSC SK Export User",
+        username: "msc_sk_export",
+        email: "export.sk@msc.com",
+        password: "msc123",
+        role: insertedRoles.find((r: any) => r.name === "MSC User")!.id,
+        office: "Bratislava",
+        company: insertedCompanies.find((c: any) => c.name === "MSC SK")!.id
+      }
+    ];
+    const insertedUsers = await db.insert(user).values(sampleUsers).returning();
+
+    // ============================================================================
+    // SEED BL RECORDS
+    // ============================================================================
+    const sampleBLs = [
       {
         blNumber: "MEDU123456",
-        date: "2025-01-22", 
-        client: "ŠKODA AUTO",
-        pic: "Jan Novák",
-        destination: "Mladá Boleslav",
-        podPol: "HAM CTA",
-        etaClosing: "25/01/2025",
-        vesselVoyage: "MSC MAYA/0142E",
-        containerCount: 2,
-        type: "Import",
-        carrier: "MSC CZ",
-        carrierStatus: "MIPS Send",
+        pic: insertedUsers.find((u: any) => u.name === "Medlog Admin")!.id,
+        client: insertedCompanies.find((c: any) => c.name === "ŠKODA AUTO")!.id,
+        containerAmount: 2,
+        direction: "Import",
+        eta: new Date('2025-01-25T10:00:00Z'),
+        hasDangerous: false,
+        hasDt: true,
+        localPort: insertedPorts.find((p: any) => p.name === "Port of Hamburg")!.id,
         medlogStatus: "Approved",
-        trainScheduled: true,
-        weight: "48,000 kg",
-        hasChanges: true,
-        lastChangedBy: "carrier",
-        lastChangedAt: new Date('2025-01-22T14:30:00Z'),
-        unseenChangesCarrier: 0,
-        unseenChangesMedlog: 2,
-        changedFields: ["eta", "carrierStatus"],
-        lastChatMessage: "Potvrzeno. ETA updated to 14:30.",
-        lastChatAuthor: "Petr Svoboda", 
-        unreadChatCount: 2
+        carrierStatus: "MIPS Send",
+        location: insertedCities.find((c: any) => c.name === "Mladá Boleslav")!.id,
+        train: "MEH2530R1",
+        medlogBulb: true,
+        carrierBulb: false,
+        voyage: "0142E",
+        vessel: "MSC MAYA",
+        carrier: insertedCompanies.find((c: any) => c.name === "MSC CZ")!.id,
+        notifyEmail: "skoda@medlog.cz",
+        toBeNotified: true,
+        use: true
       },
       {
         blNumber: "MSCU789012",
-        date: "2025-01-23",
-        client: "TESCO", 
-        pic: "Eva Svobodová",
-        destination: "Gan",
-        podPol: "BRV MSC",
-        etaClosing: "26/01/2025",
-        vesselVoyage: "MSC OSCAR/0156E",
-        containerCount: 1,
-        type: "Import",
-        carrier: "MSC SK",
-        carrierStatus: "Pre-Order",
+        pic: insertedUsers.find(u => u.name === "MSC SK Import User")!.id,
+        client: insertedCompanies.find(c => c.name === "TESCO")!.id,
+        containerAmount: 1,
+        direction: "Import",
+        eta: new Date('2025-01-26T14:00:00Z'),
+        hasDangerous: false,
+        hasDt: false,
+        localPort: insertedPorts.find(p => p.name === "Port of Koper")!.id,
         medlogStatus: "New",
-        trainScheduled: false,
-        weight: "25,400 kg",
-        hasChanges: false,
-        lastChangedBy: null,
-        lastChangedAt: null,
-        unseenChangesCarrier: 0,
-        unseenChangesMedlog: 0,
-        changedFields: [],
-        lastChatMessage: "Containers ready for pickup",
-        lastChatAuthor: "Eva Svobodová",
-        unreadChatCount: 1
+        carrierStatus: "Pre-Order",
+        location: insertedCities.find(c => c.name === "Gan")!.id,
+        train: null,
+        medlogBulb: false,
+        carrierBulb: false,
+        voyage: "0156E",
+        vessel: "MSC OSCAR",
+        carrier: insertedCompanies.find(c => c.name === "MSC SK")!.id,
+        notifyEmail: "tesco@medlog.cz",
+        toBeNotified: false,
+        use: true
       },
       {
         blNumber: "TCLU345678",
-        date: "2025-01-25",
-        client: "IKEA",
-        pic: "Tomáš Dvořák", 
-        destination: "Ružomberok",
-        podPol: "Koper",
-        etaClosing: "27/01/2025",
-        vesselVoyage: "ONE STORK/0523W",
-        containerCount: 3,
-        type: "Export",
-        carrier: "ONE",
-        carrierStatus: "Do Not Release",
+        pic: insertedUsers.find(u => u.name === "Medlog Admin")!.id,
+        client: insertedCompanies.find(c => c.name === "IKEA")!.id,
+        containerAmount: 3,
+        direction: "Export",
+        eta: new Date('2025-01-27T16:00:00Z'),
+        hasDangerous: false,
+        hasDt: false,
+        localPort: insertedPorts.find(p => p.name === "Port of Koper")!.id,
         medlogStatus: "Rejected",
-        trainScheduled: false,
-        weight: "73,950 kg",
-        hasChanges: true,
-        lastChangedBy: "medlog",
-        lastChangedAt: new Date('2025-01-24T09:15:00Z'),
-        unseenChangesCarrier: 3,
-        unseenChangesMedlog: 0,
-        changedFields: ["medlogStatus", "destination", "date"],
-        lastChatMessage: "Status změněn na Rejected",
-        lastChatAuthor: "Tomáš Dvořák",
-        unreadChatCount: 1
+        carrierStatus: "Do Not Release",
+        location: insertedCities.find(c => c.name === "Ružomberok")!.id,
+        train: null,
+        medlogBulb: true,
+        carrierBulb: false,
+        voyage: "0523W",
+        vessel: "ONE STORK",
+        carrier: insertedCompanies.find(c => c.name === "ONE")!.id,
+        notifyEmail: "ikea@medlog.cz",
+        toBeNotified: true,
+        use: true
       },
       {
         blNumber: "NTBG456789",
-        date: "2025-01-20",
-        client: "NTB",
-        pic: "Marie Černá",
-        destination: "Praha",
-        podPol: "Rotterdam",
-        etaClosing: "22/01/2025", 
-        vesselVoyage: "MSC BENEDETTA/0245E",
-        containerCount: 2,
-        type: "Import",
-        carrier: "MSC CZ",
-        carrierStatus: "MIPS Send",
+        pic: insertedUsers.find(u => u.name === "Medlog Admin")!.id,
+        client: insertedCompanies.find(c => c.name === "NTB")!.id,
+        containerAmount: 2,
+        direction: "Import",
+        eta: new Date('2025-01-22T12:00:00Z'),
+        hasDangerous: false,
+        hasDt: false,
+        localPort: insertedPorts.find(p => p.name === "Port of Rotterdam")!.id,
         medlogStatus: "Approved",
-        trainScheduled: true,
-        weight: "49,400 kg",
-        hasChanges: true,
-        lastChangedBy: "carrier",
-        lastChangedAt: new Date('2025-01-21T16:20:00Z'),
-        unseenChangesCarrier: 0,
-        unseenChangesMedlog: 1,
-        changedFields: ["containers"],
-        lastChatMessage: "Kontejnery připraveny k nakládce",
-        lastChatAuthor: "Marie Černá",
-        unreadChatCount: 0
+        carrierStatus: "MIPS Send",
+        location: insertedCities.find(c => c.name === "Brandýs nad Labem")!.id,
+        train: "OBH2534R4",
+        medlogBulb: false,
+        carrierBulb: false,
+        voyage: "0245E",
+        vessel: "MSC BENEDETTA",
+        carrier: insertedCompanies.find(c => c.name === "MSC CZ")!.id,
+        notifyEmail: "ntb@medlog.cz",
+        toBeNotified: false,
+        use: true
       },
       {
         blNumber: "AUDI567890",
-        date: "2025-01-24",
-        client: "AUDI",
-        pic: "Petr Procházka",
-        destination: "Ingolstadt",
-        podPol: "Antwerpen",
-        etaClosing: "28/01/2025",
-        vesselVoyage: "HAPAG LLOYD BERLIN/0834W",
-        containerCount: 1,
-        type: "Export", 
-        carrier: "Hapag-Lloyd",
-        carrierStatus: "Cancelled",
+        pic: insertedUsers.find(u => u.name === "Medlog Admin")!.id,
+        client: insertedCompanies.find(c => c.name === "AUDI")!.id,
+        containerAmount: 1,
+        direction: "Export",
+        eta: new Date('2025-01-28T18:00:00Z'),
+        hasDangerous: false,
+        hasDt: false,
+        localPort: insertedPorts.find(p => p.name === "Port of Antwerpen")!.id,
         medlogStatus: "Changed",
-        trainScheduled: false,
-        weight: "22,300 kg",
-        hasChanges: false,
-        lastChangedBy: null,
-        lastChangedAt: null,
-        unseenChangesCarrier: 0,
-        unseenChangesMedlog: 0,
-        changedFields: [],
-        lastChatMessage: "Dokument připraven",
-        lastChatAuthor: "Petr Procházka",
-        unreadChatCount: 3
+        carrierStatus: "Cancelled",
+        location: insertedCities.find(c => c.name === "Ingolstadt")!.id,
+        train: null,
+        medlogBulb: false,
+        carrierBulb: false,
+        voyage: "0834W",
+        vessel: "HAPAG LLOYD BERLIN",
+        carrier: insertedCompanies.find(c => c.name === "Hapag-Lloyd")!.id,
+        notifyEmail: "audi@medlog.cz",
+        toBeNotified: false,
+        use: true
       }
     ];
+    const insertedBLs = await db.insert(bl).values(sampleBLs).returning();
 
-    await db.insert(blSummaries).values(sampleBLSummaries);
-
-    // Sample BL Details - Multiple entries for different scenarios
-    const sampleBLDetails = [
-      {
-        blNumber: "MEDU123456",
-        customerRef: "SS001546", 
-        jobType: "Import",
-        status: "In Progress",
-        customerName: "ŠKODA AUTO",
-        contactName: "MARTIN NOVAK",
-        contactPhone: "420 326 811 111",
-        consigneeName: "ALICE FREIGHT",
-        vesselName: "MSC MAYA/0142E",
-        shippingLine: "MSC",
-        eta: "24/01/2025", // Changed from 22/01/2025 - shows date change
-        availability: "25/01/2025 10:00", // Changed from 08:00 - shows time change
-        storageStart: "25/01/2025",
-        fromLocation: "Port of Hamburg",
-        fromAddress: "Waltershof Terminal, Hamburg 21129",
-        fromZone: "Zone A",
-        toLocation: "ŠKODA AUTO Mladá Boleslav",
-        toAddress: "Václava Klementa 869, 293 60 Mladá Boleslav",
-        toZone: "Zone 2",
-        hoursOfOperation: "07:00 - 15:00"
-      },
-      {
-        blNumber: "TCLU345678",
-        customerRef: "IK002789", 
-        jobType: "Export",
-        status: "Attention Required",
-        customerName: "IKEA",
-        contactName: "ANNA SVOBODA",
-        contactPhone: "420 255 333 444",
-        consigneeName: "IKEA STORES",
-        vesselName: "ONE MATRIX/0255W",
-        shippingLine: "ONE",
-        eta: "27/01/2025",
-        availability: "28/01/2025 09:00",
-        storageStart: "29/01/2025",
-        fromLocation: "IKEA Distribution Center",
-        fromAddress: "Průmyslová 1523, 252 19 Rudná",
-        fromZone: "Zone 3",
-        toLocation: "Port of Koper",
-        toAddress: "Vojkovo nabrežje 38, 6000 Koper",
-        toZone: "Zone A",
-        hoursOfOperation: "06:00 - 22:00"
-      },
-      {
-        blNumber: "NTBG456789",
-        customerRef: "NTB003456", 
-        jobType: "Import",
-        status: "Confirmed",
-        customerName: "NTB",
-        contactName: "PETR NOVOTNY",
-        contactPhone: "420 234 567 890",
-        consigneeName: "NTB SOLUTIONS",
-        vesselName: "MSC GENEVA/0188E",
-        shippingLine: "MSC",
-        eta: "21/01/2025",
-        availability: "22/01/2025 07:30",
-        storageStart: "23/01/2025",
-        fromLocation: "Port of Rotterdam",
-        fromAddress: "Maasvlakte Plaza 1, 3199 DB Rotterdam",
-        fromZone: "Zone B",
-        toLocation: "NTB Warehouse Praha",
-        toAddress: "Pražská 1408, 250 01 Brandýs nad Labem",
-        toZone: "Zone 1",
-        hoursOfOperation: "08:00 - 16:00"
-      }
-    ];
-
-    await db.insert(blDetails).values(sampleBLDetails);
-
-    // Sample Containers - Expanded with different scenarios
+    // ============================================================================
+    // SEED CONTAINERS
+    // ============================================================================
     const sampleContainers = [
       {
-        blNumber: "MEDU123456",
-        jobNumber: "MEDU123456-1",
-        containerNumber: "COSU1044551",
-        sizeType: "20DV",
-        dateTime: "2025-01-24T12:30:00", // Changed from 10:30 - shows time change
-        status: "In Progress",
-        routeStep: "D",
-        sealNumber: "SEL123456",
-        temperature: null,
-        unloadAddress: "Mladá Boleslav Terminal",
-        carrierStatus: "MIPS Send",
+        containerIlu: "COSU1044551",
+        type: "20DV",
+        weight: 24.5,
+        customs: "Cleared",
+        isDangerous: false,
+        deliveryDate: new Date('2025-01-24T12:30:00Z'),
+        isDirectTruck: true,
         medlogStatus: "Approved",
-        trainName: "MEH2530R1",
-        trainEtd: "2025W30R1",
-        lastChangedBy: "system",
-        lastChangedAt: "2025-01-22 14:30",
-        changedFields: ["size", "containerType"], // Changed from 40HC to 20DV
-        carrierNote: "",
+        carrierStatus: "MIPS Send",
         medlogNote: "Kontejner připraven k vyzvednutí",
-        directTransport: true
+        carrierNote: "",
+        isSentInMips: true,
+        location: "Mladá Boleslav Terminal",
+        zip: "29301",
+        train: "MEH2530R1",
+        trainDate: new Date('2025-01-24T12:30:00Z'),
+        deliveryNotPossible: false,
+        use: true
       },
       {
-        blNumber: "MEDU123456", 
-        jobNumber: "MEDU123456-2",
-        containerNumber: "COSU9004547",
-        sizeType: "40HC",
-        dateTime: "2025-01-24T16:45:00", // Changed from 14:45 - shows time change
-        status: "Delayed", // Changed from "In Progress" - shows status change
-        routeStep: "C",
-        sealNumber: "SEL789012",
-        temperature: null,
-        unloadAddress: "Prague Distribution Center",
-        carrierStatus: "Do Not Release",
+        containerIlu: "COSU9004547",
+        type: "40HC",
+        weight: 23.5,
+        customs: "Pending",
+        isDangerous: false,
+        deliveryDate: new Date('2025-01-24T16:45:00Z'),
+        isDirectTruck: false,
         medlogStatus: "Rejected",
-        trainName: "OBH2530R3",
-        trainEtd: "2025W30R3",
-        lastChangedBy: "carrier",
-        lastChangedAt: "2025-01-22 16:15",
-        changedFields: ["dateTime", "status"],
+        carrierStatus: "Do Not Release",
+        medlogNote: "",
         carrierNote: "Zpoždění kvůli dopravě",
-        medlogNote: "",
-        directTransport: false
+        isSentInMips: false,
+        location: "Prague Distribution Center",
+        zip: "11000",
+        train: "OBH2530R3",
+        trainDate: new Date('2025-01-24T16:45:00Z'),
+        deliveryNotPossible: false,
+        use: true
       },
       {
-        blNumber: "TCLU345678",
-        jobNumber: "TCLU345678-1",
-        containerNumber: "TCLU8899001",
-        sizeType: "40HC",
-        dateTime: "2025-01-27T08:00:00",
-        status: "Ready",
-        routeStep: "W",
-        sealNumber: "SEL445566",
-        temperature: null,
-        unloadAddress: "Koper Terminal",
-        carrierStatus: "Pre-Order",
+        containerIlu: "TCLU8899001",
+        type: "40HC",
+        weight: 25.0,
+        customs: "Cleared",
+        isDangerous: false,
+        deliveryDate: new Date('2025-01-27T08:00:00Z'),
+        isDirectTruck: false,
         medlogStatus: "New",
-        trainName: "MEH2532R2",
-        trainEtd: "2025W32R2",
-        lastChangedBy: null,
-        lastChangedAt: null,
-        changedFields: [],
-        carrierNote: "",
-        medlogNote: "",
-        directTransport: false
-      },
-      {
-        blNumber: "TCLU345678",
-        jobNumber: "TCLU345678-2",
-        containerNumber: "TCLU8899002",
-        sizeType: "40HC",
-        dateTime: "2025-01-27T08:15:00",
-        status: "Ready",
-        routeStep: "W",
-        sealNumber: "SEL445567",
-        temperature: null,
-        unloadAddress: "Koper Terminal",
         carrierStatus: "Pre-Order",
-        medlogStatus: "New",
-        trainName: "MEH2532R2",
-        trainEtd: "2025W32R2",
-        lastChangedBy: null,
-        lastChangedAt: null,
-        changedFields: [],
-        carrierNote: "",
         medlogNote: "",
-        directTransport: true
+        carrierNote: "",
+        isSentInMips: false,
+        location: "Koper Terminal",
+        zip: "6000",
+        train: "MEH2532R2",
+        trainDate: new Date('2025-01-27T08:00:00Z'),
+        deliveryNotPossible: false,
+        use: true
       },
       {
-        blNumber: "TCLU345678",
-        jobNumber: "TCLU345678-3",
-        containerNumber: "TCLU8899003", 
-        sizeType: "20DV",
-        dateTime: "2025-01-27T09:00:00",
-        status: "Issues", // Problem container
-        routeStep: "W",
-        sealNumber: "SEL445568",
-        temperature: null,
-        unloadAddress: "Koper Terminal",
-        carrierStatus: "Cancelled",
+        containerIlu: "TCLU8899002",
+        type: "40HC",
+        weight: 24.8,
+        customs: "Cleared",
+        isDangerous: false,
+        deliveryDate: new Date('2025-01-27T08:15:00Z'),
+        isDirectTruck: true,
+        medlogStatus: "New",
+        carrierStatus: "Pre-Order",
+        medlogNote: "",
+        carrierNote: "",
+        isSentInMips: false,
+        location: "Koper Terminal",
+        zip: "6000",
+        train: "MEH2532R2",
+        trainDate: new Date('2025-01-27T08:15:00Z'),
+        deliveryNotPossible: false,
+        use: true
+      },
+      {
+        containerIlu: "TCLU8899003",
+        type: "20DV",
+        weight: 12.5,
+        customs: "Rejected",
+        isDangerous: false,
+        deliveryDate: new Date('2025-01-27T09:00:00Z'),
+        isDirectTruck: false,
         medlogStatus: "Changed",
-        trainName: "MEH2532R2",
-        trainEtd: "2025W32R2",
-        lastChangedBy: "carrier",
-        lastChangedAt: "2025-01-22 09:45",
-        changedFields: ["status"], // Changed to Issues status
-        carrierNote: "Kontejner zrušen kvůli poškození",
+        carrierStatus: "Cancelled",
         medlogNote: "Nutná výměna kontejneru",
-        directTransport: false
+        carrierNote: "Kontejner zrušen kvůli poškození",
+        isSentInMips: false,
+        location: "Koper Terminal",
+        zip: "6000",
+        train: "MEH2532R2",
+        trainDate: new Date('2025-01-27T09:00:00Z'),
+        deliveryNotPossible: true,
+        use: true
       },
       {
-        blNumber: "NTBG456789",
-        jobNumber: "NTBG456789-1",
-        containerNumber: "NTBU5566789",
-        sizeType: "40HC",
-        dateTime: "2025-01-22T11:15:00", // Recently added container
-        status: "Confirmed",
-        routeStep: "R",
-        sealNumber: "SEL778899",
-        temperature: null,
-        unloadAddress: "Praha Distribution",
-        carrierStatus: "MIPS Send",
+        containerIlu: "NTBU5566789",
+        type: "40HC",
+        weight: 25.2,
+        customs: "Cleared",
+        isDangerous: false,
+        deliveryDate: new Date('2025-01-22T11:15:00Z'),
+        isDirectTruck: false,
         medlogStatus: "Approved",
-        trainName: "OBH2534R4",
-        trainEtd: "2025W34R4",
-        lastChangedBy: "medlog",
-        lastChangedAt: "2025-01-22 11:00",
-        changedFields: ["containerNumber", "sealNumber"], // Newly added container
-        carrierNote: "",
+        carrierStatus: "MIPS Send",
         medlogNote: "Potvrzeno - připraven k expedici",
-        directTransport: false
-      },
-      {
-        blNumber: "NTBG456789",
-        jobNumber: "NTBG456789-2",
-        containerNumber: "NTBU5566790",
-        sizeType: "20DV",
-        dateTime: "2025-01-22T11:30:00", // Recently added container
-        status: "Confirmed",
-        routeStep: "R",
-        sealNumber: "SEL778900",
-        temperature: null,
-        unloadAddress: "Praha Distribution",
-        carrierStatus: "MIPS Send",
-        medlogStatus: "Approved",
-        trainName: "OBH2534R4",
-        trainEtd: "2025W34R4",
-        lastChangedBy: "medlog",
-        lastChangedAt: "2025-01-22 11:15",
-        changedFields: ["containerNumber", "sealNumber"], // Newly added container
         carrierNote: "",
+        isSentInMips: true,
+        location: "Praha Distribution",
+        zip: "25001",
+        train: "OBH2534R4",
+        trainDate: new Date('2025-01-22T11:15:00Z'),
+        deliveryNotPossible: false,
+        use: true
+      },
+      {
+        containerIlu: "NTBU5566790",
+        type: "20DV",
+        weight: 12.8,
+        customs: "Cleared",
+        isDangerous: false,
+        deliveryDate: new Date('2025-01-22T11:30:00Z'),
+        isDirectTruck: true,
+        medlogStatus: "Approved",
+        carrierStatus: "MIPS Send",
         medlogNote: "Kontrola dokončena",
-        directTransport: true
+        carrierNote: "",
+        isSentInMips: true,
+        location: "Praha Distribution",
+        zip: "25001",
+        train: "OBH2534R4",
+        trainDate: new Date('2025-01-22T11:30:00Z'),
+        deliveryNotPossible: false,
+        use: true
       }
     ];
+    const insertedContainers = await db.insert(container).values(sampleContainers).returning();
 
-    await db.insert(containers).values(sampleContainers);
+    // ============================================================================
+    // SEED CONTAINER IN BL RELATIONSHIPS
+    // ============================================================================
+    const sampleContainerInBl = [
+      // MEDU123456 - 2 containers
+      { blId: insertedBLs.find((b: any) => b.blNumber === "MEDU123456")!.id, containerId: "COSU1044551" },
+      { blId: insertedBLs.find((b: any) => b.blNumber === "MEDU123456")!.id, containerId: "COSU9004547" },
+      
+      // TCLU345678 - 3 containers
+      { blId: insertedBLs.find((b: any) => b.blNumber === "TCLU345678")!.id, containerId: "TCLU8899001" },
+      { blId: insertedBLs.find((b: any) => b.blNumber === "TCLU345678")!.id, containerId: "TCLU8899002" },
+      { blId: insertedBLs.find((b: any) => b.blNumber === "TCLU345678")!.id, containerId: "TCLU8899003" },
+      
+      // NTBG456789 - 2 containers
+      { blId: insertedBLs.find((b: any) => b.blNumber === "NTBG456789")!.id, containerId: "NTBU5566789" },
+      { blId: insertedBLs.find((b: any) => b.blNumber === "NTBG456789")!.id, containerId: "NTBU5566790" }
+    ];
+    await db.insert(containerInBl).values(sampleContainerInBl);
 
-    // Create test users with role-based permissions
-    const testUsers = [
+    // ============================================================================
+    // SEED CHAT MESSAGES
+    // ============================================================================
+    const sampleChatMessages = [
       {
-        username: "medlog",
-        password: "password123", // In production, this should be properly hashed
-        name: "Medlog User",
-        email: "medlog@test.com",
-        orgRole: "medlog",
-        orderTypeRole: null, // Can see both Import and Export
-        defaultCarrier: null, // No default carrier restriction
-        carrierWhitelist: [], // Can see all carriers
-        isActive: true
+        blId: insertedBLs.find((b: any) => b.blNumber === "MEDU123456")!.id,
+        user: insertedUsers.find((u: any) => u.name === "Medlog Admin")!.id,
+        message: "Potvrzeno. ETA updated to 14:30."
       },
       {
-        username: "msc_cz_import",
-        password: "password123", // In production, this should be properly hashed
-        name: "MSC CZ Import User",
-        email: "msc.cz.import@test.com",
-        orgRole: "msc",
-        orderTypeRole: "import_only",
-        defaultCarrier: "MSC CZ",
-        carrierWhitelist: ["MSC SK"], // Can only switch to MSC SK
-        isActive: true
+        blId: insertedBLs.find((b: any) => b.blNumber === "TCLU345678")!.id,
+        user: insertedUsers.find((u: any) => u.name === "Medlog Admin")!.id,
+        message: "Status změněn na Rejected"
       },
       {
-        username: "msc_cz_export",
-        password: "password123",
-        name: "MSC CZ Export User", 
-        email: "msc.cz.export@test.com",
-        orgRole: "msc",
-        orderTypeRole: "export_only",
-        defaultCarrier: "MSC CZ",
-        carrierWhitelist: ["MSC SK"], // Can only switch to MSC SK
-        isActive: true
-      },
-      {
-        username: "msc_sk_import",
-        password: "password123",
-        name: "MSC SK Import User",
-        email: "msc.sk.import@test.com", 
-        orgRole: "msc",
-        orderTypeRole: "import_only",
-        defaultCarrier: "MSC SK",
-        carrierWhitelist: ["MSC CZ"], // Can only switch to MSC CZ
-        isActive: true
-      },
-      {
-        username: "msc_sk_export",
-        password: "password123",
-        name: "MSC SK Export User",
-        email: "msc.sk.export@test.com",
-        orgRole: "msc", 
-        orderTypeRole: "export_only",
-        defaultCarrier: "MSC SK",
-        carrierWhitelist: ["MSC CZ"], // Can only switch to MSC CZ
-        isActive: true
+        blId: insertedBLs.find((b: any) => b.blNumber === "NTBG456789")!.id,
+        user: insertedUsers.find((u: any) => u.name === "Medlog Admin")!.id,
+        message: "Kontejnery připraveny k nakládce"
       }
     ];
+    await db.insert(chatMessages).values(sampleChatMessages);
 
-    await db.insert(users).values(testUsers);
-
-    console.log("Database seeded successfully with test users!");
+    console.log("Database seeded successfully with new schema!");
+    console.log(`Created: ${insertedRoles.length} roles, ${insertedCompanies.length} companies, ${insertedPorts.length} ports, ${insertedCities.length} cities, ${insertedUsers.length} users, ${insertedBLs.length} BLs, ${insertedContainers.length} containers`);
+    
   } catch (error) {
     console.error("Error seeding database:", error);
     throw error;

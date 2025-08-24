@@ -1,12 +1,12 @@
 export interface FilterState {
   client?: string | string[];
-  podPol?: string | string[];
+  direction?: string | string[]; // New: Import/Export direction
   eta?: string;
   medlogStatus?: string | string[];
   carrierStatus?: string | string[];
   carrier?: string | string[];
   pic?: string | string[];
-  // Replaced fields
+  // Container location and date filters
   unloadCity?: string;
   unloadDateFrom?: string;
   unloadDateTo?: string;

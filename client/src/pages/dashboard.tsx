@@ -7,61 +7,50 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Download, RefreshCw, Plus } from "lucide-react";
 import { Link } from "wouter";
-import { BLSummary, Container } from "@shared/schema";
+import { BL, Container, Company, User } from "@shared/schema";
 import { FilterState } from "@/lib/types";
 import { useAuth } from "@/contexts/auth-context";
 
+// Extended BL type with company and user information
+interface BLWithDetails extends BL {
+  clientCompany?: Company;
+  carrierCompany?: Company;
+  picUser?: User;
+  localPortInfo?: { name: string; state: string };
+  locationCity?: { name: string; state: string };
+}
+
 export default function Dashboard() {
-  const { getDefaultFilters } = useAuth();
+  const { hasPermission } = useAuth();
   
-  // Load filters from localStorage and auth context on initialization
+  // Load filters from localStorage on initialization
   const [filters, setFilters] = useState<FilterState>(() => {
     try {
       // Get saved user filters from localStorage
       const savedUserFilters = localStorage.getItem('userFilters');
-      const localStorageFilters = savedUserFilters ? JSON.parse(savedUserFilters) : {};
-      
-      // Get default filters from auth context (includes default carrier for MSC CZ Import user)
-      const authDefaultFilters = getDefaultFilters();
-      
-      // Merge auth defaults with localStorage filters, with auth defaults taking precedence
-      const mergedFilters = { ...localStorageFilters, ...authDefaultFilters };
-      
-      return mergedFilters;
+      return savedUserFilters ? JSON.parse(savedUserFilters) : {};
     } catch (error) {
       console.error('Failed to load user filters:', error);
-      // Fallback to just auth defaults if localStorage fails
-      return getDefaultFilters();
+      return {};
     }
   });
   const [searchValue, setSearchValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(25);
 
-  // Update filters when user changes (e.g., after login/logout)
-  useEffect(() => {
-    const authDefaultFilters = getDefaultFilters();
-    setFilters((prevFilters: FilterState) => {
-      // Merge current filters with auth defaults, with auth defaults taking precedence
-      return { ...prevFilters, ...authDefaultFilters };
-    });
-  }, [getDefaultFilters]);
-
-  // Save filters to localStorage whenever they change
+  // Save user filters to localStorage whenever they change
   useEffect(() => {
     try {
-      // Don't save auth defaults to localStorage, only user's custom filter changes
-      const authDefaults = getDefaultFilters();
+      // Only save user filters to localStorage, don't save auth defaults
       const userFilters = { ...filters };
       
-      // Remove auth defaults from user filters to avoid storing them
-      Object.keys(authDefaults).forEach(key => {
-        if (JSON.stringify(userFilters[key as keyof FilterState]) === JSON.stringify(authDefaults[key as keyof FilterState])) {
+      // Remove any undefined values to keep localStorage clean
+      Object.keys(userFilters).forEach(key => {
+        if (userFilters[key as keyof FilterState] === undefined) {
           delete userFilters[key as keyof FilterState];
         }
       });
       
-      // Only save if there are actual user filter changes
       if (Object.keys(userFilters).length > 0) {
         localStorage.setItem('userFilters', JSON.stringify(userFilters));
       } else {
@@ -70,123 +59,133 @@ export default function Dashboard() {
     } catch (error) {
       console.error('Failed to save user filters:', error);
     }
-  }, [filters, getDefaultFilters]);
+  }, [filters]);
 
-  const { data: blSummaries = [], isLoading, refetch } = useQuery<BLSummary[]>({
-    queryKey: ['/api/bl-summaries'],
+  // Fetch BLs with company and user details
+  const { data: bls = [], isLoading, refetch } = useQuery<BLWithDetails[]>({
+    queryKey: ['/api/bls'],
   });
 
-  // Get all containers for DG filtering
+  // Get all containers for filtering
   const { data: allContainers = [] } = useQuery<Container[]>({
     queryKey: ['/api/containers'],
   });
 
-  // Get current user group from auth context instead of hardcoded value
-  const { user, hasPermission } = useAuth();
-  const currentUserGroup = user?.orgRole === 'msc' ? 'carrier' : 'medlog';
+  // Get container-BL relationships for filtering
+  const { data: containerInBls = [] } = useQuery({
+    queryKey: ['/api/container-in-bl'],
+  });
+
+  // Get companies for filtering
+  const { data: companies = [] } = useQuery<Company[]>({
+    queryKey: ['/api/companies'],
+  });
+
+  // Get users for filtering
+  const { data: users = [] } = useQuery<User[]>({
+    queryKey: ['/api/users'],
+  });
+
+  // Get current user group from auth context
+  const { user } = useAuth();
+  const currentUserGroup = user?.companyType === 'MSC' ? 'carrier' : 'medlog';
 
   // Enhanced search that includes containers and trains
-  const filteredData = blSummaries.filter(bl => {
-    const blContainers = allContainers.filter(container => container.blNumber === bl.blNumber);
+  const filteredData = bls.filter(bl => {
+    // Get containers for this BL using the junction table
+    const blContainerIds = containerInBls
+      ?.filter(cib => cib.blId === bl.id)
+      .map(cib => cib.containerId) || [];
+    
+    const blContainers = allContainers.filter(container => 
+      blContainerIds.includes(container.containerIlu)
+    );
+    
+    // Get company names for search
+    const clientCompany = companies.find(c => c.id === bl.client);
+    const carrierCompany = companies.find(c => c.id === bl.carrier);
+    const picUser = users.find(u => u.id === bl.pic);
     
     const matchesSearch = !searchValue || 
       bl.blNumber.toLowerCase().includes(searchValue.toLowerCase()) ||
-      bl.client.toLowerCase().includes(searchValue.toLowerCase()) ||
-      bl.destination.toLowerCase().includes(searchValue.toLowerCase()) ||
+      clientCompany?.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+      carrierCompany?.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+      picUser?.name.toLowerCase().includes(searchValue.toLowerCase()) ||
       // Search in container numbers
       blContainers.some(container => 
-        container.containerNumber.toLowerCase().includes(searchValue.toLowerCase()) ||
-        container.destination?.toLowerCase().includes(searchValue.toLowerCase()) ||
-        container.unloadAddress?.toLowerCase().includes(searchValue.toLowerCase()) ||
-        // Search in train names
-        container.trainName?.toLowerCase().includes(searchValue.toLowerCase())
+        container.containerIlu.toLowerCase().includes(searchValue.toLowerCase()) ||
+        container.location?.toLowerCase().includes(searchValue.toLowerCase()) ||
+        container.train?.toLowerCase().includes(searchValue.toLowerCase())
       );
-
-    // Get containers for this BL to check city and date filters (already defined above for search)
-    
-    // Un/Load City filter - check destinations and unload addresses of containers
-    const matchesUnloadCity = !filters.unloadCity || 
-      bl.destination?.toLowerCase().includes(filters.unloadCity.toLowerCase()) ||
-      blContainers.some(container => 
-        container.destination?.toLowerCase().includes(filters.unloadCity?.toLowerCase() || '') ||
-        container.unloadAddress?.toLowerCase().includes(filters.unloadCity?.toLowerCase() || '')
-      );
-
-    // Un/Load Date filter - check container date/time within range
-    const matchesUnloadDateRange = (!filters.unloadDateFrom && !filters.unloadDateTo) ||
-      blContainers.some(container => {
-        if (!container.dateTime) return false;
-        const containerDate = new Date(container.dateTime).toISOString().split('T')[0]; // Get YYYY-MM-DD format
-        const fromDate = filters.unloadDateFrom;
-        const toDate = filters.unloadDateTo;
-        
-        return (!fromDate || containerDate >= fromDate) && 
-               (!toDate || containerDate <= toDate);
-      });
 
     // Helper function to check multiselect filters
-    const matchesMultiSelectFilter = (filterValue: string | string[] | undefined, blValue: string | null) => {
-      if (!filterValue || !blValue) return !filterValue;
+    const matchesMultiSelectFilter = (filterValue: string | string[] | undefined, blValue: any) => {
+      // If no filter is set, show everything
+      if (!filterValue) return true;
+      
+      // If filter is set but BL value is missing, don't show it
+      if (!blValue) return false;
+      
+      // Handle array filters (MultiSelect)
       if (Array.isArray(filterValue)) {
         return filterValue.length === 0 || filterValue.includes(blValue);
       }
+      
+      // Handle string filters (Single Select)
       return filterValue === blValue;
     };
 
-    const matchesFilters = 
-      matchesMultiSelectFilter(filters.client, bl.client) &&
-      matchesMultiSelectFilter(filters.podPol, bl.podPol) &&
-      matchesMultiSelectFilter(filters.medlogStatus, bl.medlogStatus) &&
-      matchesMultiSelectFilter(filters.carrierStatus, bl.carrierStatus) &&
-      matchesMultiSelectFilter(filters.carrier, bl.carrier) &&
-      matchesMultiSelectFilter(filters.pic, bl.pic) &&
-      matchesUnloadCity &&
-      matchesUnloadDateRange;
+    // Company filters
+    const matchesClient = matchesMultiSelectFilter(filters.client, clientCompany?.name);
+    const matchesCarrier = matchesMultiSelectFilter(filters.carrier, carrierCompany?.name);
+    const matchesPic = matchesMultiSelectFilter(filters.pic, picUser?.name);
 
-    // Handle unseen changes 
-    const unseenChangesCount = currentUserGroup === 'medlog' ? (bl.unseenChangesMedlog || 0) : (bl.unseenChangesCarrier || 0);
+    // Status filters
+    const matchesMedlogStatus = matchesMultiSelectFilter(filters.medlogStatus, bl.medlogStatus);
+    const matchesCarrierStatus = matchesMultiSelectFilter(filters.carrierStatus, bl.carrierStatus);
 
-    // MSC users can only see MSC CZ and MSC SK carriers
-    if (hasPermission('view_msc_carriers_only') && bl.carrier && !['MSC CZ', 'MSC SK'].includes(bl.carrier)) {
+    // Direction filters
+    const matchesDirection = matchesMultiSelectFilter(filters.direction, bl.direction);
+
+         // Handle unseen changes based on change tracking fields
+     const hasChanges = bl.blNumberChange || bl.picChange || bl.clientChange || 
+                       bl.containerChange || bl.directionChange || bl.etaChange ||
+                       bl.hasDangerousChange || bl.hasDtChange || bl.localPortChange ||
+                       bl.medlogStatusChange || bl.carrierStatusChange || bl.locationChange ||
+                       bl.medlogBulbChange || bl.carrierBulbChange ||
+                       bl.vesselChange || bl.voyageChange;
+
+    // MSC users can only see MSC carriers
+    if (hasPermission('view_msc_carriers_only') && carrierCompany?.type !== 'MSC') {
       return false;
     }
 
     // Handle new checkbox filters
-    // DG Filter: Check if any containers for this BL have dangerous cargo
-    const hasDangerousGoods = blContainers.some(container => container.dangerousCargo);
-    const matchesDG = !filters.dgFilter || hasDangerousGoods;
+    // DG Filter: Check if BL has dangerous goods
+    const matchesDG = !filters.dgFilter || bl.hasDangerous;
 
-    // Only Edited Filter: Show only BLs with unseen changes
-    const matchesOnlyEdited = !filters.onlyEdited || unseenChangesCount > 0;
+    // Only Edited Filter: Show only BLs with changes
+    const matchesOnlyEdited = !filters.onlyEdited || hasChanges;
 
-    // New Train Filter: Check for train-related changes (simplified - check if train is scheduled)
-    const matchesNewTrain = !filters.newTrain || bl.trainScheduled;
+         // New Train Filter: Check for train-related changes at container level
+     const matchesNewTrain = !filters.newTrain || 
+       blContainers.some(container => container.trainChange);
 
-    // Delivery not possible Filter: For imports where train departure after delivery date
-    const matchesDeliveryNotPossible = !filters.deliveryNotPossible || (
-      bl.type === 'Import' && 
-      blContainers.some(container => {
-        if (!container.trainName || !container.trainEtd || !container.dateTime) return false;
-        const trainDate = new Date(container.trainEtd);
-        const deliveryDate = new Date(container.dateTime);
-        return trainDate.getTime() > deliveryDate.getTime();
-      })
-    );
+         // Delivery not possible Filter: Check for delivery issues (backend calculates this)
+     const matchesDeliveryNotPossible = !filters.deliveryNotPossible || 
+       blContainers.some(container => container.deliveryNotPossible);
 
     // Import Only Filter: Show only Import BLs
-    const matchesImportOnly = !filters.importOnly || bl.type === 'Import';
+    const matchesImportOnly = !filters.importOnly || bl.direction === 'Import';
 
     // Export Only Filter: Show only Export BLs
-    const matchesExportOnly = !filters.exportOnly || bl.type === 'Export';
+    const matchesExportOnly = !filters.exportOnly || bl.direction === 'Export';
 
     return matchesSearch && 
-           matchesFilters && 
-           matchesDG && 
-           matchesOnlyEdited && 
-           matchesNewTrain && 
-           matchesDeliveryNotPossible &&
-           matchesImportOnly &&
-           matchesExportOnly;
+           matchesClient && matchesCarrier && matchesPic &&
+           matchesMedlogStatus && matchesCarrierStatus && matchesDirection &&
+           matchesDG && matchesOnlyEdited && matchesNewTrain && 
+           matchesDeliveryNotPossible && matchesImportOnly && matchesExportOnly;
   });
 
   // Calculate pagination
@@ -195,8 +194,6 @@ export default function Dashboard() {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
   const paginatedData = filteredData.slice(startIndex, endIndex);
-
-
 
   const handleClearFilters = () => {
     setFilters({});

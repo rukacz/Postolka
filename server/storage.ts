@@ -1,144 +1,417 @@
 import { 
-  users, type User, type InsertUser,
-  blSummaries, type BLSummary, type InsertBLSummary,
-  blDetails, type BLDetail, type InsertBLDetail,
-  containers, type Container, type InsertContainer
+  company, type Company, type InsertCompany,
+  role, type Role, type InsertRole,
+  port, type Port, type InsertPort,
+  city, type City, type InsertCity,
+  user, type User, type InsertUser,
+  bl, type BL, type InsertBL,
+  container, type Container, type InsertContainer,
+  containerInBl, type ContainerInBl, type InsertContainerInBl,
+  chatMessages, type ChatMessage, type InsertChatMessage
 } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, and, desc, asc, or, inArray } from "drizzle-orm";
 
 export interface IStorage {
-  // User methods
+  // ============================================================================
+  // COMPANY METHODS
+  // ============================================================================
+  getCompany(id: number): Promise<Company | undefined>;
+  getCompanyByName(name: string): Promise<Company | undefined>;
+  createCompany(company: InsertCompany): Promise<Company>;
+  updateCompany(id: number, company: Partial<Company>): Promise<Company | undefined>;
+  getAllCompanies(): Promise<Company[]>;
+  getCompaniesByType(type: string): Promise<Company[]>;
+  
+  // ============================================================================
+  // ROLE METHODS
+  // ============================================================================
+  getRole(id: number): Promise<Role | undefined>;
+  getRoleByName(name: string): Promise<Role | undefined>;
+  createRole(role: InsertRole): Promise<Role>;
+  getAllRoles(): Promise<Role[]>;
+  
+  // ============================================================================
+  // PORT METHODS
+  // ============================================================================
+  getPort(id: number): Promise<Port | undefined>;
+  getPortByName(name: string): Promise<Port | undefined>;
+  createPort(port: InsertPort): Promise<Port>;
+  updatePort(id: number, port: Partial<Port>): Promise<Port | undefined>;
+  getAllPorts(): Promise<Port[]>;
+  
+  // ============================================================================
+  // CITY METHODS
+  // ============================================================================
+  getCity(id: number): Promise<City | undefined>;
+  getCityByName(name: string): Promise<City | undefined>;
+  createCity(city: InsertCity): Promise<City>;
+  updateCity(id: number, city: Partial<City>): Promise<City | undefined>;
+  getAllCities(): Promise<City[]>;
+  
+  // ============================================================================
+  // USER METHODS
+  // ============================================================================
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserWithRoleAndCompany(username: string): Promise<(User & { roleName: string; companyType: string }) | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, user: Partial<User>): Promise<User | undefined>;
   getAllUsers(): Promise<User[]>;
+  getUsersByCompany(companyId: number): Promise<User[]>;
+  getUsersByRole(roleId: number): Promise<User[]>;
   
-  // BL Summary methods
-  getAllBLSummaries(): Promise<BLSummary[]>;
-  getBLSummary(blNumber: string): Promise<BLSummary | undefined>;
-  createBLSummary(bl: InsertBLSummary): Promise<BLSummary>;
-  updateBLSummary(blNumber: string, bl: Partial<BLSummary>): Promise<BLSummary | undefined>;
-  acknowledgeChanges(blNumber: string, userGroup: 'carrier' | 'medlog'): Promise<BLSummary | undefined>;
+  // ============================================================================
+  // BL METHODS
+  // ============================================================================
+  getBL(id: number): Promise<BL | undefined>;
+  getBLByNumber(blNumber: string): Promise<BL | undefined>;
+  createBL(bl: InsertBL): Promise<BL>;
+  updateBL(id: number, bl: Partial<BL>): Promise<BL | undefined>;
+  getAllBLs(): Promise<BL[]>;
+  getBLsByCarrier(carrierId: number): Promise<BL[]>;
+  getBLsByClient(clientId: number): Promise<BL[]>;
+  getBLsByDirection(direction: 'Import' | 'Export'): Promise<BL[]>;
+  getBLsByStatus(medlogStatus: string, carrierStatus: string): Promise<BL[]>;
   
-  // BL Detail methods
-  getBLDetail(blNumber: string): Promise<BLDetail | undefined>;
-  createBLDetail(bl: InsertBLDetail): Promise<BLDetail>;
-  updateBLDetail(blNumber: string, bl: Partial<BLDetail>): Promise<BLDetail | undefined>;
-  
-  // Container methods
-  getAllContainers(): Promise<Container[]>;
-  getContainersByBL(blNumber: string): Promise<Container[]>;
+  // ============================================================================
+  // CONTAINER METHODS
+  // ============================================================================
+  getContainer(id: number): Promise<Container | undefined>;
+  getContainerByIlu(containerIlu: string): Promise<Container | undefined>;
   createContainer(container: InsertContainer): Promise<Container>;
   updateContainer(id: number, container: Partial<Container>): Promise<Container | undefined>;
+  getAllContainers(): Promise<Container[]>;
+  getContainersByBL(blNumber: string): Promise<Container[]>;
+  getContainersByStatus(medlogStatus: string, carrierStatus: string): Promise<Container[]>;
   updateContainerNote(id: number, group: 'carrier' | 'medlog', note: string): Promise<Container | undefined>;
   updateContainerHazardous(id: number, hazardous: boolean): Promise<Container | undefined>;
-  getContainer(id: number): Promise<Container | undefined>;
   deleteContainer(id: number): Promise<boolean>;
+  
+  // ============================================================================
+  // CONTAINER IN BL METHODS
+  // ============================================================================
+  getContainerInBL(id: number): Promise<ContainerInBl | undefined>;
+  createContainerInBL(containerInBl: InsertContainerInBl): Promise<ContainerInBl>;
+  deleteContainerInBL(id: number): Promise<boolean>;
+  getContainersForBL(blId: number): Promise<ContainerInBl[]>;
+  getBLsForContainer(containerId: string): Promise<ContainerInBl[]>;
+  
+  // ============================================================================
+  // CHAT MESSAGE METHODS
+  // ============================================================================
+  getChatMessage(id: number): Promise<ChatMessage | undefined>;
+  createChatMessage(message: InsertChatMessage): Promise<ChatMessage>;
+  getChatMessagesByBL(blId: number): Promise<ChatMessage[]>;
+  getAllChatMessages(): Promise<ChatMessage[]>;
+  
+  // ============================================================================
+  // COMPLEX QUERY METHODS
+  // ============================================================================
+  getBLWithContainers(blId: number): Promise<{ bl: BL; containers: Container[] } | undefined>;
+  getBLWithDetails(blId: number): Promise<{ bl: BL; containers: Container[]; chatMessages: ChatMessage[] } | undefined>;
+  searchBLs(query: string): Promise<BL[]>;
+  getDashboardData(): Promise<{ totalBLs: number; totalContainers: number; recentBLs: BL[] }>;
 }
 
 export class DatabaseStorage implements IStorage {
-  // User methods
+  // ============================================================================
+  // COMPANY METHODS
+  // ============================================================================
+  async getCompany(id: number): Promise<Company | undefined> {
+    const [company] = await db.select().from(company).where(eq(company.id, id));
+    return company || undefined;
+  }
+
+  async getCompanyByName(name: string): Promise<Company | undefined> {
+    const [company] = await db.select().from(company).where(eq(company.name, name));
+    return company || undefined;
+  }
+
+  async createCompany(companyData: InsertCompany): Promise<Company> {
+    const [newCompany] = await db.insert(company).values(companyData).returning();
+    return newCompany;
+  }
+
+  async updateCompany(id: number, companyData: Partial<Company>): Promise<Company | undefined> {
+    const [updated] = await db
+      .update(company)
+      .set(companyData)
+      .where(eq(company.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async getAllCompanies(): Promise<Company[]> {
+    return await db.select().from(company);
+  }
+
+  async getCompaniesByType(type: string): Promise<Company[]> {
+    return await db.select().from(company).where(eq(company.type, type));
+  }
+
+  // ============================================================================
+  // ROLE METHODS
+  // ============================================================================
+  async getRole(id: number): Promise<Role | undefined> {
+    const [role] = await db.select().from(role).where(eq(role.id, id));
+    return role || undefined;
+  }
+
+  async getRoleByName(name: string): Promise<Role | undefined> {
+    const [role] = await db.select().from(role).where(eq(role.name, name));
+    return role || undefined;
+  }
+
+  async createRole(roleData: InsertRole): Promise<Role> {
+    const [newRole] = await db.insert(role).values(roleData).returning();
+    return newRole;
+  }
+
+  async getAllRoles(): Promise<Role[]> {
+    return await db.select().from(role);
+  }
+
+  // ============================================================================
+  // PORT METHODS
+  // ============================================================================
+  async getPort(id: number): Promise<Port | undefined> {
+    const [port] = await db.select().from(port).where(eq(port.id, id));
+    return port || undefined;
+  }
+
+  async getPortByName(name: string): Promise<Port | undefined> {
+    const [port] = await db.select().from(port).where(eq(port.name, name));
+    return port || undefined;
+  }
+
+  async createPort(portData: InsertPort): Promise<Port> {
+    const [newPort] = await db.insert(port).values(portData).returning();
+    return newPort;
+  }
+
+  async updatePort(id: number, portData: Partial<Port>): Promise<Port | undefined> {
+    const [updated] = await db
+      .update(port)
+      .set(portData)
+      .where(eq(port.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async getAllPorts(): Promise<Port[]> {
+    return await db.select().from(port);
+  }
+
+  // ============================================================================
+  // CITY METHODS
+  // ============================================================================
+  async getCity(id: number): Promise<City | undefined> {
+    const [city] = await db.select().from(city).where(eq(city.id, id));
+    return city || undefined;
+  }
+
+  async getCityByName(name: string): Promise<City | undefined> {
+    const [city] = await db.select().from(city).where(eq(city.name, name));
+    return city || undefined;
+  }
+
+  async createCity(cityData: InsertCity): Promise<City> {
+    const [newCity] = await db.insert(city).values(cityData).returning();
+    return newCity;
+  }
+
+  async updateCity(id: number, cityData: Partial<City>): Promise<City | undefined> {
+    const [updated] = await db
+      .update(city)
+      .set(cityData)
+      .where(eq(city.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
+  async getAllCities(): Promise<City[]> {
+    return await db.select().from(city);
+  }
+
+  // ============================================================================
+  // USER METHODS
+  // ============================================================================
   async getUser(id: number): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
+    const [user] = await db.select().from(user).where(eq(user.id, id));
     return user || undefined;
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(user).where(eq(user.email, email));
     return user || undefined;
   }
 
-  async createUser(user: InsertUser): Promise<User> {
-    const [newUser] = await db.insert(users).values(user).returning();
+  async createUser(userData: InsertUser): Promise<User> {
+    const [newUser] = await db.insert(user).values(userData).returning();
     return newUser;
   }
 
+  async updateUser(id: number, userData: Partial<User>): Promise<User | undefined> {
+    const [updated] = await db
+      .update(user)
+      .set(userData)
+      .where(eq(user.id, id))
+      .returning();
+    return updated || undefined;
+  }
+
   async getAllUsers(): Promise<User[]> {
-    return await db.select().from(users);
+    return await db.select().from(user);
   }
 
-  // BL Summary methods
-  async getAllBLSummaries(): Promise<BLSummary[]> {
-    return await db.select().from(blSummaries);
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [userRecord] = await db.select().from(user).where(eq(user.username, username));
+    return userRecord || undefined;
   }
 
-  async getBLSummary(blNumber: string): Promise<BLSummary | undefined> {
-    const [summary] = await db.select().from(blSummaries).where(eq(blSummaries.blNumber, blNumber));
-    return summary || undefined;
+  async getUserWithRoleAndCompany(username: string): Promise<(User & { roleName: string; companyType: string }) | undefined> {
+    const [userRecord] = await db
+      .select({
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        password: user.password,
+        role: user.role,
+        office: user.office,
+        company: user.company,
+        createdBy: user.createdBy,
+        createdAt: user.createdAt,
+        lastModifiedBy: user.lastModifiedBy,
+        lastModifiedAt: user.lastModifiedAt,
+        roleName: role.name,
+        companyType: company.type
+      })
+      .from(user)
+      .leftJoin(role, eq(user.role, role.id))
+      .leftJoin(company, eq(user.company, company.id))
+      .where(eq(user.username, username));
+    
+    return userRecord || undefined;
   }
 
-  async createBLSummary(bl: InsertBLSummary): Promise<BLSummary> {
-    const [newBL] = await db.insert(blSummaries).values(bl).returning();
+  async getUsersByCompany(companyId: number): Promise<User[]> {
+    return await db.select().from(user).where(eq(user.company, companyId));
+  }
+
+  async getUsersByRole(roleId: number): Promise<User[]> {
+    return await db.select().from(user).where(eq(user.role, roleId));
+  }
+
+  // ============================================================================
+  // BL METHODS
+  // ============================================================================
+  async getBL(id: number): Promise<BL | undefined> {
+    const [bl] = await db.select().from(bl).where(eq(bl.id, id));
+    return bl || undefined;
+  }
+
+  async getBLByNumber(blNumber: string): Promise<BL | undefined> {
+    const [bl] = await db.select().from(bl).where(eq(bl.blNumber, blNumber));
+    return bl || undefined;
+  }
+
+  async createBL(blData: InsertBL): Promise<BL> {
+    const [newBL] = await db.insert(bl).values(blData).returning();
     return newBL;
   }
 
-  async updateBLSummary(blNumber: string, updates: Partial<BLSummary>): Promise<BLSummary | undefined> {
+  async updateBL(id: number, blData: Partial<BL>): Promise<BL | undefined> {
     const [updated] = await db
-      .update(blSummaries)
-      .set(updates)
-      .where(eq(blSummaries.blNumber, blNumber))
+      .update(bl)
+      .set(blData)
+      .where(eq(bl.id, id))
       .returning();
     return updated || undefined;
   }
 
-  async acknowledgeChanges(blNumber: string, userGroup: 'carrier' | 'medlog'): Promise<BLSummary | undefined> {
-    const resetField = userGroup === 'carrier' ? 'unseenChangesCarrier' : 'unseenChangesMedlog';
-    const [updated] = await db
-      .update(blSummaries)
-      .set({
-        hasChanges: false,
-        lastChangedBy: null,
-        lastChangedAt: null,
-        changedFields: [],
-        [resetField]: 0
-      })
-      .where(eq(blSummaries.blNumber, blNumber))
-      .returning();
-    return updated || undefined;
+  async getAllBLs(): Promise<BL[]> {
+    return await db.select().from(bl).orderBy(desc(bl.createdAt));
   }
 
-  // BL Detail methods
-  async getBLDetail(blNumber: string): Promise<BLDetail | undefined> {
-    const [detail] = await db.select().from(blDetails).where(eq(blDetails.blNumber, blNumber));
-    return detail || undefined;
+  async getBLsByCarrier(carrierId: number): Promise<BL[]> {
+    return await db.select().from(bl).where(eq(bl.carrier, carrierId));
   }
 
-  async createBLDetail(bl: InsertBLDetail): Promise<BLDetail> {
-    const [newBLDetail] = await db.insert(blDetails).values(bl).returning();
-    return newBLDetail;
+  async getBLsByClient(clientId: number): Promise<BL[]> {
+    return await db.select().from(bl).where(eq(bl.client, clientId));
   }
 
-  async updateBLDetail(blNumber: string, updates: Partial<BLDetail>): Promise<BLDetail | undefined> {
-    const [updated] = await db
-      .update(blDetails)
-      .set(updates)
-      .where(eq(blDetails.blNumber, blNumber))
-      .returning();
-    return updated || undefined;
+  async getBLsByDirection(direction: 'Import' | 'Export'): Promise<BL[]> {
+    return await db.select().from(bl).where(eq(bl.direction, direction));
   }
 
-  // Container methods
-  async getAllContainers(): Promise<Container[]> {
-    return await db.select().from(containers);
+  async getBLsByStatus(medlogStatus: string, carrierStatus: string): Promise<BL[]> {
+    return await db.select().from(bl).where(
+      and(eq(bl.medlogStatus, medlogStatus), eq(bl.carrierStatus, carrierStatus))
+    );
   }
 
-  async getContainersByBL(blNumber: string): Promise<Container[]> {
-    return await db.select().from(containers).where(eq(containers.blNumber, blNumber));
+  // ============================================================================
+  // CONTAINER METHODS
+  // ============================================================================
+  async getContainer(id: number): Promise<Container | undefined> {
+    const [container] = await db.select().from(container).where(eq(container.id, id));
+    return container || undefined;
   }
 
-  async createContainer(container: InsertContainer): Promise<Container> {
-    const [newContainer] = await db.insert(containers).values(container).returning();
+  async getContainerByIlu(containerIlu: string): Promise<Container | undefined> {
+    const [container] = await db.select().from(container).where(eq(container.containerIlu, containerIlu));
+    return container || undefined;
+  }
+
+  async createContainer(containerData: InsertContainer): Promise<Container> {
+    const [newContainer] = await db.insert(container).values(containerData).returning();
     return newContainer;
   }
 
-  async updateContainer(id: number, updates: Partial<Container>): Promise<Container | undefined> {
+  async updateContainer(id: number, containerData: Partial<Container>): Promise<Container | undefined> {
     const [updated] = await db
-      .update(containers)
-      .set(updates)
-      .where(eq(containers.id, id))
+      .update(container)
+      .set(containerData)
+      .where(eq(container.id, id))
       .returning();
     return updated || undefined;
+  }
+
+  async getAllContainers(): Promise<Container[]> {
+    return await db.select().from(container);
+  }
+
+  async getContainersByBL(blNumber: string): Promise<Container[]> {
+    // First find BL by number to get its ID
+    const blRecord = await this.getBLByNumber(blNumber);
+    if (!blRecord) return [];
+    
+    // Get containers through junction table using BL ID
+    const containerIds = await db
+      .select({ containerId: containerInBl.containerId })
+      .from(containerInBl)
+      .where(eq(containerInBl.blId, blRecord.id));
+    
+    if (containerIds.length === 0) return [];
+    
+    // Get all containers for this BL using IN clause
+    const containerIdList = containerIds.map(c => c.containerId);
+    const containers = await db
+      .select()
+      .from(container)
+      .where(inArray(container.containerIlu, containerIdList));
+    
+    return containers;
+  }
+
+  async getContainersByStatus(medlogStatus: string, carrierStatus: string): Promise<Container[]> {
+    return await db.select().from(container).where(
+      and(eq(container.medlogStatus, medlogStatus), eq(container.carrierStatus, carrierStatus))
+    );
   }
 
   async updateContainerNote(id: number, group: 'carrier' | 'medlog', note: string): Promise<Container | undefined> {
@@ -147,31 +420,114 @@ export class DatabaseStorage implements IStorage {
       : { medlogNote: note };
       
     const [updated] = await db
-      .update(containers)
+      .update(container)
       .set(updateData)
-      .where(eq(containers.id, id))
+      .where(eq(container.id, id))
       .returning();
     return updated || undefined;
   }
 
   async updateContainerHazardous(id: number, hazardous: boolean): Promise<Container | undefined> {
     const [updatedContainer] = await db
-      .update(containers)
-      .set({ dangerousCargo: hazardous })
-      .where(eq(containers.id, id))
+      .update(container)
+      .set({ isDangerous: hazardous })
+      .where(eq(container.id, id))
       .returning();
     
     return updatedContainer || undefined;
   }
 
-  async getContainer(id: number): Promise<Container | undefined> {
-    const [container] = await db.select().from(containers).where(eq(containers.id, id));
-    return container || undefined;
+  async deleteContainer(id: number): Promise<boolean> {
+    const result = await db.delete(container).where(eq(container.id, id));
+    return (result.rowCount ?? 0) > 0;
   }
 
-  async deleteContainer(id: number): Promise<boolean> {
-    const result = await db.delete(containers).where(eq(containers.id, id));
+  // ============================================================================
+  // CONTAINER IN BL METHODS
+  // ============================================================================
+  async getContainerInBL(id: number): Promise<ContainerInBl | undefined> {
+    const [containerInBl] = await db.select().from(containerInBl).where(eq(containerInBl.id, id));
+    return containerInBl || undefined;
+  }
+
+  async createContainerInBL(containerInBlData: InsertContainerInBl): Promise<ContainerInBl> {
+    const [newContainerInBl] = await db.insert(containerInBl).values(containerInBlData).returning();
+    return newContainerInBl;
+  }
+
+  async deleteContainerInBL(id: number): Promise<boolean> {
+    const result = await db.delete(containerInBl).where(eq(containerInBl.id, id));
     return (result.rowCount ?? 0) > 0;
+  }
+
+  async getContainersForBL(blId: number): Promise<ContainerInBl[]> {
+    return await db.select().from(containerInBl).where(eq(containerInBl.blId, blId));
+  }
+
+  async getBLsForContainer(containerId: string): Promise<ContainerInBl[]> {
+    return await db.select().from(containerInBl).where(eq(containerInBl.containerId, containerId));
+  }
+
+  // ============================================================================
+  // CHAT MESSAGE METHODS
+  // ============================================================================
+  async getChatMessage(id: number): Promise<ChatMessage | undefined> {
+    const [message] = await db.select().from(chatMessages).where(eq(chatMessages.id, id));
+    return message || undefined;
+  }
+
+  async createChatMessage(message: InsertChatMessage): Promise<ChatMessage> {
+    const [newMessage] = await db.insert(chatMessages).values(message).returning();
+    return newMessage;
+  }
+
+  async getChatMessagesByBL(blId: number): Promise<ChatMessage[]> {
+    return await db.select().from(chatMessages).where(eq(chatMessages.blId, blId)).orderBy(asc(chatMessages.sent));
+  }
+
+  async getAllChatMessages(): Promise<ChatMessage[]> {
+    return await db.select().from(chatMessages).orderBy(desc(chatMessages.sent));
+  }
+
+  // ============================================================================
+  // COMPLEX QUERY METHODS
+  // ============================================================================
+  async getBLWithContainers(blId: number): Promise<{ bl: BL; containers: Container[] } | undefined> {
+    const blRecord = await this.getBL(blId);
+    if (!blRecord) return undefined;
+
+    const containers = await this.getContainersByBL(blRecord.blNumber);
+    return { bl: blRecord, containers };
+  }
+
+  async getBLWithDetails(blId: number): Promise<{ bl: BL; containers: Container[]; chatMessages: ChatMessage[] } | undefined> {
+    const blWithContainers = await this.getBLWithContainers(blId);
+    if (!blWithContainers) return undefined;
+
+    const chatMessages = await this.getChatMessagesByBL(blId);
+    return { ...blWithContainers, chatMessages };
+  }
+
+  async searchBLs(query: string): Promise<BL[]> {
+    // Simple search by BL number or vessel
+    return await db.select().from(bl).where(
+      or(
+        eq(bl.blNumber, query),
+        eq(bl.vessel, query)
+      )
+    );
+  }
+
+  async getDashboardData(): Promise<{ totalBLs: number; totalContainers: number; recentBLs: BL[] }> {
+    const allBLs = await db.select().from(bl);
+    const allContainers = await db.select().from(container);
+    const recentBLs = await db.select().from(bl).orderBy(desc(bl.createdAt)).limit(5);
+
+    return {
+      totalBLs: allBLs.length,
+      totalContainers: allContainers.length,
+      recentBLs
+    };
   }
 }
 

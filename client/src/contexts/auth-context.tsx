@@ -1,30 +1,28 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import type { User, OrgRole, OrderTypeRole, CarrierType } from '@shared/schema';
+import type { User } from '@shared/schema';
+import type { FilterState } from '@/lib/types';
 
-interface AuthUser extends Omit<User, 'password'> {}
+// Extended user interface with role and company information from backend
+interface AuthUser extends Omit<User, 'password'> {
+  roleName?: string; // Populated by getUserWithRoleAndCompany
+  companyType?: string; // Populated by getUserWithRoleAndCompany
+}
 
 interface AuthContextType {
   user: AuthUser | null;
-  login: (user: AuthUser) => void;
+  login: (username: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
   hasPermission: (permission: string) => boolean;
-  getDefaultFilters: () => FilterDefaults;
+  getDefaultFilters: () => Partial<FilterState>;
   getCarrierWhitelist: () => string[];
-}
-
-interface FilterDefaults {
-  carrier?: string | string[];
-  orderType?: 'Import' | 'Export';
-  importOnly?: boolean;
-  exportOnly?: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
@@ -38,92 +36,116 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
 
   useEffect(() => {
-    // Check for stored user session
-    const storedUser = localStorage.getItem('currentUser');
-    if (storedUser) {
+    // Check if user is already logged in
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        setUser(JSON.parse(savedUser));
       } catch (error) {
-        console.error('Failed to parse stored user:', error);
-        localStorage.removeItem('currentUser');
+        console.error('Failed to parse saved user:', error);
+        localStorage.removeItem('user');
       }
     }
   }, []);
 
-  const login = (userData: AuthUser) => {
-    setUser(userData);
-    localStorage.setItem('currentUser', JSON.stringify(userData));
+  const login = async (username: string, password: string): Promise<boolean> => {
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+        localStorage.setItem('user', JSON.stringify(userData));
+        return true;
+      } else {
+        console.error('Login failed:', response.statusText);
+        return false;
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      return false;
+    }
   };
 
   const logout = () => {
     setUser(null);
-    localStorage.removeItem('currentUser');
-    // Clear user filters when logging out
-    try {
-      localStorage.removeItem('userFilters');
-    } catch (error) {
-      console.error('Failed to clear user filters on logout:', error);
-    }
+    localStorage.removeItem('user');
+    localStorage.removeItem('userFilters');
   };
 
   const hasPermission = (permission: string): boolean => {
     if (!user) return false;
 
+    // For now, use company type if available, otherwise fall back to role-based logic
+    const roleName = user.roleName || 'User';
+    const companyType = user.companyType || 'Client';
+
     switch (permission) {
       case 'edit_carrier_note':
-        return user.orgRole === 'msc';
+        return companyType === 'MSC';
       case 'edit_medlog_note':
-        return user.orgRole === 'medlog';
+        return companyType === 'Medlog';
       case 'edit_carrier_status':
-        return user.orgRole === 'msc';
+        return companyType === 'MSC';
       case 'edit_medlog_status':
-        return user.orgRole === 'medlog';
+        return companyType === 'Medlog';
       case 'view_msc_carriers_only':
-        return user.orgRole === 'msc';
+        return companyType === 'MSC';
       case 'create_orders':
         return true; // All users can create orders
       case 'use_ova_string':
-        return user.orderTypeRole === 'export_only' || user.orderTypeRole === null;
+        // This would need to be determined by role or company type
+        return roleName === 'Admin' || companyType === 'Medlog';
       case 'load_from_msc':
-        return user.orderTypeRole === 'import_only' || user.orderTypeRole === null;
+        // This would need to be determined by role or company type
+        return roleName === 'Admin' || companyType === 'Medlog';
+      case 'admin_access':
+        return roleName === 'Admin';
+      case 'medlog_access':
+        return companyType === 'Medlog';
+      case 'msc_access':
+        return companyType === 'MSC';
+      case 'client_access':
+        return companyType === 'Client';
       default:
         return false;
     }
   };
 
-  const getDefaultFilters = (): FilterDefaults => {
+  const getDefaultFilters = (): Partial<FilterState> => {
     if (!user) return {};
 
-    const filters: FilterDefaults = {};
-
-    // Set default carrier based on user profile
-    if (user.defaultCarrier) {
-      filters.carrier = user.defaultCarrier;
-    }
-
-    // Set order type defaults based on role
-    if (user.orderTypeRole === 'import_only') {
-      filters.importOnly = true;
-      filters.orderType = 'Import';
-    } else if (user.orderTypeRole === 'export_only') {
-      filters.exportOnly = true;
-      filters.orderType = 'Export';
-    }
-
-    return filters;
+    // Note: We don't set any hardcoded filter values here
+    // The frontend will dynamically filter based on company types from API
+    // MSC users will see only MSC companies, Medlog users will see all
+    // This prevents hardcoded values that might not match database data
+    
+    return {};
   };
 
   const getCarrierWhitelist = (): string[] => {
     if (!user) return [];
     
-    const whitelist = [...(user.carrierWhitelist || [])];
+    const companyType = user.companyType || 'Client';
     
-    // Add user's default carrier to whitelist if not already present
-    if (user.defaultCarrier && !whitelist.includes(user.defaultCarrier)) {
-      whitelist.unshift(user.defaultCarrier);
+    if (companyType === 'MSC') {
+      // MSC users can only see MSC carriers
+      return ['MSC CZ', 'MSC SK'];
+    } else if (companyType === 'Medlog') {
+      // Medlog users can see all carriers
+      return ['MSC CZ', 'MSC SK', 'ONE', 'Hapag-Lloyd'];
+    } else if (companyType === 'Client') {
+      // Client users can see all carriers
+      return ['MSC CZ', 'MSC SK', 'ONE', 'Hapag-Lloyd'];
     }
     
-    return whitelist;
+    return [];
   };
 
   const value: AuthContextType = {

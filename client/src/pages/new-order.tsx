@@ -16,8 +16,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ArrowLeft, FileText, Loader2, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { insertBLSummarySchema } from "@shared/schema";
 import { useAuth } from "@/contexts/auth-context";
+import { Company, User } from "@shared/schema";
 
 // ISO 6346 container number validation
 const validateContainerNumber = (containerNum: string): boolean => {
@@ -63,7 +63,7 @@ const containerSchema = z.object({
 
 // Main form schema
 const newOrderSchema = z.object({
-  orderType: z.enum(["Import", "Export"]),
+  direction: z.enum(["Import", "Export"]),
   client: z.string().min(1, "Client is required"),
   notificationEmail: z.string().email("Please enter a valid email address").optional().or(z.literal("")),
   destination: z.string().min(1, "Destination is required"),
@@ -91,14 +91,14 @@ const newOrderSchema = z.object({
   
 
 }).refine((data) => {
-  if (data.orderType === "Import") {
+  if (data.direction === "Import") {
     return data.blBookingNumber && data.blBookingNumber.length > 0 && data.customsClearance;
   }
   // Export fields are no longer mandatory
   return true;
 }, {
   message: "Required fields missing for order type",
-  path: ["orderType"],
+  path: ["direction"],
 });
 
 type NewOrderFormData = z.infer<typeof newOrderSchema>;
@@ -112,6 +112,7 @@ export default function NewOrder() {
   const [isLoadingFromOVA, setIsLoadingFromOVA] = useState(false);
   const [containerDataLoaded, setContainerDataLoaded] = useState(false);
   const [containerQty, setContainerQty] = useState(1);
+  const [isCheckingBLUniqueness, setIsCheckingBLUniqueness] = useState(false);
   
   // Check if this is edit mode from URL params
   const urlParams = new URLSearchParams(window.location.search);
@@ -119,13 +120,8 @@ export default function NewOrder() {
   const isEditMode = !!editBlNumber;
   
   // Load existing BL data in edit mode
-  const { data: existingBLSummary } = useQuery({
-    queryKey: ['/api/bl-summaries', editBlNumber],
-    enabled: isEditMode && !!editBlNumber,
-  });
-  
-  const { data: existingBLDetail } = useQuery({
-    queryKey: ['/api/bl-details', editBlNumber],
+  const { data: existingBL } = useQuery({
+    queryKey: ['/api/bls', editBlNumber],
     enabled: isEditMode && !!editBlNumber,
   });
   
@@ -134,17 +130,66 @@ export default function NewOrder() {
     enabled: isEditMode && !!editBlNumber,
   });
   
+  // Load companies and users for form options
+  const { data: companies = [] } = useQuery<Company[]>({
+    queryKey: ['/api/companies'],
+  });
+  
+  const { data: users = [] } = useQuery<User[]>({
+    queryKey: ['/api/users'],
+  });
+  
+  // Load all BLs for uniqueness check
+  const { data: allBLs = [] } = useQuery({
+    queryKey: ['/api/bls'],
+  });
+  
+  // Filter companies by type
+  const clientCompanies = companies.filter(c => c.type === 'Client');
+  const carrierCompanies = companies.filter(c => c.type === 'Carrier');
+  
+  // MSC users can only see MSC carriers
+  const availableCarriers = hasPermission('view_msc_carriers_only') 
+    ? companies.filter(c => c.type === 'MSC')
+    : carrierCompanies;
+  
+  // Function to check BL number uniqueness
+  const checkBLUniqueness = async (blNumber: string): Promise<boolean> => {
+    if (!blNumber || blNumber.trim() === '') return true;
+    
+    // In edit mode, allow the same BL number
+    if (isEditMode && editBlNumber === blNumber) return true;
+    
+    // Check if BL number already exists
+    const existingBL = allBLs.find(bl => bl.blNumber === blNumber);
+    return !existingBL;
+  };
+  
+  // Enhanced schema with BL uniqueness validation
+  const enhancedSchema = newOrderSchema.refine(async (data) => {
+    if (!data.blBookingNumber || data.blBookingNumber.trim() === '') return true;
+    
+    const isUnique = await checkBLUniqueness(data.blBookingNumber);
+    if (!isUnique) {
+      throw new Error('BL/Booking number already exists');
+    }
+    return true;
+  }, {
+    message: "BL/Booking number already exists",
+    path: ["blBookingNumber"],
+  });
+  
   const form = useForm<NewOrderFormData>({
-    resolver: zodResolver(newOrderSchema),
+    resolver: zodResolver(enhancedSchema),
     defaultValues: {
-      orderType: (() => {
-        // Set default order type based on user's role
-        if (user?.orderTypeRole === 'export_only') {
+      direction: (() => {
+        // Set default direction based on user's company type
+        if (user?.companyType === 'export_only') {
           return "Export";
-        } else if (user?.orderTypeRole === 'import_only') {
+        } else if (user?.companyType === 'import_only') {
           return "Import";
         }
-        // Default to Import for users with no specific role or both roles
+        // Default to Import for users with no specific restriction
         return "Import";
       })(),
       client: "",
@@ -153,7 +198,7 @@ export default function NewOrder() {
       polPod: "",
       vessel: "",
       carrier: (() => {
-        // Set default carrier based on user's profile
+        // Set default carrier based on user's defaultCarrier
         if (user?.defaultCarrier) {
           return user.defaultCarrier;
         }
@@ -180,31 +225,50 @@ export default function NewOrder() {
     name: "containers"
   });
 
-  const watchedOrderType = form.watch("orderType");
+  const watchedDirection = form.watch("direction");
+  const watchedBLNumber = form.watch("blBookingNumber");
   
+  // Check BL uniqueness when BL number changes
+  useEffect(() => {
+    if (watchedBLNumber && watchedBLNumber.trim() !== '') {
+      setIsCheckingBLUniqueness(true);
+      checkBLUniqueness(watchedBLNumber).then(isUnique => {
+        if (!isUnique && !isEditMode) {
+          form.setError('blBookingNumber', {
+            type: 'manual',
+            message: 'BL/Booking number already exists'
+          });
+        } else {
+          form.clearErrors('blBookingNumber');
+        }
+        setIsCheckingBLUniqueness(false);
+      });
+    }
+  }, [watchedBLNumber, isEditMode, form]);
+
   // Load existing data into form when available
   useEffect(() => {
-    if (isEditMode && existingBLSummary && existingBLDetail) {
+    if (isEditMode && existingBL && existingContainers) {
       form.reset({
-        orderType: existingBLSummary.type as "Import" | "Export",
-        client: existingBLSummary.client,
-        destination: existingBLSummary.destination,
-        polPod: existingBLSummary.podPol,
-        vessel: existingBLDetail.vesselName || "",
-        carrier: existingBLSummary.carrier || "MSC",
-        pic: existingBLSummary.pic,
-        eta: existingBLSummary.etaClosing || "",
-        containerCount: existingBLSummary.containerCount,
+        direction: existingBL.direction as "Import" | "Export",
+        client: existingBL.client?.toString() || "",
+        destination: existingBL.location || "",
+        polPod: existingBL.localPort?.toString() || "",
+        vessel: existingBL.vessel || "",
+        carrier: existingBL.carrier?.toString() || "MSC",
+        pic: existingBL.pic?.toString() || "",
+        eta: existingBL.eta || "",
+        containerCount: existingBL.containerCount || 1,
         containers: existingContainers?.map(c => ({
-          containerNumber: c.containerNumber,
-          destination: c.destination || "",
+          containerNumber: c.containerIlu,
+          destination: c.location || "",
           loadingDateTime: "",
           dischargingDateTime: "",
-          dangerousCargo: c.dangerousCargo || false,
+          dangerousCargo: c.hasDangerous || false,
         })) || [{ containerNumber: "", dangerousCargo: false }],
         globalLoadingDateTime: "",
         globalDischargingDateTime: "",
-        blBookingNumber: existingBLSummary.blNumber,
+        blBookingNumber: existingBL.blNumber,
         customsClearance: "In Port" as any,
         vgmRequested: null,
         customsDocuments: null,
@@ -212,7 +276,7 @@ export default function NewOrder() {
         goodsInTransit: null,
       });
     }
-  }, [existingBLSummary, existingBLDetail, existingContainers, form, isEditMode]);
+  }, [existingBL, existingContainers, form, isEditMode]);
 
   // Handle MSC data loading
   const handleLoadFromMSC = async () => {
@@ -297,23 +361,39 @@ export default function NewOrder() {
     mutationFn: async (data: NewOrderFormData) => {
       console.log("Creating/updating order in mutation:", isEditMode ? "UPDATE" : "CREATE", data);
       
-      const blSummaryData = {
+      const blData = {
         blNumber: data.blBookingNumber || `AUTO-${Date.now()}`,
         date: new Date().toISOString().split('T')[0],
-        client: data.client,
-        consignee: data.client,
-        destination: data.destination,
-        pic: data.pic || "Not assigned",
-        podPol: data.polPod,
-        etaClosing: data.eta || "TBD",
-        vesselVoyage: data.vessel || "TBD",
+        client: parseInt(data.client),
+        carrier: parseInt(data.carrier),
+        pic: parseInt(data.pic),
+        direction: data.direction,
+        location: data.destination,
+        localPort: data.polPod,
+        eta: data.eta || "TBD",
+        vessel: data.vessel || "TBD",
         containerCount: data.containerCount,
-        type: data.orderType,
-        carrier: data.carrier,
-        carrierStatus: "Pre-Order",
+        hasDangerous: false, // Will be calculated from containers
+        hasDt: false, // Will be calculated from containers
         medlogStatus: "New",
-        trainScheduled: false,
-        weight: "0 kg",
+        carrierStatus: "Pre-Order",
+        // Change tracking fields
+        blNumberChange: false,
+        picChange: false,
+        clientChange: false,
+        containerChange: false,
+        directionChange: false,
+        etaChange: false,
+        hasDangerousChange: false,
+        hasDtChange: false,
+        localPortChange: false,
+        medlogStatusChange: false,
+        carrierStatusChange: false,
+        locationChange: false,
+        medlogBulbChange: false,
+        carrierBulbChange: false,
+        vesselChange: false,
+        voyageChange: false,
       };
 
       // For now, simulate success - in real implementation, this would call update API in edit mode
@@ -322,12 +402,12 @@ export default function NewOrder() {
         return { success: true, updated: true };
       }
 
-      const response = await fetch('/api/bl-summaries', {
+      const response = await fetch('/api/bls', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(blSummaryData),
+        body: JSON.stringify(blData),
       });
       
       if (!response.ok) {
@@ -341,7 +421,7 @@ export default function NewOrder() {
         title: "Success",
         description: isEditMode ? "Order updated successfully!" : "New order created successfully.",
       });
-      queryClient.invalidateQueries({ queryKey: ['/api/bl-summaries'] });
+      queryClient.invalidateQueries({ queryKey: ['/api/bls'] });
       
       // Redirect based on mode
       if (isEditMode && editBlNumber) {
@@ -395,7 +475,7 @@ export default function NewOrder() {
                   <div className="md:col-span-2">
                     <FormField
                       control={form.control}
-                      name="orderType"
+                      name="direction"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="text-sm font-semibold">Order Type *</FormLabel>
@@ -424,9 +504,29 @@ export default function NewOrder() {
                         <FormItem>
                           <FormLabel className="text-sm font-semibold">BL/Booking Number *</FormLabel>
                           <FormControl>
-                            <Input {...field} placeholder="Enter BL/Booking number" className="h-9" />
+                            <div className="relative">
+                              <Input 
+                                {...field} 
+                                placeholder="Enter BL/Booking number" 
+                                className={`h-9 pr-8 ${isCheckingBLUniqueness ? 'animate-pulse' : ''}`}
+                              />
+                              {isCheckingBLUniqueness && (
+                                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                  <Loader2 className="w-4 h-4 animate-spin text-gray-400" />
+                                </div>
+                              )}
+                            </div>
                           </FormControl>
                           <FormMessage />
+                          {watchedBLNumber && watchedBLNumber.trim() !== '' && !isCheckingBLUniqueness && (
+                            <div className="text-xs text-gray-500 mt-1">
+                              {form.formState.errors.blBookingNumber ? (
+                                <span className="text-red-500">⚠️ {form.formState.errors.blBookingNumber.message}</span>
+                              ) : (
+                                <span className="text-green-500">✅ BL number is available</span>
+                              )}
+                            </div>
+                          )}
                         </FormItem>
                       )}
                     />
@@ -467,11 +567,18 @@ export default function NewOrder() {
                         <FormItem>
                           <FormLabel className="text-sm font-semibold">Person in Charge (PIC)</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="e.g. Jan Novák" 
-                              {...field} 
-                              className="h-9"
-                            />
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger className="h-9">
+                                <SelectValue placeholder="Select PIC" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {users.map(user => (
+                                  <SelectItem key={user.id} value={user.id.toString()}>
+                                    {user.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -496,11 +603,11 @@ export default function NewOrder() {
                               <SelectValue placeholder="Select client" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="ŠKODA AUTO">ŠKODA AUTO</SelectItem>
-                              <SelectItem value="TESCO">TESCO</SelectItem>
-                              <SelectItem value="IKEA">IKEA</SelectItem>
-                              <SelectItem value="NTB">NTB</SelectItem>
-                              <SelectItem value="AUDI">AUDI</SelectItem>
+                              {clientCompanies.map(client => (
+                                <SelectItem key={client.id} value={client.id.toString()}>
+                                  {client.name}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                         </FormControl>
@@ -581,7 +688,7 @@ export default function NewOrder() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-sm">
-                          {watchedOrderType === "Export" ? "Vessel closing" : "ETA"}
+                          {watchedDirection === "Export" ? "Vessel closing" : "ETA"}
                         </FormLabel>
                         <FormControl>
                           <Input 
@@ -595,8 +702,6 @@ export default function NewOrder() {
                     )}
                   />
                 </div>
-
-
 
                 {/* Second Row */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -612,28 +717,11 @@ export default function NewOrder() {
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
-                              {(() => {
-                                // If user has MSC carriers only permission, restrict to MSC CZ and MSC SK
-                                if (hasPermission('view_msc_carriers_only')) {
-                                  return (
-                                    <>
-                                      <SelectItem value="MSC CZ">MSC CZ</SelectItem>
-                                      <SelectItem value="MSC SK">MSC SK</SelectItem>
-                                    </>
-                                  );
-                                }
-                                // Otherwise show all carriers
-                                return (
-                                  <>
-                                    <SelectItem value="MSC CZ">MSC CZ</SelectItem>
-                                    <SelectItem value="MSC SK">MSC SK</SelectItem>
-                                    <SelectItem value="ONE">ONE</SelectItem>
-                                    <SelectItem value="Hapag-Lloyd">Hapag-Lloyd</SelectItem>
-                                    <SelectItem value="Maersk">Maersk</SelectItem>
-                                    <SelectItem value="CMA CGM">CMA CGM</SelectItem>
-                                  </>
-                                );
-                              })()}
+                              {availableCarriers.map(carrier => (
+                                <SelectItem key={carrier.id} value={carrier.id.toString()}>
+                                  {carrier.name}
+                                </SelectItem>
+                              ))}
                             </SelectContent>
                           </Select>
                         </FormControl>
@@ -642,7 +730,7 @@ export default function NewOrder() {
                     )}
                   />
 
-                  {watchedOrderType === "Import" && (
+                  {watchedDirection === "Import" && (
                     <FormField
                       control={form.control}
                       name="customsClearance"
@@ -673,7 +761,7 @@ export default function NewOrder() {
                     />
                   )}
 
-                  {watchedOrderType === "Export" && (
+                  {watchedDirection === "Export" && (
                     <>
                       <FormField
                         control={form.control}
@@ -723,7 +811,7 @@ export default function NewOrder() {
                 </div>
 
                 {/* Additional Export fields row - aligned right like ETA but sized like Customs Documents */}
-                {watchedOrderType === "Export" && (
+                {watchedDirection === "Export" && (
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
                       {/* Empty space on the left */}
@@ -776,7 +864,7 @@ export default function NewOrder() {
                 {/* Date/time section */}
                 <div className="border-t pt-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {watchedOrderType === "Export" && (
+                    {watchedDirection === "Export" && (
                       <FormField
                         control={form.control}
                         name="globalLoadingDateTime"
@@ -792,7 +880,7 @@ export default function NewOrder() {
                       />
                     )}
 
-                    {watchedOrderType === "Import" && (
+                    {watchedDirection === "Import" && (
                       <FormField
                         control={form.control}
                         name="globalDischargingDateTime"

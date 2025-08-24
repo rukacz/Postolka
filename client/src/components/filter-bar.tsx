@@ -8,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { X } from "lucide-react";
 import { FilterState } from "@/lib/types";
 import { useQuery } from "@tanstack/react-query";
-import { Container } from "@shared/schema";
+import { Container, Company, User } from "@shared/schema";
 
 import { useAuth } from "@/contexts/auth-context";
 
@@ -24,28 +24,64 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
 
   const updateFilter = (key: keyof FilterState, value: string | boolean | string[]) => {
     if (typeof value === 'boolean') {
+      // Boolean filters (checkboxes)
       onFiltersChange({ ...filters, [key]: value });
     } else if (Array.isArray(value)) {
+      // Array filters (MultiSelect)
+      // Only set undefined if array is completely empty
       onFiltersChange({ ...filters, [key]: value.length === 0 ? undefined : value });
     } else {
-      onFiltersChange({ ...filters, [key]: value === 'all' ? undefined : value || undefined });
+      // String filters (Input, Select, Date)
+      // Only set undefined for 'all' value, preserve empty strings for date inputs
+      if (value === 'all') {
+        onFiltersChange({ ...filters, [key]: undefined });
+      } else {
+        // Keep the value as is (including empty string for date inputs)
+        onFiltersChange({ ...filters, [key]: value });
+      }
     }
   };
 
-  // Get all containers to extract unique cities
+  // Get all containers for city filtering
   const { data: allContainers = [] } = useQuery<Container[]>({
     queryKey: ['/api/containers'],
+  });
+
+  // Get companies for filtering
+  const { data: companies = [] } = useQuery<Company[]>({
+    queryKey: ['/api/companies'],
+  });
+
+  // Get users for filtering
+  const { data: users = [] } = useQuery<User[]>({
+    queryKey: ['/api/users'],
   });
 
   // Extract unique cities from containers
   const uniqueCities = useMemo(() => {
     const cities = new Set<string>();
     allContainers.forEach(container => {
-      if (container.destination) cities.add(container.destination);
-      if (container.unloadAddress) cities.add(container.unloadAddress);
+      if (container.location) cities.add(container.location);
     });
     return Array.from(cities).sort();
   }, [allContainers]);
+
+  // Filter companies by type
+  const clientCompanies = useMemo(() => 
+    companies.filter(c => c.type === 'Client'), [companies]
+  );
+  
+  const carrierCompanies = useMemo(() => 
+    companies.filter(c => c.type === 'Carrier'), [companies]
+  );
+
+  // MSC users can only see MSC carriers
+  const availableCarriers = useMemo(() => {
+    if (hasPermission('view_msc_carriers_only')) {
+      return companies.filter(c => c.type === 'MSC');
+    }
+    return carrierCompanies;
+  }, [hasPermission, companies, carrierCompanies]);
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
@@ -54,14 +90,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         <div>
           <Label className="text-sm font-medium text-gray-700 mb-1">Client</Label>
           <MultiSelect
-            options={[
-              { label: "ŠKODA AUTO", value: "ŠKODA AUTO" },
-              { label: "TESCO", value: "TESCO" },
-              { label: "IKEA", value: "IKEA" },
-              { label: "NTB", value: "NTB" },
-              { label: "AUDI", value: "AUDI" },
-              { label: "VOLKSWAGEN", value: "VOLKSWAGEN" }
-            ]}
+            options={clientCompanies.map(c => ({ label: c.name, value: c.name }))}
             value={Array.isArray(filters.client) ? filters.client : filters.client ? [filters.client] : []}
             onValueChange={(value) => updateFilter('client', value)}
             placeholder="All Clients"
@@ -70,30 +99,21 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         </div>
         
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">POD/POL</Label>
+          <Label className="text-sm font-medium text-gray-700 mb-1">Direction</Label>
           <MultiSelect
             options={[
-              { label: "HAM CTA", value: "HAM CTA" },
-              { label: "HAM CTB", value: "HAM CTB" },
-              { label: "HAM CTT", value: "HAM CTT" },
-              { label: "BRV MSC", value: "BRV MSC" },
-              { label: "BRV NTB", value: "BRV NTB" },
-              { label: "Rotterdam", value: "Rotterdam" },
-              { label: "Antwerpen", value: "Antwerpen" },
-              { label: "Trieste", value: "Trieste" },
-              { label: "Koper", value: "Koper" },
-              { label: "Gdansk", value: "Gdansk" },
-              { label: "Gdynia", value: "Gdynia" }
+              { label: "Import", value: "Import" },
+              { label: "Export", value: "Export" }
             ]}
-            value={Array.isArray(filters.podPol) ? filters.podPol : filters.podPol ? [filters.podPol] : []}
-            onValueChange={(value) => updateFilter('podPol', value)}
-            placeholder="All POD/POL"
+            value={Array.isArray(filters.direction) ? filters.direction : filters.direction ? [filters.direction] : []}
+            onValueChange={(value) => updateFilter('direction', value)}
+            placeholder="All Directions"
             className="focus:ring-2 focus:ring-primary"
           />
         </div>
         
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">ETA/Closing</Label>
+          <Label className="text-sm font-medium text-gray-700 mb-1">ETA</Label>
           <Input
             type="date"
             value={filters.eta || ""}
@@ -137,22 +157,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         <div>
           <Label className="text-sm font-medium text-gray-700 mb-1">Carrier</Label>
           <MultiSelect
-            options={(() => {
-              // If user has MSC carriers only permission, restrict to MSC CZ and MSC SK
-              if (hasPermission('view_msc_carriers_only')) {
-                return [
-                  { label: "MSC CZ", value: "MSC CZ" },
-                  { label: "MSC SK", value: "MSC SK" }
-                ];
-              }
-              // Otherwise show all carriers
-              return [
-                { label: "MSC CZ", value: "MSC CZ" },
-                { label: "MSC SK", value: "MSC SK" },
-                { label: "Hapag-Lloyd", value: "Hapag-Lloyd" },
-                { label: "ONE", value: "ONE" }
-              ];
-            })()}
+            options={availableCarriers.map(c => ({ label: c.name, value: c.name }))}
             value={Array.isArray(filters.carrier) ? filters.carrier : filters.carrier ? [filters.carrier] : []}
             onValueChange={(value) => updateFilter('carrier', value)}
             placeholder="All Carriers"
@@ -163,13 +168,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         <div>
           <Label className="text-sm font-medium text-gray-700 mb-1">PIC</Label>
           <MultiSelect
-            options={[
-              { label: "Jan Novák", value: "Jan Novák" },
-              { label: "Eva Svobodová", value: "Eva Svobodová" },
-              { label: "Tomáš Dvořák", value: "Tomáš Dvořák" },
-              { label: "Marie Černá", value: "Marie Černá" },
-              { label: "Petr Procházka", value: "Petr Procházka" }
-            ]}
+            options={users.map(u => ({ label: u.name, value: u.name }))}
             value={Array.isArray(filters.pic) ? filters.pic : filters.pic ? [filters.pic] : []}
             onValueChange={(value) => updateFilter('pic', value)}
             placeholder="All PIC"
@@ -178,7 +177,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         </div>
         
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">Un/Load Location</Label>
+          <Label className="text-sm font-medium text-gray-700 mb-1">Container Location</Label>
           <Input
             type="text"
             placeholder="Enter location or select..."
@@ -195,7 +194,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         </div>
 
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">Un/Load Date From</Label>
+          <Label className="text-sm font-medium text-gray-700 mb-1">Container Date From</Label>
           <Input
             type="date"
             value={filters.unloadDateFrom || ""}
@@ -205,7 +204,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         </div>
 
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">Un/Load Date To</Label>
+          <Label className="text-sm font-medium text-gray-700 mb-1">Container Date To</Label>
           <Input
             type="date"
             value={filters.unloadDateTo || ""}
