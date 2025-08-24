@@ -107,7 +107,7 @@ export default function NewOrder() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const { hasPermission } = useAuth();
+  const { hasPermission, user } = useAuth();
   const [isLoadingFromMSC, setIsLoadingFromMSC] = useState(false);
   const [isLoadingFromOVA, setIsLoadingFromOVA] = useState(false);
   const [containerDataLoaded, setContainerDataLoaded] = useState(false);
@@ -137,13 +137,29 @@ export default function NewOrder() {
   const form = useForm<NewOrderFormData>({
     resolver: zodResolver(newOrderSchema),
     defaultValues: {
-      orderType: "Import",
+      orderType: (() => {
+        // Set default order type based on user's role
+        if (user?.orderTypeRole === 'export_only') {
+          return "Export";
+        } else if (user?.orderTypeRole === 'import_only') {
+          return "Import";
+        }
+        // Default to Import for users with no specific role or both roles
+        return "Import";
+      })(),
       client: "",
       notificationEmail: "",
       destination: "",
       polPod: "",
       vessel: "",
-      carrier: "MSC",
+      carrier: (() => {
+        // Set default carrier based on user's profile
+        if (user?.defaultCarrier) {
+          return user.defaultCarrier;
+        }
+        // Default to MSC for users with no default carrier
+        return "MSC";
+      })(),
       pic: "",
       eta: "",
       containerCount: 1,
