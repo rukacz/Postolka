@@ -123,13 +123,13 @@ export class DatabaseStorage implements IStorage {
   // COMPANY METHODS
   // ============================================================================
   async getCompany(id: number): Promise<Company | undefined> {
-    const [company] = await db.select().from(company).where(eq(company.id, id));
-    return company || undefined;
+    const [companyRecord] = await db.select().from(company).where(eq(company.id, id));
+    return companyRecord || undefined;
   }
 
   async getCompanyByName(name: string): Promise<Company | undefined> {
-    const [company] = await db.select().from(company).where(eq(company.name, name));
-    return company || undefined;
+    const [companyRecord] = await db.select().from(company).where(eq(company.name, name));
+    return companyRecord || undefined;
   }
 
   async createCompany(companyData: InsertCompany): Promise<Company> {
@@ -158,13 +158,13 @@ export class DatabaseStorage implements IStorage {
   // ROLE METHODS
   // ============================================================================
   async getRole(id: number): Promise<Role | undefined> {
-    const [role] = await db.select().from(role).where(eq(role.id, id));
-    return role || undefined;
+    const [roleRecord] = await db.select().from(role).where(eq(role.id, id));
+    return roleRecord || undefined;
   }
 
   async getRoleByName(name: string): Promise<Role | undefined> {
-    const [role] = await db.select().from(role).where(eq(role.name, name));
-    return role || undefined;
+    const [roleRecord] = await db.select().from(role).where(eq(role.name, name));
+    return roleRecord || undefined;
   }
 
   async createRole(roleData: InsertRole): Promise<Role> {
@@ -180,13 +180,13 @@ export class DatabaseStorage implements IStorage {
   // PORT METHODS
   // ============================================================================
   async getPort(id: number): Promise<Port | undefined> {
-    const [port] = await db.select().from(port).where(eq(port.id, id));
-    return port || undefined;
+    const [portRecord] = await db.select().from(port).where(eq(port.id, id));
+    return portRecord || undefined;
   }
 
   async getPortByName(name: string): Promise<Port | undefined> {
-    const [port] = await db.select().from(port).where(eq(port.name, name));
-    return port || undefined;
+    const [portRecord] = await db.select().from(port).where(eq(port.name, name));
+    return portRecord || undefined;
   }
 
   async createPort(portData: InsertPort): Promise<Port> {
@@ -211,13 +211,13 @@ export class DatabaseStorage implements IStorage {
   // CITY METHODS
   // ============================================================================
   async getCity(id: number): Promise<City | undefined> {
-    const [city] = await db.select().from(city).where(eq(city.id, id));
-    return city || undefined;
+    const [cityRecord] = await db.select().from(city).where(eq(city.id, id));
+    return cityRecord || undefined;
   }
 
   async getCityByName(name: string): Promise<City | undefined> {
-    const [city] = await db.select().from(city).where(eq(city.name, name));
-    return city || undefined;
+    const [cityRecord] = await db.select().from(city).where(eq(city.name, name));
+    return cityRecord || undefined;
   }
 
   async createCity(cityData: InsertCity): Promise<City> {
@@ -242,13 +242,13 @@ export class DatabaseStorage implements IStorage {
   // USER METHODS
   // ============================================================================
   async getUser(id: number): Promise<User | undefined> {
-    const [user] = await db.select().from(user).where(eq(user.id, id));
-    return user || undefined;
+    const [userRecord] = await db.select().from(user).where(eq(user.id, id));
+    return userRecord || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(user).where(eq(user.username, username));
-    return user || undefined;
+    const [userRecord] = await db.select().from(user).where(eq(user.username, username));
+    return userRecord || undefined;
   }
 
   async getUserWithRoleAndCompany(username: string): Promise<(User & { roleName: string; companyType: string }) | undefined> {
@@ -273,8 +273,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUserByEmail(email: string): Promise<User | undefined> {
-    const [user] = await db.select().from(user).where(eq(user.email, email));
-    return user || undefined;
+    const [userRecord] = await db.select().from(user).where(eq(user.email, email));
+    return userRecord || undefined;
   }
 
   async createUser(userData: InsertUser): Promise<User> {
@@ -307,13 +307,13 @@ export class DatabaseStorage implements IStorage {
   // BL METHODS
   // ============================================================================
   async getBL(id: number): Promise<BL | undefined> {
-    const [bl] = await db.select().from(bl).where(eq(bl.id, id));
-    return bl || undefined;
+    const [blRecord] = await db.select().from(bl).where(eq(bl.id, id));
+    return blRecord || undefined;
   }
 
   async getBLByNumber(blNumber: string): Promise<BL | undefined> {
-    const [bl] = await db.select().from(bl).where(eq(bl.blNumber, blNumber));
-    return bl || undefined;
+    const [blRecord] = await db.select().from(bl).where(eq(bl.blNumber, blNumber));
+    return blRecord || undefined;
   }
 
   async createBL(blData: InsertBL): Promise<BL> {
@@ -356,13 +356,13 @@ export class DatabaseStorage implements IStorage {
   // CONTAINER METHODS
   // ============================================================================
   async getContainer(id: number): Promise<Container | undefined> {
-    const [container] = await db.select().from(container).where(eq(container.id, id));
-    return container || undefined;
+    const [containerRecord] = await db.select().from(container).where(eq(container.id, id));
+    return containerRecord || undefined;
   }
 
   async getContainerByIlu(containerIlu: string): Promise<Container | undefined> {
-    const [container] = await db.select().from(container).where(eq(container.containerIlu, containerIlu));
-    return container || undefined;
+    const [containerRecord] = await db.select().from(container).where(eq(container.containerIlu, containerIlu));
+    return containerRecord || undefined;
   }
 
   async createContainer(containerData: InsertContainer): Promise<Container> {
@@ -444,8 +444,8 @@ export class DatabaseStorage implements IStorage {
   // CONTAINER IN BL METHODS
   // ============================================================================
   async getContainerInBL(id: number): Promise<ContainerInBl | undefined> {
-    const [containerInBl] = await db.select().from(containerInBl).where(eq(containerInBl.id, id));
-    return containerInBl || undefined;
+    const [containerInBlRecord] = await db.select().from(containerInBl).where(eq(containerInBl.id, id));
+    return containerInBlRecord || undefined;
   }
 
   async createContainerInBL(containerInBlData: InsertContainerInBl): Promise<ContainerInBl> {
