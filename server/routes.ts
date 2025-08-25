@@ -514,6 +514,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Update individual container field
+  app.patch("/api/containers/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const containerId = parseInt(id);
+      const container = await storage.updateContainer(containerId, req.body);
+      
+      if (!container) {
+        return res.status(404).json({ message: "Container not found" });
+      }
+      
+      res.json(container);
+    } catch (error) {
+      console.error("Error updating container field:", error);
+      res.status(500).json({ message: "Failed to update container field" });
+    }
+  });
+
   app.delete("/api/containers/:id", async (req, res) => {
     try {
       const { id } = req.params;
