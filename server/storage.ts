@@ -354,7 +354,7 @@ export class DatabaseStorage implements IStorage {
   // ============================================================================
   // CONTAINER METHODS
   // ============================================================================
-  async getContainer(id: number): Promise<Container | undefined> {
+  async getContainer(id: string): Promise<Container | undefined> {
     const [container] = await db.select().from(container).where(eq(container.id, id));
     return container || undefined;
   }
@@ -369,7 +369,7 @@ export class DatabaseStorage implements IStorage {
     return newContainer;
   }
 
-  async updateContainer(id: number, containerData: Partial<Container>): Promise<Container | undefined> {
+  async updateContainer(id: string, containerData: Partial<Container>): Promise<Container | undefined> {
     const [updated] = await db
       .update(container)
       .set(containerData)
@@ -400,7 +400,7 @@ export class DatabaseStorage implements IStorage {
     const containers = await db
       .select()
       .from(container)
-      .where(inArray(container.containerIlu, containerIdList));
+      .where(inArray(container.id, containerIdList));
     
     return containers;
   }
@@ -411,7 +411,7 @@ export class DatabaseStorage implements IStorage {
     );
   }
 
-  async updateContainerNote(id: number, group: 'carrier' | 'medlog', note: string): Promise<Container | undefined> {
+  async updateContainerNote(id: string, group: 'carrier' | 'medlog', note: string): Promise<Container | undefined> {
     const updateData = group === 'carrier' 
       ? { carrierNote: note }
       : { medlogNote: note };
@@ -424,17 +424,17 @@ export class DatabaseStorage implements IStorage {
     return updated || undefined;
   }
 
-  async updateContainerHazardous(id: number, hazardous: boolean): Promise<Container | undefined> {
+  async updateContainerHazardous(id: string, hazardous: boolean): Promise<Container | undefined> {
     const [updatedContainer] = await db
       .update(container)
-      .set({ isDangerous: hazardous })
+      .set({ hasDangerous: hazardous })
       .where(eq(container.id, id))
       .returning();
     
     return updatedContainer || undefined;
   }
 
-  async deleteContainer(id: number): Promise<boolean> {
+  async deleteContainer(id: string): Promise<boolean> {
     const result = await db.delete(container).where(eq(container.id, id));
     return (result.rowCount ?? 0) > 0;
   }

@@ -500,8 +500,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/containers/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const containerId = parseInt(id);
-      const container = await storage.updateContainer(containerId, req.body);
+      const container = await storage.updateContainer(id, req.body);
       
       if (!container) {
         return res.status(404).json({ message: "Container not found" });
@@ -517,8 +516,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/containers/:id", async (req, res) => {
     try {
       const { id } = req.params;
-      const containerId = parseInt(id);
-      const success = await storage.deleteContainer(containerId);
+      const success = await storage.deleteContainer(id);
       
       if (!success) {
         return res.status(404).json({ message: "Container not found" });
