@@ -11,8 +11,13 @@ export const company = pgTable("company", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   address: varchar("address", { length: 500 }),
-  contact: varchar("contact", { length: 255 }),
+  city: varchar("city", { length: 100 }),
+  postalCode: varchar("postal_code", { length: 20 }),
+  country: varchar("country", { length: 10 }),
+  phone: varchar("phone", { length: 20 }),
+  email: varchar("email", { length: 255 }),
   type: varchar("type", { length: 100 }), // e.g., "Medlog", "MSC", "Client"
+  isActive: boolean("is_active").default(true),
   createdBy: integer("created_by").references(() => user.id).nullable(),
   createdAt: timestamp("created_at").defaultNow(),
   lastModifiedBy: integer("last_modified_by").references(() => user.id).nullable(),
@@ -29,8 +34,9 @@ export const role = pgTable("role", {
 export const port = pgTable("port", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
-  state: varchar("state", { length: 100 }),
-  address: varchar("address", { length: 500 }),
+  city: varchar("city", { length: 100 }),
+  country: varchar("country", { length: 10 }),
+  isActive: boolean("is_active").default(true),
   createdBy: integer("created_by").references(() => user.id).nullable(),
   createdAt: timestamp("created_at").defaultNow(),
   lastModifiedBy: integer("last_modified_by").references(() => user.id).nullable(),
@@ -41,8 +47,12 @@ export const port = pgTable("port", {
 export const city = pgTable("city", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
-  state: varchar("state", { length: 100 }),
-  postalCode: integer("postal_code"),
+  country: varchar("country", { length: 10 }),
+  isActive: boolean("is_active").default(true),
+  createdBy: integer("created_by").references(() => user.id).nullable(),
+  createdAt: timestamp("created_at").defaultNow(),
+  lastModifiedBy: integer("last_modified_by").references(() => user.id).nullable(),
+  lastModifiedAt: timestamp("last_modified_at"),
 });
 
 // ============================================================================
@@ -56,9 +66,10 @@ export const user = pgTable("user", {
   username: varchar("username", { length: 100 }).notNull(),
   email: varchar("email", { length: 255 }),
   password: varchar("password", { length: 255 }),
-  role: integer("role").references(() => role.id).notNull(),
-  office: varchar("office", { length: 100 }),
-  company: integer("company").references(() => company.id),
+  roleId: integer("role_id").references(() => role.id).notNull(),
+  companyId: integer("company_id").references(() => company.id),
+  defaultCarrier: varchar("default_carrier", { length: 100 }),
+  isActive: boolean("is_active").default(true),
   createdBy: integer("created_by").references(() => user.id).nullable(),
   createdAt: timestamp("created_at").defaultNow(),
   lastModifiedBy: integer("last_modified_by").references(() => user.id).nullable(),
@@ -69,27 +80,21 @@ export const user = pgTable("user", {
 export const bl = pgTable("bl", {
   id: serial("id").primaryKey(),
   blNumber: varchar("bl_number", { length: 100 }).notNull(),
-  pic: integer("pic").references(() => user.id), // Person in Charge
-  client: integer("client").references(() => company.id).notNull(),
-  containerAmount: integer("container_amount").notNull(),
   direction: text("direction").notNull(), // 'Import' | 'Export'
+  client: integer("client").references(() => company.id).notNull(),
+  carrier: integer("carrier").references(() => company.id),
+  pic: integer("pic").references(() => user.id), // Person in Charge
   eta: timestamp("eta").notNull(), // Estimated Time of Arrival
-  hasDangerous: boolean("has_dangerous").default(false),
-  hasDt: boolean("has_dt").default(false), // Direct Transport
   localPort: integer("local_port").references(() => port.id),
-  lockTime: timestamp("lock_time"),
-  lockUser: varchar("lock_user", { length: 100 }),
+  location: integer("location").references(() => city.id),
   medlogStatus: varchar("medlog_status", { length: 100 }).notNull(),
   carrierStatus: varchar("carrier_status", { length: 100 }).notNull(),
-  location: integer("location").references(() => city.id),
-  medlogBulb: boolean("medlog_bulb").default(false),
-  carrierBulb: boolean("carrier_bulb").default(false),
-  voyage: varchar("voyage", { length: 100 }),
+  hasDangerous: boolean("has_dangerous").default(false),
+  hasDt: boolean("has_dt").default(false), // Direct Transport
+  medlogBulb: varchar("medlog_bulb", { length: 50 }).default('Blue'),
+  carrierBulb: varchar("carrier_bulb", { length: 50 }).default('Blue'),
   vessel: varchar("vessel", { length: 255 }),
-  carrier: integer("carrier").references(() => company.id),
-  notifyEmail: varchar("notify_email", { length: 255 }),
-  toBeNotified: boolean("to_be_notified").default(false),
-  use: boolean("use").default(true),
+  voyage: varchar("voyage", { length: 100 }),
   
   // Change tracking fields (boolean flags for each field)
   blNumberChange: boolean("bl_number_change").default(false),
@@ -104,22 +109,26 @@ export const bl = pgTable("bl", {
   medlogStatusChange: boolean("medlog_status_change").default(false),
   carrierStatusChange: boolean("carrier_status_change").default(false),
   locationChange: boolean("location_change").default(false),
-  remotePortChange: boolean("remote_port_change").default(false),
   medlogBulbChange: boolean("medlog_bulb_change").default(false),
   carrierBulbChange: boolean("carrier_bulb_change").default(false),
   vesselChange: boolean("vessel_change").default(false),
   voyageChange: boolean("voyage_change").default(false),
+  createdBy: integer("created_by").references(() => user.id).nullable(),
+  createdAt: timestamp("created_at").defaultNow(),
+  lastModifiedBy: integer("last_modified_by").references(() => user.id).nullable(),
+  lastModifiedAt: timestamp("last_modified_at"),
 });
 
 // Container table - stores detailed information about individual shipping containers
 export const container = pgTable("container", {
-  id: serial("id").primaryKey(),
+  id: varchar("id", { length: 100 }).primaryKey(), // Changed from serial to varchar to match seed data
   containerIlu: varchar("container_ilu", { length: 100 }).notNull(), // Container identification number
-  type: varchar("type", { length: 50 }).notNull(), // e.g., 20GP, 40HC
+  size: varchar("size", { length: 50 }), // e.g., 20GP, 40HC
+  type: varchar("type", { length: 50 }).notNull(), // e.g., GP, DV
   weight: decimal("weight", { precision: 10, scale: 2 }),
   customs: varchar("customs", { length: 100 }),
-  isDangerous: boolean("is_dangerous").default(false),
-  deliveryDate: timestamp("delivery_date"),
+  hasDangerous: boolean("has_dangerous").default(false),
+  unloadDate: timestamp("unload_date"),
   isDirectTruck: boolean("is_direct_truck").default(false),
   medlogStatus: varchar("medlog_status", { length: 100 }).notNull(),
   carrierStatus: varchar("carrier_status", { length: 100 }).notNull(),
@@ -131,33 +140,38 @@ export const container = pgTable("container", {
   train: varchar("train", { length: 100 }),
   trainDate: timestamp("train_date"),
   deliveryNotPossible: boolean("delivery_not_possible").default(false),
-  use: boolean("use").default(true),
+  isActive: boolean("is_active").default(true),
   
   // Change tracking fields (boolean flags for each field)
   containerIluChange: boolean("container_ilu_change").default(false),
+  sizeChange: boolean("size_change").default(false),
   typeChange: boolean("type_change").default(false),
   weightChange: boolean("weight_change").default(false),
   customsChange: boolean("customs_change").default(false),
-  isDangerousChange: boolean("is_dangerous_change").default(false),
-  deliveryDateChange: boolean("delivery_date_change").default(false),
+  hasDangerousChange: boolean("has_dangerous_change").default(false),
+  unloadDateChange: boolean("unload_date_change").default(false),
   isDirectTruckChange: boolean("is_direct_truck_change").default(false),
   medlogStatusChange: boolean("medlog_status_change").default(false),
-  mscStatusChange: boolean("msc_status_change").default(false),
+  carrierStatusChange: boolean("carrier_status_change").default(false),
   medlogNoteChange: boolean("medlog_note_change").default(false),
-  mscNoteChange: boolean("msc_note_change").default(false),
+  carrierNoteChange: boolean("carrier_note_change").default(false),
   isSentInMipsChange: boolean("is_sent_in_mips_change").default(false),
   locationChange: boolean("location_change").default(false),
   zipChange: boolean("zip_change").default(false),
   trainChange: boolean("train_change").default(false),
   trainDateChange: boolean("train_date_change").default(false),
-  deliveryNotPossibleChange: integer("delivery_not_possible_change").default(0), // Note: this is integer in ERD
+  deliveryNotPossibleChange: boolean("delivery_not_possible_change").default(false),
+  createdBy: integer("created_by").references(() => user.id).nullable(),
+  createdAt: timestamp("created_at").defaultNow(),
+  lastModifiedBy: integer("last_modified_by").references(() => user.id).nullable(),
+  lastModifiedAt: timestamp("last_modified_at"),
 });
 
 // Container in BL junction table - links BL records to container records (M:N relationship)
 export const containerInBl = pgTable("container_in_bl", {
   id: serial("id").primaryKey(),
   blId: integer("bl_id").notNull().references(() => bl.id),
-  containerId: varchar("container_id", { length: 100 }).notNull().references(() => container.containerIlu),
+  containerId: varchar("container_id", { length: 100 }).notNull().references(() => container.id), // Changed to reference container.id
 });
 
 // Chat messages table - stores chat messages related to a specific BL
@@ -166,7 +180,12 @@ export const chatMessages = pgTable("chat_messages", {
   blId: integer("bl_id").references(() => bl.id).notNull(),
   user: integer("user").references(() => user.id).notNull(),
   message: text("message").notNull(),
-  sent: timestamp("sent").notNull().defaultNow(),
+  timestamp: timestamp("timestamp").notNull().defaultNow(),
+  isActive: boolean("is_active").default(true),
+  createdBy: integer("created_by").references(() => user.id).nullable(),
+  createdAt: timestamp("created_at").defaultNow(),
+  lastModifiedBy: integer("last_modified_by").references(() => user.id).nullable(),
+  lastModifiedAt: timestamp("last_modified_at"),
 });
 
 // ============================================================================
@@ -214,7 +233,7 @@ export const insertContainerInBlSchema = createInsertSchema(containerInBl).omit(
 
 export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({
   id: true,
-  sent: true,
+  timestamp: true,
 });
 
 // Export types

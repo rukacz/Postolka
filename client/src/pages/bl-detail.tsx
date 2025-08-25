@@ -45,11 +45,6 @@ export default function BLDetailPage() {
     enabled: !!blNumber,
   });
 
-  const { data: blSummary } = useQuery<BLSummary>({
-    queryKey: ['/api/bl-summaries', blNumber],
-    enabled: !!blNumber,
-  });
-
   const acknowledgeChangesMutation = useMutation({
     mutationFn: async () => {
       return await fetch(`/api/bl-summaries/${blNumber}/acknowledge-changes`, {
@@ -291,40 +286,33 @@ export default function BLDetailPage() {
         {/* Header with Back Button and Actions */}
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <Button 
-              variant="outline" 
-              onClick={() => setLocation('/dashboard')}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setLocation("/dashboard")}
               className="flex items-center space-x-2"
             >
               <ArrowLeft className="h-4 w-4" />
-              <span>Back to Overview</span>
+              <span>Back to Dashboard</span>
             </Button>
-{/* Change indicator removed for now - will be shown in InfoBar instead */}
+            <div className="h-6 w-px bg-gray-300" />
             <h1 className="text-2xl font-bold text-gray-900">
-              Booking Details – {blDetail.blNumber} – {blDetail.customerName}
+              Booking Details – {blDetail.blNumber} – {blDetail.clientCompany?.name || 'Unknown Client'}
             </h1>
           </div>
-          
-          <div className="flex space-x-2">
-            {blSummary?.hasChanges && (
-              <Button 
-                onClick={handleAcknowledgeChanges}
-                disabled={acknowledgeChangesMutation.isPending}
-                size="sm"
-                className="bg-green-600 hover:bg-green-700 text-white"
-              >
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Acknowledge Changes
-              </Button>
-            )}
-
-            <Button 
-              variant="outline" 
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
               size="sm"
               onClick={() => setLocation(`/new-order?edit=${blDetail.blNumber}`)}
+              className="flex items-center space-x-2"
             >
-              <Edit className="h-4 w-4 mr-2" />
-              Edit
+              <Edit className="h-4 w-4" />
+              <span>Edit</span>
+            </Button>
+            <Button variant="outline" size="sm" className="flex items-center space-x-2">
+              <Printer className="h-4 w-4" />
+              <span>Print</span>
             </Button>
           </div>
         </div>
@@ -453,13 +441,13 @@ export default function BLDetailPage() {
               containers={containers || []} 
               userGroup={currentUserGroup}
               blDetail={{
-                jobType: blDetail?.jobType as 'Import' | 'Export',
-                toLocation: blDetail?.toAddress,
-                blNumber: blNumber
+                jobType: blDetail?.direction as 'Import' | 'Export',
+                toLocation: blDetail?.location?.name,
+                blNumber: blDetail?.blNumber
               }}
               onNoteChange={handleNoteChange}
               onHazardousChange={handleHazardousChange}
-              changedFields={blSummary?.changedFields || []}
+              changedFields={[]}
               addContainerMode={addContainerMode}
               onAddContainerComplete={() => setAddContainerMode(false)}
               onCopyContainer={copyContainerToClipboard}

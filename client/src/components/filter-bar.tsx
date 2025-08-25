@@ -85,134 +85,143 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
-      <div className="grid grid-cols-10 gap-4 items-end">
-        
-        <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">Client</Label>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {/* Client */}
+        <div className="space-y-2">
+          <Label htmlFor="client">Client</Label>
           <MultiSelect
-            options={clientCompanies.map(c => ({ label: c.name, value: c.name }))}
-            value={Array.isArray(filters.client) ? filters.client : filters.client ? [filters.client] : []}
-            onValueChange={(value) => updateFilter('client', value)}
+            id="client"
+            options={clientCompanies}
+            value={filters.client}
+            onChange={(value) => updateFilter('client', value)}
             placeholder="All Clients"
-            className="focus:ring-2 focus:ring-primary"
           />
         </div>
-        
-        <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">Direction</Label>
+
+        {/* POD/POL */}
+        <div className="space-y-2">
+          <Label htmlFor="podPol">POD/POL</Label>
           <MultiSelect
+            id="podPol"
             options={[
-              { label: "Import", value: "Import" },
-              { label: "Export", value: "Export" }
+              { value: 'all', label: 'All POD/POL' },
+              { value: 'Import', label: 'Import' },
+              { value: 'Export', label: 'Export' }
             ]}
-            value={Array.isArray(filters.direction) ? filters.direction : filters.direction ? [filters.direction] : []}
-            onValueChange={(value) => updateFilter('direction', value)}
-            placeholder="All Directions"
-            className="focus:ring-2 focus:ring-primary"
+            value={filters.direction}
+            onChange={(value) => updateFilter('direction', value)}
+            placeholder="All POD/POL"
           />
         </div>
-        
-        <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">ETA</Label>
+
+        {/* ETA/Closing */}
+        <div className="space-y-2">
+          <Label htmlFor="eta">ETA/Closing</Label>
           <Input
+            id="eta"
             type="date"
-            value={filters.eta || ""}
+            value={filters.eta || ''}
             onChange={(e) => updateFilter('eta', e.target.value)}
-            className="focus:ring-2 focus:ring-primary focus:border-transparent"
+            placeholder="dd.mm.rrrr"
           />
         </div>
-        
-        <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">Medlog Status</Label>
+
+        {/* Medlog Status */}
+        <div className="space-y-2">
+          <Label htmlFor="medlogStatus">Medlog Status</Label>
           <MultiSelect
+            id="medlogStatus"
             options={[
-              { label: "New", value: "New" },
-              { label: "Approved", value: "Approved" },
-              { label: "Rejected", value: "Rejected" },
-              { label: "Changed", value: "Changed" }
+              { value: 'all', label: 'All statuses' },
+              { value: 'New', label: 'New' },
+              { value: 'Approved', label: 'Approved' },
+              { value: 'Rejected', label: 'Rejected' },
+              { value: 'Changed', label: 'Changed' }
             ]}
-            value={Array.isArray(filters.medlogStatus) ? filters.medlogStatus : filters.medlogStatus ? [filters.medlogStatus] : []}
-            onValueChange={(value) => updateFilter('medlogStatus', value)}
+            value={filters.medlogStatus}
+            onChange={(value) => updateFilter('medlogStatus', value)}
             placeholder="All statuses"
-            className="focus:ring-2 focus:ring-primary"
           />
         </div>
-        
-        <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">Carrier Status</Label>
+
+        {/* Carrier Status */}
+        <div className="space-y-2">
+          <Label htmlFor="carrierStatus">Carrier Status</Label>
           <MultiSelect
+            id="carrierStatus"
             options={[
-              { label: "Pre-Order", value: "Pre-Order" },
-              { label: "MIPS Send", value: "MIPS Send" },
-              { label: "Do Not Release", value: "Do Not Release" },
-              { label: "Cancelled", value: "Cancelled" }
+              { value: 'all', label: 'All statuses' },
+              { value: 'New', label: 'New' },
+              { value: 'Pre-Order', label: 'Pre-Order' },
+              { value: 'MIPS Send', label: 'MIPS Send' },
+              { value: 'Do Not Release', label: 'Do Not Release' },
+              { value: 'Cancelled', label: 'Cancelled' }
             ]}
-            value={Array.isArray(filters.carrierStatus) ? filters.carrierStatus : filters.carrierStatus ? [filters.carrierStatus] : []}
-            onValueChange={(value) => updateFilter('carrierStatus', value)}
+            value={filters.carrierStatus}
+            onChange={(value) => updateFilter('carrierStatus', value)}
             placeholder="All statuses"
-            className="focus:ring-2 focus:ring-primary"
           />
         </div>
-        
-        <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">Carrier</Label>
+
+        {/* Carrier */}
+        <div className="space-y-2">
+          <Label htmlFor="carrier">Carrier</Label>
           <MultiSelect
-            options={availableCarriers.map(c => ({ label: c.name, value: c.name }))}
-            value={Array.isArray(filters.carrier) ? filters.carrier : filters.carrier ? [filters.carrier] : []}
-            onValueChange={(value) => updateFilter('carrier', value)}
+            id="carrier"
+            options={availableCarriers}
+            value={filters.carrier}
+            onChange={(value) => updateFilter('carrier', value)}
             placeholder="All Carriers"
-            className="focus:ring-2 focus:ring-primary"
           />
         </div>
 
-        <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">PIC</Label>
+        {/* PIC */}
+        <div className="space-y-2">
+          <Label htmlFor="pic">PIC</Label>
           <MultiSelect
-            options={users.map(u => ({ label: u.name, value: u.name }))}
-            value={Array.isArray(filters.pic) ? filters.pic : filters.pic ? [filters.pic] : []}
-            onValueChange={(value) => updateFilter('pic', value)}
+            id="pic"
+            options={users}
+            value={filters.pic}
+            onChange={(value) => updateFilter('pic', value)}
             placeholder="All PIC"
-            className="focus:ring-2 focus:ring-primary"
           />
         </div>
-        
-        <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">Container Location</Label>
+
+        {/* Un/Load Location */}
+        <div className="space-y-2">
+          <Label htmlFor="location">Un/Load Location</Label>
           <Input
+            id="location"
             type="text"
-            placeholder="Enter location or select..."
-            value={filters.unloadCity || ""}
-            onChange={(e) => updateFilter('unloadCity', e.target.value)}
-            list="city-suggestions"
-            className="focus:ring-2 focus:ring-primary focus:border-transparent"
-          />
-          <datalist id="city-suggestions">
-            {uniqueCities.map(city => (
-              <option key={city} value={city} />
-            ))}
-          </datalist>
-        </div>
-
-        <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">Container Date From</Label>
-          <Input
-            type="date"
-            value={filters.unloadDateFrom || ""}
-            onChange={(e) => updateFilter('unloadDateFrom', e.target.value)}
-            className="focus:ring-2 focus:ring-primary focus:border-transparent"
+            value={filters.location || ''}
+            onChange={(e) => updateFilter('location', e.target.value)}
+            placeholder="Enter location"
           />
         </div>
 
-        <div>
-          <Label className="text-sm font-medium text-gray-700 mb-1">Container Date To</Label>
+        {/* Container Date From */}
+        <div className="space-y-2">
+          <Label htmlFor="containerDateFrom">Un/Load Date From</Label>
           <Input
+            id="containerDateFrom"
             type="date"
-            value={filters.unloadDateTo || ""}
-            onChange={(e) => updateFilter('unloadDateTo', e.target.value)}
-            className="focus:ring-2 focus:ring-primary focus:border-transparent"
+            value={filters.containerDateFrom || ''}
+            onChange={(e) => updateFilter('containerDateFrom', e.target.value)}
+            placeholder="dd.mm.rrrr"
           />
         </div>
-        
+
+        {/* Container Date To */}
+        <div className="space-y-2">
+          <Label htmlFor="containerDateTo">Un/Load Date To</Label>
+          <Input
+            id="containerDateTo"
+            type="date"
+            value={filters.containerDateTo || ''}
+            onChange={(e) => updateFilter('containerDateTo', e.target.value)}
+            placeholder="dd.mm.rrrr"
+          />
+        </div>
       </div>
       
       {/* Additional Filter Checkboxes */}

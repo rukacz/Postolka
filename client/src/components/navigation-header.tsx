@@ -21,8 +21,17 @@ interface NavigationHeaderProps {
 export default function NavigationHeader({ searchValue = "", onSearchChange }: NavigationHeaderProps) {
   const { user, logout } = useAuth();
 
-  const getOrgRoleBadgeColor = (orgRole: string) => {
-    return orgRole === 'msc' ? 'bg-green-600' : 'bg-purple-600';
+  const getOrgRoleBadgeColor = (roleName?: string) => {
+    switch (roleName) {
+      case 'Admin':
+        return 'bg-red-600';
+      case 'MSC':
+        return 'bg-blue-600';
+      case 'Client':
+        return 'bg-green-600';
+      default:
+        return 'bg-gray-600';
+    }
   };
 
   const getOrderTypeText = (orderTypeRole: string | null) => {
@@ -60,11 +69,11 @@ export default function NavigationHeader({ searchValue = "", onSearchChange }: N
               <div className="flex items-center space-x-2">
                 <div className="flex flex-col items-end space-y-1">
                   <div className="flex items-center space-x-2">
-                    <Badge className={`text-xs ${getOrgRoleBadgeColor(user.orgRole)} text-white`}>
-                      {user.orgRole.toUpperCase()}
+                    <Badge className={`text-xs ${getOrgRoleBadgeColor(user?.roleName)} text-white`}>
+                      {user?.roleName?.toUpperCase() || 'USER'}
                     </Badge>
-                    {user.defaultCarrier && (
-                      <Badge className="text-xs bg-blue-700 text-white">
+                    {user?.defaultCarrier && (
+                      <Badge variant="outline" className="text-xs">
                         {user.defaultCarrier}
                       </Badge>
                     )}

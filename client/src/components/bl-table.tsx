@@ -193,112 +193,107 @@ export default function BLTable({ data, isLoading, currentUserGroup }: BLTablePr
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-12">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleSort('blNumber')}
-                className="h-8 flex items-center gap-1"
-              >
-                BL Number
-                <ArrowUpDown className="h-4 w-4" />
-              </Button>
-            </TableHead>
-            <TableHead className="w-32">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleSort('direction')}
-                className="h-8 flex items-center gap-1"
-              >
-                Direction
-                <ArrowUpDown className="h-4 w-4" />
-              </Button>
-            </TableHead>
-            <TableHead className="w-32">Client</TableHead>
-            <TableHead className="w-32">Carrier</TableHead>
-            <TableHead className="w-24">PIC</TableHead>
-            <TableHead className="w-32">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => handleSort('eta')}
-                className="h-8 flex items-center gap-1"
-              >
-                ETA
-                <ArrowUpDown className="h-4 w-4" />
-              </Button>
-            </TableHead>
-            <TableHead className="w-24">Medlog Status</TableHead>
-            <TableHead className="w-24">Carrier Status</TableHead>
-            <TableHead className="w-16">DG</TableHead>
-            <TableHead className="w-16">Train</TableHead>
             <TableHead className="w-16">Changes</TableHead>
-            <TableHead className="w-16">Actions</TableHead>
+            <TableHead className="w-20">Type</TableHead>
+            <TableHead className="w-16">DG</TableHead>
+            <TableHead className="w-32 cursor-pointer" onClick={() => handleSort('blNumber')}>
+              BL/Booking
+              {sortField === 'blNumber' && (
+                <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+              )}
+            </TableHead>
+            <TableHead className="w-32 cursor-pointer" onClick={() => handleSort('clientCompany')}>
+              Client
+              {sortField === 'clientCompany' && (
+                <span className="ml-1">{sortDirection === 'asc' ? '↑' : '↓'}</span>
+              )}
+            </TableHead>
+            <TableHead className="w-40">Un/Load Location</TableHead>
+            <TableHead className="w-24">POD/POL</TableHead>
+            <TableHead className="w-24">ETA/Closing</TableHead>
+            <TableHead className="w-20">Containers</TableHead>
+            <TableHead className="w-16">Train</TableHead>
+            <TableHead className="w-24">Carrier Status</TableHead>
+            <TableHead className="w-24">Medlog Status</TableHead>
+            <TableHead className="w-24">Carrier</TableHead>
+            <TableHead className="w-24">PIC</TableHead>
+            <TableHead className="w-12"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {sortedData.map((bl) => (
-            <TableRow key={bl.id} className="hover:bg-gray-50">
-              <TableCell className="font-medium">
-                <Button
-                  variant="link"
-                  className="p-0 h-auto font-medium text-blue-600 hover:text-blue-800"
-                  onClick={() => setLocation(`/bl/${bl.id}`)}
-                >
-                  {bl.blNumber}
-                </Button>
+            <TableRow key={bl.id}>
+              <TableCell>
+                <BLChangeIndicator bl={bl} />
               </TableCell>
               <TableCell>
-                <Badge variant={bl.direction === 'Import' ? 'default' : 'secondary'}>
+                <Badge 
+                  className={`text-xs ${
+                    bl.direction === 'Import' 
+                      ? 'bg-blue-600 text-white' 
+                      : 'bg-green-600 text-white'
+                  }`}
+                >
                   {bl.direction}
                 </Badge>
               </TableCell>
               <TableCell>
-                {bl.clientCompany?.name || `Company ${bl.client}`}
+                <DangerousGoodsIndicator hasDangerous={bl.hasDangerous} />
               </TableCell>
               <TableCell>
-                {bl.carrierCompany?.name || `Company ${bl.carrier}`}
+                <Link 
+                  to={`/bl/${bl.blNumber}`}
+                  className="text-blue-600 hover:text-blue-800 underline"
+                >
+                  {bl.blNumber}
+                </Link>
+              </TableCell>
+              <TableCell className="font-medium">
+                {bl.clientCompany?.name || '-'}
+              </TableCell>
+              <TableCell className="max-w-40 truncate">
+                {bl.containerInBls?.[0]?.container?.location || '-'}
               </TableCell>
               <TableCell>
-                {bl.picUser?.name || `User ${bl.pic}`}
+                {bl.localPort?.name || '-'}
               </TableCell>
               <TableCell>
-                {bl.eta ? new Date(bl.eta).toLocaleDateString() : '—'}
+                {bl.eta ? new Date(bl.eta).toLocaleDateString('cs-CZ') : '-'}
+              </TableCell>
+              <TableCell className="text-center">
+                {bl.containerInBls?.length || 0}
               </TableCell>
               <TableCell>
-                <MedlogStatusBadge status={bl.medlogStatus as MedlogStatus} />
+                <TrainStatusWithDeliveryCheck 
+                  containerInBls={bl.containerInBls || []} 
+                />
               </TableCell>
               <TableCell>
                 <CarrierStatusBadge status={bl.carrierStatus as CarrierStatus} />
               </TableCell>
               <TableCell>
-                <DangerousGoodsIndicator bl={bl} />
+                <MedlogStatusBadge status={bl.medlogStatus as MedlogStatus} />
               </TableCell>
               <TableCell>
-                <TrainStatusWithDeliveryCheck bl={bl} />
+                {bl.carrierCompany?.name || '-'}
               </TableCell>
               <TableCell>
-                <BLChangeIndicator 
-                  bl={bl} 
-                  currentUserGroup={currentUserGroup || 'medlog'}
-                  onClick={() => setLocation(`/bl/${bl.id}`)}
-                />
+                {bl.picUser?.name || '-'}
               </TableCell>
               <TableCell>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                    <Button variant="ghost" className="h-8 w-8 p-0">
+                      <span className="sr-only">Open menu</span>
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => setLocation(`/bl/${bl.id}`)}>
-                      View Details
+                    <DropdownMenuItem>
+                      <Link to={`/bl/${bl.blNumber}`}>View Details</Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setLocation(`/bl/${bl.id}/edit`)}>
-                      Edit
-                    </DropdownMenuItem>
+                    <DropdownMenuItem>Edit</DropdownMenuItem>
+                    <DropdownMenuItem>Delete</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>

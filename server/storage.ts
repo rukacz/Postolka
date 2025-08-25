@@ -113,6 +113,8 @@ export interface IStorage {
   getBLWithDetails(blId: number): Promise<{ bl: BL; containers: Container[]; chatMessages: ChatMessage[] } | undefined>;
   searchBLs(query: string): Promise<BL[]>;
   getDashboardData(): Promise<{ totalBLs: number; totalContainers: number; recentBLs: BL[] }>;
+  // BL Detail methods
+  getBLDetail(blNumber: string): Promise<BLDetail | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -243,6 +245,32 @@ export class DatabaseStorage implements IStorage {
     return user || undefined;
   }
 
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(user).where(eq(user.username, username));
+    return user || undefined;
+  }
+
+  async getUserWithRoleAndCompany(username: string): Promise<(User & { roleName: string; companyType: string }) | undefined> {
+    const [result] = await db
+      .select({
+        user: user,
+        roleName: role.name,
+        companyType: company.type
+      })
+      .from(user)
+      .leftJoin(role, eq(user.roleId, role.id))
+      .leftJoin(company, eq(user.companyId, company.id))
+      .where(eq(user.username, username));
+
+    if (!result) return undefined;
+
+    return {
+      ...result.user,
+      roleName: result.roleName || 'Unknown',
+      companyType: result.companyType || 'Unknown'
+    };
+  }
+
   async getUserByEmail(email: string): Promise<User | undefined> {
     const [user] = await db.select().from(user).where(eq(user.email, email));
     return user || undefined;
@@ -266,43 +294,12 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(user);
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const [userRecord] = await db.select().from(user).where(eq(user.username, username));
-    return userRecord || undefined;
-  }
-
-  async getUserWithRoleAndCompany(username: string): Promise<(User & { roleName: string; companyType: string }) | undefined> {
-    const [userRecord] = await db
-      .select({
-        id: user.id,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        password: user.password,
-        role: user.role,
-        office: user.office,
-        company: user.company,
-        createdBy: user.createdBy,
-        createdAt: user.createdAt,
-        lastModifiedBy: user.lastModifiedBy,
-        lastModifiedAt: user.lastModifiedAt,
-        roleName: role.name,
-        companyType: company.type
-      })
-      .from(user)
-      .leftJoin(role, eq(user.role, role.id))
-      .leftJoin(company, eq(user.company, company.id))
-      .where(eq(user.username, username));
-    
-    return userRecord || undefined;
-  }
-
   async getUsersByCompany(companyId: number): Promise<User[]> {
-    return await db.select().from(user).where(eq(user.company, companyId));
+    return await db.select().from(user).where(eq(user.companyId, companyId));
   }
 
   async getUsersByRole(roleId: number): Promise<User[]> {
-    return await db.select().from(user).where(eq(user.role, roleId));
+    return await db.select().from(user).where(eq(user.roleId, roleId));
   }
 
   // ============================================================================
@@ -482,11 +479,11 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getChatMessagesByBL(blId: number): Promise<ChatMessage[]> {
-    return await db.select().from(chatMessages).where(eq(chatMessages.blId, blId)).orderBy(asc(chatMessages.sent));
+    return await db.select().from(chatMessages).where(eq(chatMessages.blId, blId)).orderBy(asc(chatMessages.timestamp));
   }
 
   async getAllChatMessages(): Promise<ChatMessage[]> {
-    return await db.select().from(chatMessages).orderBy(desc(chatMessages.sent));
+    return await db.select().from(chatMessages).orderBy(desc(chatMessages.timestamp));
   }
 
   // ============================================================================
@@ -528,6 +525,39 @@ export class DatabaseStorage implements IStorage {
       totalContainers: allContainers.length,
       recentBLs
     };
+  }
+
+  // BL Detail methods
+  async getBLDetail(blNumber: string): Promise<BLDetail | undefined> {
+    const [blRecord] = await db.select().from(bl).where(eq(bl.blNumber, blNumber));
+    
+    if (!blRecord) return undefined;
+    
+    // Get related data
+    const [clientCompany] = await db.select().from(company).where(eq(company.id, blRecord.client));
+    const [carrierCompany] = await db.select().from(company).where(eq(company.id, blRecord.carrier));
+    const [picUser] = await db.select().from(user).where(eq(user.id, blRecord.pic));
+    const [localPortData] = await db.select().from(port).where(eq(port.id, blRecord.localPort));
+    const [locationData] = await db.select().from(city).where(eq(city.id, blRecord.location));
+    
+    // Get containers for this BL
+    const containerInBls = await db.select().from(containerInBl).where(eq(containerInBl.blId, blRecord.id));
+    const containerIds = containerInBls.map(cib => cib.containerId);
+    const containers = await db.select().from(container).where(inArray(container.id, containerIds));
+    
+    // Construct BLDetail object with proper typing
+    const blDetail: BLDetail = {
+      ...blRecord,
+      // Related data as additional properties
+      clientCompany: clientCompany || undefined,
+      carrierCompany: carrierCompany || undefined,
+      picUser: picUser || undefined,
+      localPort: localPortData || undefined,
+      location: locationData || undefined,
+      containers: containers || []
+    } as BLDetail;
+    
+    return blDetail;
   }
 }
 

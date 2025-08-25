@@ -797,6 +797,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // BL Detail routes
+  app.get("/api/bl-details/:blNumber", async (req, res) => {
+    try {
+      const { blNumber } = req.params;
+      const blDetail = await storage.getBLDetail(blNumber);
+      
+      if (!blDetail) {
+        return res.status(404).json({ message: "BL detail not found" });
+      }
+      
+      res.json(blDetail);
+    } catch (error) {
+      console.error("Error fetching BL detail:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

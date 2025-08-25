@@ -1,18 +1,16 @@
 export interface FilterState {
-  client?: string | string[];
-  direction?: string | string[]; // New: Import/Export direction
+  client?: string[];
+  podPol?: string[];  // Changed from 'direction'
   eta?: string;
-  medlogStatus?: string | string[];
-  carrierStatus?: string | string[];
-  carrier?: string | string[];
-  pic?: string | string[];
-  // Container location and date filters
-  unloadCity?: string;
-  unloadDateFrom?: string;
-  unloadDateTo?: string;
-  // Additional filter checkboxes
-  dgFilter?: boolean;
-  onlyEdited?: boolean;
+  medlogStatus?: string[];
+  carrierStatus?: string[];
+  carrier?: string[];
+  pic?: string[];
+  location?: string;  // Changed from 'unloadCity'
+  containerDateFrom?: string;  // Changed from 'unloadDateFrom'
+  containerDateTo?: string;    // Changed from 'unloadDateTo'
+  hasDangerous?: boolean;
+  changedOnly?: boolean;
   newTrain?: boolean;
   deliveryNotPossible?: boolean;
   importOnly?: boolean;

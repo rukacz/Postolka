@@ -14,7 +14,7 @@ interface AuthContextType {
   logout: () => void;
   isAuthenticated: boolean;
   hasPermission: (permission: string) => boolean;
-  getDefaultFilters: () => Partial<FilterState>;
+  getDefaultFilters: () => FilterState;
   getCarrierWhitelist: () => string[];
 }
 
@@ -118,15 +118,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const getDefaultFilters = (): Partial<FilterState> => {
+  const getDefaultFilters = (): FilterState => {
     if (!user) return {};
-
-    // Note: We don't set any hardcoded filter values here
-    // The frontend will dynamically filter based on company types from API
-    // MSC users will see only MSC companies, Medlog users will see all
-    // This prevents hardcoded values that might not match database data
     
-    return {};
+    const defaults: FilterState = {};
+    
+    // Set default direction based on user type
+    if (user.companyType === 'Client') {
+      defaults.podPol = ['Import']; // Changed from 'direction'
+    }
+    
+    // Set default carrier for MSC users
+    if (user.companyType === 'MSC' && user.defaultCarrier) {
+      defaults.carrier = [user.defaultCarrier];
+    }
+    
+    return defaults;
   };
 
   const getCarrierWhitelist = (): string[] => {
