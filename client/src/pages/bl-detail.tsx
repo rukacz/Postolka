@@ -10,7 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Printer, Scissors, Edit, CheckCircle, MessageCircle, Plus, Copy, Trash2 } from "lucide-react";
-import { BLDetail, Container, BLSummary } from "@shared/schema";
+import { BLDetail, Container, BLSummary, Company, User, Port, City } from "@shared/schema";
+import { Link } from "wouter";
 import { BLStatus, UserGroup, CarrierStatus, MedlogStatus } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -77,8 +78,8 @@ export default function BLDetailPage() {
 
   // Helper function to check if a field has changes
   const isFieldChanged = (fieldName: string): boolean => {
-    if (!blDetail?.changedFields) return false;
-    return blDetail.changedFields.includes(fieldName);
+    // For now, return false since changedFields is not implemented in schema
+    return false;
   };
 
   const handleNoteChange = async (containerId: number, group: 'carrier' | 'medlog', note: string) => {
@@ -153,10 +154,10 @@ export default function BLDetailPage() {
       });
     };
 
-    const location = container.destination || container.unloadAddress || 'N/A';
-    const dateTime = container.dateTime ? formatDate(container.dateTime) : 'N/A';
+    const location = container.location || 'N/A';
+    const dateTime = container.unloadDate ? formatDate(container.unloadDate.toString()) : 'N/A';
     
-    return `${container.containerNumber}\t${container.sizeType || 'N/A'}\t${location}\t${dateTime}`;
+    return `${container.containerIlu}\t${container.size}${container.type || 'N/A'}\t${location}\t${dateTime}`;
   };
 
   const copyAllContainersToClipboard = async () => {

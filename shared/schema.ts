@@ -250,8 +250,21 @@ export type InsertContainerInBl = z.infer<typeof insertContainerInBlSchema>;
 export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 
+// Extended types with joined data
+export interface BLWithDetails extends BL {
+  clientCompany?: Company;
+  carrierCompany?: Company;
+  picUser?: User;
+  localPort?: Port;
+  locationCity?: City;
+  containers?: Container[];
+  lastChatMessage?: string;
+  lastChatAuthor?: string;
+  unreadChatCount?: number;
+}
+
 // Legacy type aliases for backward compatibility during transition
 export type BLSummary = BL;
 export type InsertBLSummary = InsertBL;
-export type BLDetail = BL;
+export type BLDetail = BLWithDetails;
 export type InsertBLDetail = InsertBL;

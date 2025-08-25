@@ -90,10 +90,9 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         <div className="space-y-2">
           <Label htmlFor="client">Client</Label>
           <MultiSelect
-            id="client"
-            options={clientCompanies}
+            options={clientCompanies.map(company => ({ value: company.id.toString(), label: company.name }))}
             value={filters.client}
-            onChange={(value) => updateFilter('client', value)}
+            onValueChange={(value: string[]) => updateFilter('client', value)}
             placeholder="All Clients"
           />
         </div>
@@ -102,14 +101,12 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         <div className="space-y-2">
           <Label htmlFor="podPol">POD/POL</Label>
           <MultiSelect
-            id="podPol"
             options={[
-              { value: 'all', label: 'All POD/POL' },
               { value: 'Import', label: 'Import' },
               { value: 'Export', label: 'Export' }
             ]}
             value={filters.direction}
-            onChange={(value) => updateFilter('direction', value)}
+            onValueChange={(value: string[]) => updateFilter('direction', value)}
             placeholder="All POD/POL"
           />
         </div>
@@ -130,16 +127,14 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         <div className="space-y-2">
           <Label htmlFor="medlogStatus">Medlog Status</Label>
           <MultiSelect
-            id="medlogStatus"
             options={[
-              { value: 'all', label: 'All statuses' },
               { value: 'New', label: 'New' },
               { value: 'Approved', label: 'Approved' },
               { value: 'Rejected', label: 'Rejected' },
               { value: 'Changed', label: 'Changed' }
             ]}
             value={filters.medlogStatus}
-            onChange={(value) => updateFilter('medlogStatus', value)}
+            onValueChange={(value: string[]) => updateFilter('medlogStatus', value)}
             placeholder="All statuses"
           />
         </div>
@@ -148,9 +143,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         <div className="space-y-2">
           <Label htmlFor="carrierStatus">Carrier Status</Label>
           <MultiSelect
-            id="carrierStatus"
             options={[
-              { value: 'all', label: 'All statuses' },
               { value: 'New', label: 'New' },
               { value: 'Pre-Order', label: 'Pre-Order' },
               { value: 'MIPS Send', label: 'MIPS Send' },
@@ -158,7 +151,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
               { value: 'Cancelled', label: 'Cancelled' }
             ]}
             value={filters.carrierStatus}
-            onChange={(value) => updateFilter('carrierStatus', value)}
+            onValueChange={(value: string[]) => updateFilter('carrierStatus', value)}
             placeholder="All statuses"
           />
         </div>
@@ -167,10 +160,9 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         <div className="space-y-2">
           <Label htmlFor="carrier">Carrier</Label>
           <MultiSelect
-            id="carrier"
-            options={availableCarriers}
+            options={availableCarriers.map(company => ({ value: company.id.toString(), label: company.name }))}
             value={filters.carrier}
-            onChange={(value) => updateFilter('carrier', value)}
+            onValueChange={(value: string[]) => updateFilter('carrier', value)}
             placeholder="All Carriers"
           />
         </div>
@@ -179,10 +171,9 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
         <div className="space-y-2">
           <Label htmlFor="pic">PIC</Label>
           <MultiSelect
-            id="pic"
-            options={users}
+            options={users.map(user => ({ value: user.id.toString(), label: user.name }))}
             value={filters.pic}
-            onChange={(value) => updateFilter('pic', value)}
+            onValueChange={(value: string[]) => updateFilter('pic', value)}
             placeholder="All PIC"
           />
         </div>

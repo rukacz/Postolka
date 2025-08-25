@@ -1,6 +1,6 @@
 export interface FilterState {
   client?: string[];
-  podPol?: string[];  // Changed from 'direction'
+  direction?: string[];  // POD/POL filter
   eta?: string;
   medlogStatus?: string[];
   carrierStatus?: string[];
@@ -10,6 +10,8 @@ export interface FilterState {
   containerDateFrom?: string;  // Changed from 'unloadDateFrom'
   containerDateTo?: string;    // Changed from 'unloadDateTo'
   hasDangerous?: boolean;
+  dgFilter?: boolean;
+  onlyEdited?: boolean;
   changedOnly?: boolean;
   newTrain?: boolean;
   deliveryNotPossible?: boolean;
