@@ -157,16 +157,13 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
       const containerNumber = baseContainerNumber + newLastDigit.toString();
       
       containers.push({
-        blNumber: blDetail?.blNumber || containers[0]?.blNumber,
-        jobNumber: '1',
-        containerNumber: containerNumber,
-        sizeType: newContainer.sizeType,
-        status: 'Active',
-        routeStep: 'W',
-        destination: newContainer.destination,
+        containerIlu: containerNumber,
+        size: newContainer.sizeType.slice(0, 2), // e.g., "40" from "40DV"
+        type: newContainer.sizeType.slice(2), // e.g., "DV" from "40DV"
+        location: newContainer.destination,
         carrierStatus: 'Pre-Order',
         medlogStatus: 'New',
-        dangerousCargo: newContainer.dangerousCargo,
+        hasDangerous: newContainer.dangerousCargo,
         carrierNote: '',
         medlogNote: ''
       });
