@@ -54,8 +54,6 @@ export async function seedDatabase() {
         phone: '+420 326 811 111',
         email: 'info@skoda-auto.cz',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -70,8 +68,6 @@ export async function seedDatabase() {
         phone: '+44 1992 632 222',
         email: 'info@tesco.com',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -86,8 +82,6 @@ export async function seedDatabase() {
         phone: '+46 476 19 7000',
         email: 'info@ikea.com',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -102,8 +96,6 @@ export async function seedDatabase() {
         phone: '+420 224 123 456',
         email: 'info@ntb.cz',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -118,8 +110,6 @@ export async function seedDatabase() {
         phone: '+49 841 89 0',
         email: 'info@audi.de',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -134,8 +124,6 @@ export async function seedDatabase() {
         phone: '+420 224 123 789',
         email: 'info@msc.cz',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -150,8 +138,6 @@ export async function seedDatabase() {
         phone: '+421 2 123 456',
         email: 'info@msc.sk',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -166,8 +152,6 @@ export async function seedDatabase() {
         phone: '+81 3 1234 5678',
         email: 'info@one-line.com',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -182,8 +166,6 @@ export async function seedDatabase() {
         phone: '+49 40 3001 0',
         email: 'info@hapag-lloyd.com',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -198,8 +180,6 @@ export async function seedDatabase() {
         phone: '+420 224 123 000',
         email: 'info@medlog.cz',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       }
@@ -217,8 +197,6 @@ export async function seedDatabase() {
         city: 'Hamburg',
         country: 'DE',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -228,8 +206,6 @@ export async function seedDatabase() {
         city: 'Bratislava',
         country: 'SK',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -239,8 +215,6 @@ export async function seedDatabase() {
         city: 'Koper',
         country: 'SI',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -250,8 +224,6 @@ export async function seedDatabase() {
         city: 'Rotterdam',
         country: 'NL',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -261,8 +233,6 @@ export async function seedDatabase() {
         city: 'Antwerpen',
         country: 'BE',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       }
@@ -279,8 +249,6 @@ export async function seedDatabase() {
         name: 'Mladá Boleslav Terminal',
         country: 'CZ',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -289,8 +257,6 @@ export async function seedDatabase() {
         name: 'Gan',
         country: 'SK',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -299,8 +265,6 @@ export async function seedDatabase() {
         name: 'Koper Terminal',
         country: 'SI',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -309,8 +273,6 @@ export async function seedDatabase() {
         name: 'Praha Distribution',
         country: 'CZ',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -319,8 +281,6 @@ export async function seedDatabase() {
         name: 'Ingolstadt',
         country: 'DE',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       }
@@ -342,8 +302,6 @@ export async function seedDatabase() {
         companyId: 10, // Medlog
         defaultCarrier: null,
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -357,8 +315,6 @@ export async function seedDatabase() {
         companyId: 6, // MSC CZ
         defaultCarrier: 'MSC CZ',
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -372,8 +328,6 @@ export async function seedDatabase() {
         companyId: 1, // ŠKODA AUTO
         defaultCarrier: null,
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -387,8 +341,6 @@ export async function seedDatabase() {
         companyId: 2, // TESCO
         defaultCarrier: null,
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -402,8 +354,6 @@ export async function seedDatabase() {
         companyId: 3, // IKEA
         defaultCarrier: null,
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -417,8 +367,6 @@ export async function seedDatabase() {
         companyId: 4, // NTB
         defaultCarrier: null,
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -432,8 +380,6 @@ export async function seedDatabase() {
         companyId: 5, // AUDI
         defaultCarrier: null,
         isActive: true,
-        createdBy: null,
-        lastModifiedBy: null,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       }
@@ -479,8 +425,6 @@ export async function seedDatabase() {
         carrierBulbChange: false,
         vesselChange: false,
         voyageChange: false,
-        createdBy: 1,
-        lastModifiedBy: 1,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -518,8 +462,6 @@ export async function seedDatabase() {
         carrierBulbChange: false,
         vesselChange: false,
         voyageChange: false,
-        createdBy: 1,
-        lastModifiedBy: 1,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -557,8 +499,6 @@ export async function seedDatabase() {
         carrierBulbChange: false,
         vesselChange: false,
         voyageChange: false,
-        createdBy: 1,
-        lastModifiedBy: 1,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -596,8 +536,6 @@ export async function seedDatabase() {
         carrierBulbChange: false,
         vesselChange: false,
         voyageChange: false,
-        createdBy: 1,
-        lastModifiedBy: 1,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -635,8 +573,6 @@ export async function seedDatabase() {
         carrierBulbChange: false,
         vesselChange: false,
         voyageChange: false,
-        createdBy: 1,
-        lastModifiedBy: 1,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       }
@@ -688,8 +624,6 @@ export async function seedDatabase() {
         trainChange: true,
         trainDateChange: false,
         deliveryNotPossibleChange: false,
-        createdBy: 1,
-        lastModifiedBy: 1,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -733,8 +667,6 @@ export async function seedDatabase() {
         trainChange: false,
         trainDateChange: false,
         deliveryNotPossibleChange: false,
-        createdBy: 1,
-        lastModifiedBy: 1,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -778,8 +710,6 @@ export async function seedDatabase() {
         trainChange: false,
         trainDateChange: false,
         deliveryNotPossibleChange: false,
-        createdBy: 1,
-        lastModifiedBy: 1,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -823,8 +753,6 @@ export async function seedDatabase() {
         trainChange: false,
         trainDateChange: false,
         deliveryNotPossibleChange: false,
-        createdBy: 1,
-        lastModifiedBy: 1,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -868,8 +796,6 @@ export async function seedDatabase() {
         trainChange: false,
         trainDateChange: false,
         deliveryNotPossibleChange: false,
-        createdBy: 1,
-        lastModifiedBy: 1,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -913,8 +839,6 @@ export async function seedDatabase() {
         trainChange: false,
         trainDateChange: false,
         deliveryNotPossibleChange: false,
-        createdBy: 1,
-        lastModifiedBy: 1,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -958,8 +882,6 @@ export async function seedDatabase() {
         trainChange: true,
         trainDateChange: false,
         deliveryNotPossibleChange: false,
-        createdBy: 1,
-        lastModifiedBy: 1,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -1003,8 +925,6 @@ export async function seedDatabase() {
         trainChange: true,
         trainDateChange: false,
         deliveryNotPossibleChange: false,
-        createdBy: 1,
-        lastModifiedBy: 1,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       },
@@ -1048,8 +968,6 @@ export async function seedDatabase() {
         trainChange: false,
         trainDateChange: false,
         deliveryNotPossibleChange: false,
-        createdBy: 1,
-        lastModifiedBy: 1,
         createdAt: new Date(),
         lastModifiedAt: new Date()
       }
@@ -1085,8 +1003,6 @@ export async function seedDatabase() {
         message: 'Container MSKU1234567 arrived at terminal',
         timestamp: new Date('2025-01-25T10:00:00Z'),
         isActive: true,
-        createdBy: 3,
-        lastModifiedBy: 3,
         createdAt: new Date('2025-01-25T10:00:00Z'),
         lastModifiedAt: new Date('2025-01-25T10:00:00Z')
       },
@@ -1097,8 +1013,6 @@ export async function seedDatabase() {
         message: 'Pre-order confirmed for MSCU789012',
         timestamp: new Date('2025-01-26T09:00:00Z'),
         isActive: true,
-        createdBy: 4,
-        lastModifiedBy: 4,
         createdAt: new Date('2025-01-26T09:00:00Z'),
         lastModifiedAt: new Date('2025-01-26T09:00:00Z')
       }

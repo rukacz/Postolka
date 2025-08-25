@@ -18,9 +18,7 @@ export const company = pgTable("company", {
   email: varchar("email", { length: 255 }),
   type: varchar("type", { length: 100 }), // e.g., "Medlog", "MSC", "Client"
   isActive: boolean("is_active").default(true),
-  createdBy: integer("created_by").references(() => user.id),
   createdAt: timestamp("created_at").defaultNow(),
-  lastModifiedBy: integer("last_modified_by").references(() => user.id),
   lastModifiedAt: timestamp("last_modified_at"),
 });
 
@@ -37,9 +35,7 @@ export const port = pgTable("port", {
   city: varchar("city", { length: 100 }),
   country: varchar("country", { length: 10 }),
   isActive: boolean("is_active").default(true),
-  createdBy: integer("created_by").references(() => user.id),
   createdAt: timestamp("created_at").defaultNow(),
-  lastModifiedBy: integer("last_modified_by").references(() => user.id),
   lastModifiedAt: timestamp("last_modified_at"),
 });
 
@@ -49,9 +45,7 @@ export const city = pgTable("city", {
   name: varchar("name", { length: 255 }).notNull(),
   country: varchar("country", { length: 10 }),
   isActive: boolean("is_active").default(true),
-  createdBy: integer("created_by").references(() => user.id),
   createdAt: timestamp("created_at").defaultNow(),
-  lastModifiedBy: integer("last_modified_by").references(() => user.id),
   lastModifiedAt: timestamp("last_modified_at"),
 });
 
@@ -70,9 +64,7 @@ export const user = pgTable("user", {
   companyId: integer("company_id").references(() => company.id),
   defaultCarrier: varchar("default_carrier", { length: 100 }),
   isActive: boolean("is_active").default(true),
-  createdBy: integer("created_by").references(() => user.id),
   createdAt: timestamp("created_at").defaultNow(),
-  lastModifiedBy: integer("last_modified_by").references(() => user.id),
   lastModifiedAt: timestamp("last_modified_at"),
 });
 
@@ -113,9 +105,7 @@ export const bl = pgTable("bl", {
   carrierBulbChange: boolean("carrier_bulb_change").default(false),
   vesselChange: boolean("vessel_change").default(false),
   voyageChange: boolean("voyage_change").default(false),
-  createdBy: integer("created_by").references(() => user.id),
   createdAt: timestamp("created_at").defaultNow(),
-  lastModifiedBy: integer("last_modified_by").references(() => user.id),
   lastModifiedAt: timestamp("last_modified_at"),
 });
 
@@ -161,9 +151,7 @@ export const container = pgTable("container", {
   trainChange: boolean("train_change").default(false),
   trainDateChange: boolean("train_date_change").default(false),
   deliveryNotPossibleChange: boolean("delivery_not_possible_change").default(false),
-  createdBy: integer("created_by").references(() => user.id),
   createdAt: timestamp("created_at").defaultNow(),
-  lastModifiedBy: integer("last_modified_by").references(() => user.id),
   lastModifiedAt: timestamp("last_modified_at"),
 });
 
@@ -182,9 +170,7 @@ export const chatMessages = pgTable("chat_messages", {
   message: text("message").notNull(),
   timestamp: timestamp("timestamp").notNull().defaultNow(),
   isActive: boolean("is_active").default(true),
-  createdBy: integer("created_by").references(() => user.id),
   createdAt: timestamp("created_at").defaultNow(),
-  lastModifiedBy: integer("last_modified_by").references(() => user.id),
   lastModifiedAt: timestamp("last_modified_at"),
 });
 
