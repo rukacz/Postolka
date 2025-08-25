@@ -7,7 +7,8 @@ import {
   bl, type BL, type InsertBL,
   container, type Container, type InsertContainer,
   containerInBl, type ContainerInBl, type InsertContainerInBl,
-  chatMessages, type ChatMessage, type InsertChatMessage
+  chatMessages, type ChatMessage, type InsertChatMessage,
+  type BLDetail
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, asc, or, inArray } from "drizzle-orm";
@@ -427,7 +428,7 @@ export class DatabaseStorage implements IStorage {
   async updateContainerHazardous(id: number, hazardous: boolean): Promise<Container | undefined> {
     const [updatedContainer] = await db
       .update(container)
-      .set({ isDangerous: hazardous })
+      .set({ hasDangerous: hazardous })
       .where(eq(container.id, id))
       .returning();
     
