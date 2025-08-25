@@ -345,6 +345,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
             <TableHead className="w-12">DG</TableHead>
             <TableHead className="w-32">Container #</TableHead>
             <TableHead className="w-24">Size/Type</TableHead>
+            <TableHead className="w-12">DT</TableHead>
             <TableHead className="w-28">Train</TableHead>
             <TableHead className="w-32">Train Date</TableHead>
             <TableHead className="w-32">Date/Time</TableHead>
@@ -544,14 +545,28 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => setShowBulkNoteModal(true)}
+                  onClick={() => {
+                    if (selectedContainers.length === 1) {
+                      // Single container selected - open individual modal
+                      const selectedContainer = containers.find(c => c.id === selectedContainers[0]);
+                      if (selectedContainer) {
+                        setIndividualNoteModal({
+                          isOpen: true,
+                          container: selectedContainer,
+                          noteType: userGroup as 'carrier' | 'medlog'
+                        });
+                      }
+                    } else {
+                      // Multiple containers selected - open bulk modal
+                      setShowBulkNoteModal(true);
+                    }
+                  }}
                   className="text-xs h-7"
                 >
                   Add Note
                 </Button>
               </TableHead>
-              <TableHead className="h-auto p-2">
-              </TableHead>
+              <TableHead className="h-auto p-2">Actions</TableHead>
             </TableRow>
           )}
         </TableHeader>
@@ -591,6 +606,13 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                     ))}
                   </SelectContent>
                 </Select>
+              </TableCell>
+              <TableCell>
+                <Switch
+                  checked={newContainer.directTransport || false}
+                  onCheckedChange={(checked) => setNewContainer({...newContainer, directTransport: checked})}
+                  className="scale-75"
+                />
               </TableCell>
               <TableCell className="font-mono text-sm">-</TableCell>
               <TableCell className="text-sm">-</TableCell>
@@ -750,7 +772,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 <div className="space-y-1">
                   <div className="text-xs flex items-center justify-between">
                     <span className="truncate">Carrier: {container.carrierNote || '-'}</span>
-                    {container.carrierNote && container.carrierNote.length > 20 ? (
+                    {container.carrierNote && container.carrierNote.length > 50 ? (
                       <Button
                         variant="outline"
                         size="sm"
@@ -767,7 +789,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                   </div>
                   <div className="text-xs flex items-center justify-between">
                     <span className="truncate">Medlog: {container.medlogNote || '-'}</span>
-                    {container.medlogNote && container.medlogNote.length > 20 ? (
+                    {container.medlogNote && container.medlogNote.length > 50 ? (
                       <Button
                         variant="outline"
                         size="sm"
