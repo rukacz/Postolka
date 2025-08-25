@@ -209,9 +209,7 @@ export const insertBlSchema = createInsertSchema(bl).omit({
   id: true,
 });
 
-export const insertContainerSchema = createInsertSchema(container).omit({
-  id: true,
-});
+export const insertContainerSchema = createInsertSchema(container);
 
 export const insertContainerInBlSchema = createInsertSchema(containerInBl).omit({
   id: true,

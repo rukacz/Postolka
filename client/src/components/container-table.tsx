@@ -21,8 +21,8 @@ interface ContainerTableProps {
   containers: Container[];
   userGroup: UserGroup;
   blDetail?: { jobType: 'Import' | 'Export'; toLocation?: string; blNumber?: string } | null;
-  onNoteChange: (containerId: number, group: 'carrier' | 'medlog', note: string) => void;
-  onHazardousChange: (containerIds: number[], hazardous: boolean) => void;
+  onNoteChange: (containerId: string, group: 'carrier' | 'medlog', note: string) => void;
+  onHazardousChange: (containerIds: string[], hazardous: boolean) => void;
   changedFields?: string[];
   addContainerMode?: boolean;
   onAddContainerComplete?: () => void;
@@ -49,7 +49,7 @@ const validateContainerNumber = (containerNumber: string): boolean => {
 };
 
 const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazardousChange, changedFields = [], addContainerMode = false, onAddContainerComplete, onCopyContainer, onDeleteContainer }: ContainerTableProps) => {
-  const [selectedContainers, setSelectedContainers] = useState<number[]>([]);
+  const [selectedContainers, setSelectedContainers] = useState<string[]>([]);
   const [showBulkNoteModal, setShowBulkNoteModal] = useState(false);
   const [lastAction, setLastAction] = useState<{ type: string; data: any } | null>(null);
   const [editingFields, setEditingFields] = useState<{[key: string]: boolean}>({});
@@ -74,7 +74,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
   });
 
   const updateContainerMutation = useMutation({
-    mutationFn: async ({ containerId, field, value }: { containerId: number; field: string; value: any }) => {
+    mutationFn: async ({ containerId, field, value }: { containerId: string; field: string; value: any }) => {
       return apiRequest("PATCH", `/api/containers/${containerId}`, { [field]: value });
     },
     onSuccess: () => {
@@ -223,7 +223,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
     }
   };
 
-  const handleSelectContainer = (containerId: number, checked: boolean) => {
+  const handleSelectContainer = (containerId: string, checked: boolean) => {
     if (checked) {
       setSelectedContainers(prev => [...prev, containerId]);
     } else {
@@ -238,7 +238,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
   const handleBulkHazardous = (hazardous: boolean) => {
     const previousStates = selectedContainers.map(id => ({
       id,
-      hazardous: containers.find(c => c.id === id)?.dangerousCargo || false
+      hazardous: containers.find(c => c.id === id)?.hasDangerous || false
     }));
 
     setLastAction({
@@ -312,7 +312,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
     });
   };
 
-  const handleFieldUpdate = (containerId: number, field: string, value: any) => {
+  const handleFieldUpdate = (containerId: string, field: string, value: any) => {
     updateContainerMutation.mutate({ containerId, field, value });
   };
 
@@ -372,7 +372,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
               <TableHead className="h-auto p-2">
                 <Switch
                   checked={selectedContainers.every(id => 
-                    containers.find(c => c.id === id)?.dangerousCargo
+                    containers.find(c => c.id === id)?.hasDangerous
                   )}
                   onCheckedChange={(checked) => {
                     handleBulkHazardous(checked);
@@ -419,7 +419,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
               <TableHead className="h-auto p-2">
                 <Switch
                   checked={selectedContainers.every(id => 
-                    containers.find(c => c.id === id)?.directTransport
+                    containers.find(c => c.id === id)?.isDirectTruck
                   )}
                   onCheckedChange={(checked) => {
                     selectedContainers.forEach(id => handleFieldUpdate(id, 'directTransport', checked));
@@ -678,7 +678,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
               </TableCell>
             </TableRow>
           )}
-          {containers.slice().sort((a, b) => a.id - b.id).map((container) => (
+          {containers.slice().sort((a, b) => a.id.localeCompare(b.id)).map((container) => (
             <TableRow key={container.id}>
               <TableCell>
                 <Checkbox
@@ -687,29 +687,29 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 />
               </TableCell>
               <TableCell>
-                {container.dangerousCargo && <Flame className="w-4 h-4 text-red-500" />}
+                {container.hasDangerous && <Flame className="w-4 h-4 text-red-500" />}
               </TableCell>
               <TableCell className="font-mono text-sm">
-                {container.containerNumber}
+                {container.containerIlu}
               </TableCell>
               <TableCell>
-                {container.sizeType}
+                {`${container.size || ''}${container.type || ''}`}
               </TableCell>
               <TableCell>
-                {container.directTransport && <Truck className="w-4 h-4 text-blue-500" />}
+                {container.isDirectTruck && <Truck className="w-4 h-4 text-blue-500" />}
               </TableCell>
               <TableCell className="font-mono text-sm">
-                <FieldWrapper fieldName="trainName">
-                  {container.trainName || '-'}
+                <FieldWrapper fieldName="train">
+                  {container.train || '-'}
                 </FieldWrapper>
               </TableCell>
               <TableCell className="text-sm">
                 <FieldWrapper fieldName="trainDate">
-                  {container.trainEtd || '-'}
+                  {container.trainDate ? new Date(container.trainDate).toLocaleDateString() : '-'}
                 </FieldWrapper>
               </TableCell>
               <TableCell>
-                {container.dateTime ? new Date(container.dateTime).toLocaleString('en-US', {
+                {container.unloadDate ? new Date(container.unloadDate).toLocaleString('en-US', {
                   month: 'short',
                   day: 'numeric',
                   hour: '2-digit',
@@ -717,18 +717,18 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 }) : '-'}
               </TableCell>
               <TableCell>
-                <FieldWrapper fieldName="destination">
-                  {container.destination || '-'}
+                <FieldWrapper fieldName="location">
+                  {container.location || '-'}
                 </FieldWrapper>
               </TableCell>
               {blDetail?.jobType === 'Import' && (
                 <TableCell>
-                  {container.customsClearance || '-'}
+                  {container.customs || '-'}
                 </TableCell>
               )}
               {blDetail?.jobType === 'Export' && (
                 <TableCell>
-                  {container.weighingRequested && (
+                  {container.weight && (
                     <Scale className="w-4 h-4 text-gray-600" />
                   )}
                 </TableCell>
@@ -783,7 +783,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => onDeleteContainer?.(container.id.toString())}
+                    onClick={() => onDeleteContainer?.(container.id)}
                     className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                     title="Delete container"
                   >
