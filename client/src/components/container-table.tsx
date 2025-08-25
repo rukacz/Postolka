@@ -157,6 +157,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
       const containerNumber = baseContainerNumber + newLastDigit.toString();
       
       containers.push({
+        id: containerNumber, // Use container number as ID since it's varchar primary key
         containerIlu: containerNumber,
         size: newContainer.sizeType.slice(0, 2), // e.g., "40" from "40DV"
         type: newContainer.sizeType.slice(2), // e.g., "DV" from "40DV"
@@ -338,7 +339,6 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
             <TableHead className="w-12">DG</TableHead>
             <TableHead className="w-32">Container #</TableHead>
             <TableHead className="w-24">Size/Type</TableHead>
-            <TableHead className="w-12">DT</TableHead>
             <TableHead className="w-28">Train</TableHead>
             <TableHead className="w-32">Train Date</TableHead>
             <TableHead className="w-32">Date/Time</TableHead>
@@ -348,7 +348,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
             <TableHead className="w-36">Carrier Status</TableHead>
             <TableHead className="w-28">Medlog Status</TableHead>
             <TableHead className="w-48">Note</TableHead>
-            <TableHead className="w-20">Actions</TableHead>
+            <TableHead className="w-16"></TableHead>
           </TableRow>
           {/* Bulk Editing Row */}
           {selectedContainers.length > 0 && (
@@ -545,7 +545,6 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 </Button>
               </TableHead>
               <TableHead className="h-auto p-2">
-                <span className="text-xs text-gray-500">Actions</span>
               </TableHead>
             </TableRow>
           )}
