@@ -12,6 +12,7 @@ import DangerousGoodsFlag from "@/components/dangerous-goods-flag";
 import CarrierStatusBadge from "@/components/carrier-status-badge";
 import MedlogStatusBadge from "@/components/medlog-status-badge";
 import BulkNoteModal from "./bulk-note-modal";
+import IndividualNoteModal from "./individual-note-modal";
 import { UserGroup } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -52,6 +53,11 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
   const [selectedContainers, setSelectedContainers] = useState<number[]>([]);
   const [showBulkNoteModal, setShowBulkNoteModal] = useState(false);
   const [lastAction, setLastAction] = useState<{ type: string; data: any } | null>(null);
+  const [individualNoteModal, setIndividualNoteModal] = useState<{
+    isOpen: boolean;
+    container: Container | null;
+    noteType: 'carrier' | 'medlog';
+  }>({ isOpen: false, container: null, noteType: 'medlog' });
   const [editingFields, setEditingFields] = useState<{[key: string]: boolean}>({});
   const [containerQty, setContainerQty] = useState(1);
   const [newContainer, setNewContainer] = useState<{
@@ -748,7 +754,11 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setShowBulkNoteModal(true)}
+                        onClick={() => setIndividualNoteModal({
+                          isOpen: true,
+                          container,
+                          noteType: 'carrier'
+                        })}
                         className="h-5 w-5 p-0 ml-1 bg-blue-100 border-blue-300 text-blue-600 hover:bg-blue-200"
                       >
                         <ChevronRight className="h-3 w-3" />
@@ -761,7 +771,11 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setShowBulkNoteModal(true)}
+                        onClick={() => setIndividualNoteModal({
+                          isOpen: true,
+                          container,
+                          noteType: 'medlog'
+                        })}
                         className="h-5 w-5 p-0 ml-1 bg-blue-100 border-blue-300 text-blue-600 hover:bg-blue-200"
                       >
                         <ChevronRight className="h-3 w-3" />
@@ -804,6 +818,15 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
         onSave={handleBulkNote}
         selectedCount={selectedContainers.length}
         userGroup={userGroup}
+      />
+
+      <IndividualNoteModal
+        isOpen={individualNoteModal.isOpen}
+        onClose={() => setIndividualNoteModal({ isOpen: false, container: null, noteType: 'medlog' })}
+        onSave={onNoteChange}
+        container={individualNoteModal.container}
+        noteType={individualNoteModal.noteType}
+        userGroup={userGroup as 'carrier' | 'medlog'}
       />
     </div>
   );

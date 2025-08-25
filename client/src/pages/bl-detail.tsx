@@ -91,8 +91,8 @@ export default function BLDetailPage() {
       
       // Force refresh all container data
       await queryClient.invalidateQueries({ queryKey: ['/api/containers'] });
-      await queryClient.invalidateQueries({ queryKey: ['/api/containers', blNumber] });
-      await queryClient.refetchQueries({ queryKey: ['/api/containers', blNumber] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/containers/bl', blNumber] });
+      await queryClient.refetchQueries({ queryKey: ['/api/containers/bl', blNumber] });
       
       toast({
         title: "Note updated",
