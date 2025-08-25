@@ -97,7 +97,7 @@ export interface IStorage {
   createContainerInBL(containerInBl: InsertContainerInBl): Promise<ContainerInBl>;
   deleteContainerInBL(id: number): Promise<boolean>;
   getContainersForBL(blId: number): Promise<ContainerInBl[]>;
-  getBLsForContainer(containerId: string): Promise<ContainerInBl[]>;
+  getBLsForContainer(containerId: number): Promise<ContainerInBl[]>;
   
   // ============================================================================
   // CHAT MESSAGE METHODS
@@ -462,7 +462,7 @@ export class DatabaseStorage implements IStorage {
     return await db.select().from(containerInBl).where(eq(containerInBl.blId, blId));
   }
 
-  async getBLsForContainer(containerId: string): Promise<ContainerInBl[]> {
+  async getBLsForContainer(containerId: number): Promise<ContainerInBl[]> {
     return await db.select().from(containerInBl).where(eq(containerInBl.containerId, containerId));
   }
 
