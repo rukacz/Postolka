@@ -781,7 +781,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid credentials" });
       }
       
-      if (!user.use) {
+      if (!user.isActive) {
         return res.status(401).json({ message: "Account is disabled" });
       }
       
