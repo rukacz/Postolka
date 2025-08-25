@@ -26,26 +26,20 @@ export default function LoginPage() {
   const [password, setPassword] = useState('password123');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { login } = useAuth();
 
   const loginMutation = useMutation({
     mutationFn: async (credentials: { username: string; password: string }) => {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(credentials),
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Login failed');
+      const success = await login(credentials.username, credentials.password);
+      if (!success) {
+        throw new Error('Login failed');
       }
-      
-      return response.json();
+      return success;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast({
         title: "Login successful",
-        description: `Welcome back, ${data.user.name}!`,
+        description: `Welcome back!`,
       });
       navigate('/dashboard');
     },
