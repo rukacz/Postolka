@@ -113,8 +113,7 @@ export const bl = pgTable("bl", {
 export const container = pgTable("container", {
   id: serial("id").primaryKey(), // Auto-increment integer primary key
   containerIlu: varchar("container_ilu", { length: 100 }).notNull(), // Container identification number
-  size: varchar("size", { length: 50 }), // e.g., 20GP, 40HC
-  type: varchar("type", { length: 50 }).notNull(), // e.g., GP, DV
+  size: varchar("size", { length: 50 }).notNull(), // e.g., 20DV, 40HC, 45DV
   weight: decimal("weight", { precision: 10, scale: 2 }),
   customs: varchar("customs", { length: 100 }),
   hasDangerous: boolean("has_dangerous").default(false),
@@ -135,7 +134,6 @@ export const container = pgTable("container", {
   // Change tracking fields (boolean flags for each field)
   containerIluChange: boolean("container_ilu_change").default(false),
   sizeChange: boolean("size_change").default(false),
-  typeChange: boolean("type_change").default(false),
   weightChange: boolean("weight_change").default(false),
   customsChange: boolean("customs_change").default(false),
   hasDangerousChange: boolean("has_dangerous_change").default(false),

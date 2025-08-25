@@ -159,8 +159,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
       containers.push({
         id: containerNumber, // Use container number as ID since it's varchar primary key
         containerIlu: containerNumber,
-        size: newContainer.sizeType.slice(0, 2), // e.g., "40" from "40DV"
-        type: newContainer.sizeType.slice(2), // e.g., "DV" from "40DV"
+        size: newContainer.sizeType, // e.g., "40DV"
         location: newContainer.destination,
         carrierStatus: 'Pre-Order',
         medlogStatus: 'New',
@@ -402,7 +401,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
               {/* Size/Type Column */}
               <TableHead className="h-auto p-2">
                 <Select onValueChange={(value) => {
-                  selectedContainers.forEach(id => handleFieldUpdate(id, 'sizeType', value));
+                  selectedContainers.forEach(id => handleFieldUpdate(id, 'size', value));
                 }}>
                   <SelectTrigger className="h-7 text-xs">
                     <SelectValue placeholder="Size/Type" />
@@ -693,7 +692,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 {container.containerIlu}
               </TableCell>
               <TableCell>
-                {`${container.size || ''}${container.type || ''}`}
+                {container.size || '-'}
               </TableCell>
               <TableCell>
                 {container.isDirectTruck && <Truck className="w-4 h-4 text-blue-500" />}

@@ -587,7 +587,6 @@ export async function seedDatabase() {
       {
         containerIlu: 'MSKU1234567',
         size: '40HC',
-        type: 'GP',
         weight: null,
         customs: null,
         hasDangerous: false,
@@ -607,7 +606,7 @@ export async function seedDatabase() {
         // Change tracking fields
         containerIluChange: false,
         sizeChange: false,
-        typeChange: false,
+
         weightChange: false,
         customsChange: false,
         hasDangerousChange: false,
@@ -628,8 +627,7 @@ export async function seedDatabase() {
       },
       {
         containerIlu: 'MSKU2345678',
-        size: '20GP',
-        type: 'GP',
+        size: '20DV',
         weight: null,
         customs: null,
         hasDangerous: false,
@@ -649,7 +647,7 @@ export async function seedDatabase() {
         // Change tracking fields
         containerIluChange: false,
         sizeChange: false,
-        typeChange: false,
+
         weightChange: false,
         customsChange: false,
         hasDangerousChange: false,
@@ -670,8 +668,7 @@ export async function seedDatabase() {
       },
       {
         containerIlu: 'MSKU3456789',
-        size: '40HC',
-        type: 'GP',
+        size: '40DV',
         weight: null,
         customs: null,
         hasDangerous: false,
@@ -691,7 +688,7 @@ export async function seedDatabase() {
         // Change tracking fields
         containerIluChange: false,
         sizeChange: false,
-        typeChange: false,
+
         weightChange: false,
         customsChange: false,
         hasDangerousChange: false,
@@ -713,7 +710,6 @@ export async function seedDatabase() {
       {
         containerIlu: 'TCLU4567890',
         size: '40HC',
-        type: 'GP',
         weight: null,
         customs: null,
         hasDangerous: false,
@@ -733,7 +729,7 @@ export async function seedDatabase() {
         // Change tracking fields
         containerIluChange: false,
         sizeChange: false,
-        typeChange: false,
+
         weightChange: false,
         customsChange: false,
         hasDangerousChange: false,
@@ -754,8 +750,7 @@ export async function seedDatabase() {
       },
       {
         containerIlu: 'TCLU5678901',
-        size: '20GP',
-        type: 'GP',
+        size: '20DV',
         weight: null,
         customs: null,
         hasDangerous: false,
@@ -775,7 +770,7 @@ export async function seedDatabase() {
         // Change tracking fields
         containerIluChange: false,
         sizeChange: false,
-        typeChange: false,
+
         weightChange: false,
         customsChange: false,
         hasDangerousChange: false,
@@ -797,7 +792,6 @@ export async function seedDatabase() {
       {
         containerIlu: 'TCLU6789012',
         size: '40HC',
-        type: 'GP',
         weight: null,
         customs: null,
         hasDangerous: false,
@@ -817,7 +811,7 @@ export async function seedDatabase() {
         // Change tracking fields
         containerIluChange: false,
         sizeChange: false,
-        typeChange: false,
+
         weightChange: false,
         customsChange: false,
         hasDangerousChange: false,
@@ -839,7 +833,6 @@ export async function seedDatabase() {
       {
         containerIlu: 'NTBU7890123',
         size: '40HC',
-        type: 'GP',
         weight: null,
         customs: null,
         hasDangerous: false,
@@ -859,7 +852,7 @@ export async function seedDatabase() {
         // Change tracking fields
         containerIluChange: false,
         sizeChange: false,
-        typeChange: false,
+
         weightChange: false,
         customsChange: false,
         hasDangerousChange: false,
@@ -880,8 +873,7 @@ export async function seedDatabase() {
       },
       {
         containerIlu: 'NTBU8901234',
-        size: '20GP',
-        type: 'GP',
+        size: '20FT',
         weight: null,
         customs: null,
         hasDangerous: false,
@@ -901,7 +893,7 @@ export async function seedDatabase() {
         // Change tracking fields
         containerIluChange: false,
         sizeChange: false,
-        typeChange: false,
+
         weightChange: false,
         customsChange: false,
         hasDangerousChange: false,
@@ -922,8 +914,7 @@ export async function seedDatabase() {
       },
       {
         containerIlu: 'AUDU9012345',
-        size: '40HC',
-        type: 'GP',
+        size: '45HC',
         weight: null,
         customs: null,
         hasDangerous: false,
@@ -943,7 +934,7 @@ export async function seedDatabase() {
         // Change tracking fields
         containerIluChange: false,
         sizeChange: false,
-        typeChange: false,
+
         weightChange: false,
         customsChange: false,
         hasDangerousChange: false,
