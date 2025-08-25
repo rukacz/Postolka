@@ -534,12 +534,12 @@ export class DatabaseStorage implements IStorage {
     
     if (!blRecord) return undefined;
     
-    // Get related data
-    const [clientCompany] = await db.select().from(company).where(eq(company.id, blRecord.client));
-    const [carrierCompany] = await db.select().from(company).where(eq(company.id, blRecord.carrier));
-    const [picUser] = await db.select().from(user).where(eq(user.id, blRecord.pic));
-    const [localPortData] = await db.select().from(port).where(eq(port.id, blRecord.localPort));
-    const [locationData] = await db.select().from(city).where(eq(city.id, blRecord.location));
+    // Get related data (handle null foreign keys)
+    const [clientCompany] = blRecord.client ? await db.select().from(company).where(eq(company.id, blRecord.client)) : [undefined];
+    const [carrierCompany] = blRecord.carrier ? await db.select().from(company).where(eq(company.id, blRecord.carrier)) : [undefined];
+    const [picUser] = blRecord.pic ? await db.select().from(user).where(eq(user.id, blRecord.pic)) : [undefined];
+    const [localPortData] = blRecord.localPort ? await db.select().from(port).where(eq(port.id, blRecord.localPort)) : [undefined];
+    const [locationData] = blRecord.location ? await db.select().from(city).where(eq(city.id, blRecord.location)) : [undefined];
     
     // Get containers for this BL
     const containerInBls = await db.select().from(containerInBl).where(eq(containerInBl.blId, blRecord.id));
@@ -554,7 +554,7 @@ export class DatabaseStorage implements IStorage {
       carrierCompany: carrierCompany || undefined,
       picUser: picUser || undefined,
       localPort: localPortData || undefined,
-      location: locationData || undefined,
+      locationCity: locationData || undefined,
       containers: containers || []
     } as BLDetail;
     
