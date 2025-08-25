@@ -85,7 +85,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
 
   return (
     <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-3">
         {/* Client */}
         <div className="space-y-2">
           <Label htmlFor="client">Client</Label>
