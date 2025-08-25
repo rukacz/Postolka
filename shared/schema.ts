@@ -253,7 +253,7 @@ export type ChatMessage = typeof chatMessages.$inferSelect;
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 
 // Extended types with joined data
-export interface BLWithDetails extends BL {
+export interface BLWithDetails extends Omit<BL, 'localPort'> {
   clientCompany?: Company;
   carrierCompany?: Company;
   picUser?: User;

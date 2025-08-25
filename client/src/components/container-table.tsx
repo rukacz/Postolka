@@ -21,13 +21,13 @@ interface ContainerTableProps {
   containers: Container[];
   userGroup: UserGroup;
   blDetail?: { jobType: 'Import' | 'Export'; toLocation?: string; blNumber?: string } | null;
-  onNoteChange: (containerId: string, group: 'carrier' | 'medlog', note: string) => void;
-  onHazardousChange: (containerIds: string[], hazardous: boolean) => void;
+  onNoteChange: (containerId: number, group: 'carrier' | 'medlog', note: string) => void;
+  onHazardousChange: (containerIds: number[], hazardous: boolean) => void;
   changedFields?: string[];
   addContainerMode?: boolean;
   onAddContainerComplete?: () => void;
   onCopyContainer?: (container: Container) => void;
-  onDeleteContainer?: (containerId: string) => void;
+  onDeleteContainer?: (containerId: number) => void;
 }
 
 const sizeTypeOptions = [
@@ -49,7 +49,7 @@ const validateContainerNumber = (containerNumber: string): boolean => {
 };
 
 const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazardousChange, changedFields = [], addContainerMode = false, onAddContainerComplete, onCopyContainer, onDeleteContainer }: ContainerTableProps) => {
-  const [selectedContainers, setSelectedContainers] = useState<string[]>([]);
+  const [selectedContainers, setSelectedContainers] = useState<number[]>([]);
   const [showBulkNoteModal, setShowBulkNoteModal] = useState(false);
   const [lastAction, setLastAction] = useState<{ type: string; data: any } | null>(null);
   const [editingFields, setEditingFields] = useState<{[key: string]: boolean}>({});
@@ -74,7 +74,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
   });
 
   const updateContainerMutation = useMutation({
-    mutationFn: async ({ containerId, field, value }: { containerId: string; field: string; value: any }) => {
+    mutationFn: async ({ containerId, field, value }: { containerId: number; field: string; value: any }) => {
       return apiRequest("PATCH", `/api/containers/${containerId}`, { [field]: value });
     },
     onSuccess: () => {
@@ -223,7 +223,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
     }
   };
 
-  const handleSelectContainer = (containerId: string, checked: boolean) => {
+  const handleSelectContainer = (containerId: number, checked: boolean) => {
     if (checked) {
       setSelectedContainers(prev => [...prev, containerId]);
     } else {
@@ -312,7 +312,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
     });
   };
 
-  const handleFieldUpdate = (containerId: string, field: string, value: any) => {
+  const handleFieldUpdate = (containerId: number, field: string, value: any) => {
     updateContainerMutation.mutate({ containerId, field, value });
   };
 
@@ -678,7 +678,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
               </TableCell>
             </TableRow>
           )}
-          {containers.slice().sort((a, b) => a.id.localeCompare(b.id)).map((container) => (
+          {containers.slice().sort((a, b) => a.id - b.id).map((container) => (
             <TableRow key={container.id}>
               <TableCell>
                 <Checkbox

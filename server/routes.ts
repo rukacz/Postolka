@@ -614,7 +614,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/container-in-bl/container/:containerId", async (req, res) => {
     try {
       const { containerId } = req.params;
-      const blsForContainer = await storage.getBLsForContainer(containerId);
+      const containerIdNum = parseInt(containerId);
+      const blsForContainer = await storage.getBLsForContainer(containerIdNum);
       res.json(blsForContainer);
     } catch (error) {
       console.error("Error fetching BLs for container:", error);

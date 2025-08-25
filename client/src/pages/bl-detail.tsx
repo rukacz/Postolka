@@ -31,7 +31,7 @@ export default function BLDetailPage() {
   const [newChatMessage, setNewChatMessage] = useState("");
   const [addContainerMode, setAddContainerMode] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [containerToDelete, setContainerToDelete] = useState<string | null>(null);
+  const [containerToDelete, setContainerToDelete] = useState<number | null>(null);
   
   // Simulated current user group - in real app this would come from auth context
   const currentUserGroup: UserGroup = 'medlog';
@@ -128,7 +128,7 @@ export default function BLDetailPage() {
   };
 
   const deleteContainerMutation = useMutation({
-    mutationFn: async (containerId: string) => {
+    mutationFn: async (containerId: number) => {
       return apiRequest("DELETE", `/api/containers/${containerId}`, {});
     },
     onSuccess: () => {
@@ -198,7 +198,7 @@ export default function BLDetailPage() {
     }
   };
 
-  const handleDeleteContainer = (containerId: string) => {
+  const handleDeleteContainer = (containerId: number) => {
     setContainerToDelete(containerId);
     setDeleteDialogOpen(true);
   };
@@ -443,7 +443,7 @@ export default function BLDetailPage() {
               userGroup={currentUserGroup}
               blDetail={{
                 jobType: blDetail?.direction as 'Import' | 'Export',
-                toLocation: blDetail?.location?.name,
+                toLocation: blDetail?.locationCity?.name,
                 blNumber: blDetail?.blNumber
               }}
               onNoteChange={handleNoteChange}
