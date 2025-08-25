@@ -400,7 +400,7 @@ export class DatabaseStorage implements IStorage {
     const containers = await db
       .select()
       .from(container)
-      .where(inArray(container.containerIlu, containerIdList));
+      .where(inArray(container.id, containerIdList));
     
     return containers;
   }
