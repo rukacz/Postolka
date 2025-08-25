@@ -65,6 +65,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
     sizeType: string;
     destination: string;
     dangerousCargo: boolean;
+    directTransport: boolean;
     isEditing: boolean;
   } | null>(null);
   const { toast } = useToast();
@@ -124,6 +125,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
       sizeType: '40DV',
       destination: blDetail?.toLocation || '',
       dangerousCargo: false,
+      directTransport: false,
       isEditing: true
     });
   };
@@ -771,7 +773,14 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
               <TableCell className="w-48">
                 <div className="space-y-1">
                   <div className="text-xs flex items-center justify-between">
-                    <span className="truncate">Carrier: {container.carrierNote || '-'}</span>
+                    <span className="truncate">
+                      Carrier: {container.carrierNote 
+                        ? container.carrierNote.length > 50 
+                          ? container.carrierNote.substring(0, 50) + '...' 
+                          : container.carrierNote
+                        : '-'
+                      }
+                    </span>
                     {container.carrierNote && container.carrierNote.length > 50 ? (
                       <Button
                         variant="outline"
@@ -788,7 +797,14 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                     ) : null}
                   </div>
                   <div className="text-xs flex items-center justify-between">
-                    <span className="truncate">Medlog: {container.medlogNote || '-'}</span>
+                    <span className="truncate">
+                      Medlog: {container.medlogNote 
+                        ? container.medlogNote.length > 50 
+                          ? container.medlogNote.substring(0, 50) + '...' 
+                          : container.medlogNote
+                        : '-'
+                      }
+                    </span>
                     {container.medlogNote && container.medlogNote.length > 50 ? (
                       <Button
                         variant="outline"
