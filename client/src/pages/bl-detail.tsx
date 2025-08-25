@@ -157,7 +157,7 @@ export default function BLDetailPage() {
     const location = container.location || 'N/A';
     const dateTime = container.unloadDate ? formatDate(container.unloadDate.toString()) : 'N/A';
     
-    return `${container.containerIlu}\t${container.size}${container.type || 'N/A'}\t${location}\t${dateTime}`;
+    return `${container.containerIlu}\t${container.size || 'N/A'}\t${location}\t${dateTime}`;
   };
 
   const copyAllContainersToClipboard = async () => {

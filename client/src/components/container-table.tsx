@@ -79,6 +79,8 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/containers'] });
+      // Also invalidate BL-specific container queries
+      queryClient.invalidateQueries({ queryKey: ['/api/containers/bl'] });
     },
   });
 
