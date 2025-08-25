@@ -775,13 +775,13 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                   <div className="text-xs flex items-center justify-between">
                     <span className="truncate">
                       Carrier: {container.carrierNote 
-                        ? container.carrierNote.length > 50 
-                          ? container.carrierNote.substring(0, 50) + '...' 
+                        ? container.carrierNote.length > 35 
+                          ? container.carrierNote.substring(0, 35) + '...' 
                           : container.carrierNote
                         : '-'
                       }
                     </span>
-                    {container.carrierNote && container.carrierNote.length > 50 ? (
+                    {container.carrierNote && container.carrierNote.length > 35 ? (
                       <Button
                         variant="outline"
                         size="sm"
@@ -799,8 +799,8 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                   <div className="text-xs flex items-center justify-between">
                     <span className="truncate">
                       Medlog: {container.medlogNote 
-                        ? container.medlogNote.length > 50 
-                          ? container.medlogNote.substring(0, 50) + '...' 
+                        ? container.medlogNote.length > 35 
+                          ? container.medlogNote.substring(0, 35) + '...' 
                           : container.medlogNote
                         : '-'
                       }
