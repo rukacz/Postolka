@@ -161,6 +161,36 @@ export default function Dashboard() {
       // Export Only Filter: Show only Export BLs
       const matchesExportOnly = !filters.exportOnly || bl.direction === 'Export';
 
+      // Client Filter: Check if BL matches selected client
+      const matchesClient = !filters.client || filters.client.length === 0 || 
+                           filters.client.includes('all') || 
+                           filters.client.includes(bl.client);
+
+      // Carrier Filter: Check if BL matches selected carrier
+      const matchesCarrier = !filters.carrier || filters.carrier.length === 0 || 
+                            filters.carrier.includes('all') || 
+                            filters.carrier.includes(bl.carrier);
+
+      // PIC Filter: Check if BL matches selected PIC
+      const matchesPic = !filters.pic || filters.pic.length === 0 || 
+                        filters.pic.includes('all') || 
+                        filters.pic.includes(bl.pic);
+
+      // Medlog Status Filter: Check if BL matches selected medlog status
+      const matchesMedlogStatus = !filters.medlogStatus || filters.medlogStatus.length === 0 || 
+                                 filters.medlogStatus.includes('all') || 
+                                 filters.medlogStatus.includes(bl.medlogStatus);
+
+      // Carrier Status Filter: Check if BL matches selected carrier status
+      const matchesCarrierStatus = !filters.carrierStatus || filters.carrierStatus.length === 0 || 
+                                  filters.carrierStatus.includes('all') || 
+                                  filters.carrierStatus.includes(bl.carrierStatus);
+
+      // Direction Filter: Check if BL matches selected direction
+      const matchesDirection = !filters.direction || filters.direction.length === 0 || 
+                              filters.direction.includes('all') || 
+                              filters.direction.includes(bl.direction);
+
       return matchesSearch && 
              matchesClient && matchesCarrier && matchesPic &&
              matchesMedlogStatus && matchesCarrierStatus && matchesDirection &&
