@@ -77,8 +77,8 @@ export default function BLDetailPage() {
 
   // Helper function to check if a field has changes
   const isFieldChanged = (fieldName: string): boolean => {
-    if (!blSummary?.changedFields) return false;
-    return blSummary.changedFields.includes(fieldName);
+    if (!blDetail?.changedFields) return false;
+    return blDetail.changedFields.includes(fieldName);
   };
 
   const handleNoteChange = async (containerId: number, group: 'carrier' | 'medlog', note: string) => {
@@ -322,43 +322,43 @@ export default function BLDetailPage() {
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-6">
               <FieldWrapper fieldName="type" className="inline-block rounded px-2 py-1">
-                <span className="font-semibold text-blue-700">{blSummary?.type || 'N/A'}</span>
+                <span className="font-semibold text-blue-700">{blDetail?.direction || 'N/A'}</span>
               </FieldWrapper>
               <FieldWrapper fieldName="carrier" className="inline-block rounded px-2 py-1">
-                <span className="font-semibold">{blSummary?.carrier || 'MSC'}</span>
+                <span className="font-semibold">{blDetail?.carrierCompany?.name || 'MSC'}</span>
               </FieldWrapper>
               <FieldWrapper fieldName="podPol" className="inline-block rounded px-2 py-1">
                 <span className="text-gray-700">
-                  {blSummary?.type === 'Import' ? 
-                    (blSummary?.podPol || 'N/A') : 
-                    (blSummary?.podPol || 'N/A')
+                  {blDetail?.direction === 'Import' ? 
+                    (blDetail?.localPort?.name || 'N/A') : 
+                    (blDetail?.localPort?.name || 'N/A')
                   }
                 </span>
               </FieldWrapper>
               <FieldWrapper fieldName="vesselVoyage" className="inline-block rounded px-2 py-1">
-                <span className="text-gray-700">{blSummary?.vesselVoyage || 'N/A'}</span>
+                <span className="text-gray-700">{blDetail?.vessel && blDetail?.voyage ? `${blDetail.vessel} / ${blDetail.voyage}` : 'N/A'}</span>
               </FieldWrapper>
               <FieldWrapper fieldName="eta" className="inline-block rounded px-2 py-1">
-                <span className="text-gray-700">{blSummary?.etaClosing || 'N/A'}</span>
+                <span className="text-gray-700">{blDetail?.eta ? new Date(blDetail.eta).toLocaleDateString('cs-CZ') : 'N/A'}</span>
               </FieldWrapper>
               <FieldWrapper fieldName="pic" className="inline-block rounded px-2 py-1">
-                <span className="text-gray-700">{blSummary?.pic || 'Not assigned'}</span>
+                <span className="text-gray-700">{blDetail?.picUser?.name || 'Not assigned'}</span>
               </FieldWrapper>
 
             </div>
             <div className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4 text-gray-600" />
               <span className="text-xs text-gray-600">
-                {blSummary?.lastChatMessage && blSummary.lastChatMessage.trim() !== "" ? 
-                  `${blSummary.lastChatAuthor}: ${blSummary.lastChatMessage.substring(0, 30)}${blSummary.lastChatMessage.length > 30 ? '...' : ''}` : 
+                {blDetail?.lastChatMessage && blDetail.lastChatMessage.trim() !== "" ? 
+                  `${blDetail.lastChatAuthor}: ${blDetail.lastChatMessage.substring(0, 30)}${blDetail.lastChatMessage.length > 30 ? '...' : ''}` : 
                   'No messages'
                 }
               </span>
-              {blSummary?.unreadChatCount && blSummary.unreadChatCount > 0 && (
+              {blDetail?.unreadChatCount && blDetail.unreadChatCount > 0 && (
                 <div className="flex items-center gap-1">
                   <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                   <Badge variant="destructive" className="bg-red-500 text-white rounded-full px-2 py-1 text-xs">
-                    {blSummary.unreadChatCount}
+                    {blDetail.unreadChatCount}
                   </Badge>
                 </div>
               )}
@@ -392,9 +392,9 @@ export default function BLDetailPage() {
               >
                 <MessageCircle className="h-4 w-4" />
                 Chat
-                {blSummary?.unreadChatCount && blSummary.unreadChatCount > 0 && (
+                {blDetail?.unreadChatCount && blDetail.unreadChatCount > 0 && (
                   <Badge variant="destructive" className="bg-red-500 text-white ml-1 px-1.5 py-0.5 text-xs">
-                    {blSummary.unreadChatCount}
+                    {blDetail.unreadChatCount}
                   </Badge>
                 )}
               </button>
@@ -477,20 +477,20 @@ export default function BLDetailPage() {
                       <p className="text-sm">Container MEDU123456 has been loaded and is ready for transport.</p>
                     </div>
                     
-                    {blSummary?.lastChatMessage && (
+                    {blDetail?.lastChatMessage && (
                       <div className="bg-green-50 p-3 rounded-lg border-l-4 border-green-500">
                         <div className="flex justify-between items-start mb-1">
-                          <span className="font-semibold text-sm">{blSummary.lastChatAuthor}</span>
+                          <span className="font-semibold text-sm">{blDetail.lastChatAuthor}</span>
                           <span className="text-xs text-gray-500">
-                            {blSummary.unreadChatCount && blSummary.unreadChatCount > 0 ? (
+                            {blDetail.unreadChatCount && blDetail.unreadChatCount > 0 ? (
                               <span className="text-red-600 font-semibold">New message</span>
                             ) : (
                               '1 hour ago'
                             )}
                           </span>
                         </div>
-                        <p className="text-sm">{blSummary.lastChatMessage}</p>
-                        {blSummary.unreadChatCount && blSummary.unreadChatCount > 0 && (
+                        <p className="text-sm">{blDetail.lastChatMessage}</p>
+                        {blDetail.unreadChatCount && blDetail.unreadChatCount > 0 && (
                           <div className="mt-2">
                             <Badge variant="destructive" className="bg-red-500 text-white text-xs">
                               Unread

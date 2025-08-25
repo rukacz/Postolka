@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import { useMutation } from '@tanstack/react-query';
-import { apiRequest } from '@/lib/queryClient';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,62 +20,68 @@ interface LoginRequest {
   password: string;
 }
 
-export default function Login() {
+export default function LoginPage() {
   const [, navigate] = useLocation();
+  const [username, setUsername] = useState('medlog_admin');
+  const [password, setPassword] = useState('password123');
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-
-  const { login: authLogin } = useAuth();
 
   const loginMutation = useMutation({
-    mutationFn: async (credentials: LoginRequest): Promise<LoginResponse> => {
-      const response = await apiRequest('POST', '/api/auth/login', credentials);
-      return await response.json();
+    mutationFn: async (credentials: { username: string; password: string }) => {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(credentials),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Login failed');
+      }
+      
+      return response.json();
     },
     onSuccess: (data) => {
-      authLogin(data.user);
       toast({
-        title: 'Login successful',
+        title: "Login successful",
         description: `Welcome back, ${data.user.name}!`,
       });
       navigate('/dashboard');
     },
-    onError: (error: any) => {
-      setError(error.message || 'Login failed');
-    }
+    onError: (error: Error) => {
+      toast({
+        title: "Login failed",
+        description: error.message || 'Invalid credentials',
+        variant: "destructive",
+      });
+    },
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     
     if (!username || !password) {
-      setError('Please enter both username and password');
+      toast({
+        title: "Invalid credentials",
+        description: "Please enter both username and password",
+        variant: "destructive",
+      });
       return;
     }
     
     loginMutation.mutate({ username, password });
   };
 
-  const testUsers = [
-    { username: 'medlog', name: 'Medlog User (Full Access)' },
-    { username: 'msc_cz_import', name: 'MSC CZ Import User' },
-    { username: 'msc_cz_export', name: 'MSC CZ Export User' },
-    { username: 'msc_sk_import', name: 'MSC SK Import User' },
-    { username: 'msc_sk_export', name: 'MSC SK Export User' },
-  ];
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Poštolka Logistics</CardTitle>
-          <CardDescription>
+      <div className="w-full max-w-md space-y-8">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-900">Poštolka</h1>
+          <p className="mt-2 text-sm text-gray-600">
             Sign in to access the logistics management platform
-          </CardDescription>
-        </CardHeader>
+          </p>
+        </div>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -105,9 +110,9 @@ export default function Login() {
               />
             </div>
 
-            {error && (
+            {loginMutation.error && (
               <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription>{loginMutation.error.message || 'Login failed'}</AlertDescription>
               </Alert>
             )}
 
@@ -121,27 +126,46 @@ export default function Login() {
             </Button>
           </form>
 
-          <div className="mt-6">
-            <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">Test Users:</div>
-            <div className="space-y-1">
-              {testUsers.map((user) => (
-                <button
-                  key={user.username}
-                  onClick={() => {
-                    setUsername(user.username);
-                    setPassword('password123');
-                  }}
-                  className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 block"
-                  data-testid={`button-test-user-${user.username}`}
-                >
-                  {user.name} ({user.username})
-                </button>
-              ))}
+          {/* Test Users Info */}
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+            <h3 className="text-sm font-medium text-gray-900 mb-3">Test Users:</h3>
+            <div className="space-y-2 text-sm text-gray-600">
+              <div>
+                <span className="font-medium">Medlog Admin (Full Access):</span> 
+                <span className="text-blue-600 ml-1">medlog_admin</span>
+              </div>
+              <div>
+                <span className="font-medium">MSC CZ Import User:</span> 
+                <span className="text-blue-600 ml-1">msc_cz_user</span>
+              </div>
+              <div>
+                <span className="font-medium">ŠKODA AUTO Client:</span> 
+                <span className="text-blue-600 ml-1">jan_novak</span>
+              </div>
+              <div>
+                <span className="font-medium">TESCO Client:</span> 
+                <span className="text-blue-600 ml-1">eva_svobodova</span>
+              </div>
+              <div>
+                <span className="font-medium">IKEA Client:</span> 
+                <span className="text-blue-600 ml-1">tomas_dvorak</span>
+              </div>
+              <div>
+                <span className="font-medium">NTB Client:</span> 
+                <span className="text-blue-600 ml-1">marie_cerna</span>
+              </div>
+              <div>
+                <span className="font-medium">AUDI Client:</span> 
+                <span className="text-blue-600 ml-1">petr_prochazka</span>
+              </div>
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                <span className="font-medium text-gray-900">Password:</span> 
+                <span className="text-blue-600 ml-1">password123</span>
+              </div>
             </div>
-            <div className="text-xs text-gray-500 mt-1">Password: password123</div>
           </div>
         </CardContent>
-      </Card>
+      </div>
     </div>
   );
 }
