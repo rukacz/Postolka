@@ -585,7 +585,6 @@ export async function seedDatabase() {
     // Sample containers
     const sampleContainers = [
       {
-        id: 'MSKU1234567',
         containerIlu: 'MSKU1234567',
         size: '40HC',
         type: 'GP',
@@ -628,7 +627,6 @@ export async function seedDatabase() {
         lastModifiedAt: new Date()
       },
       {
-        id: 'MSKU2345678',
         containerIlu: 'MSKU2345678',
         size: '20GP',
         type: 'GP',
@@ -671,7 +669,6 @@ export async function seedDatabase() {
         lastModifiedAt: new Date()
       },
       {
-        id: 'MSKU3456789',
         containerIlu: 'MSKU3456789',
         size: '40HC',
         type: 'GP',
@@ -714,7 +711,6 @@ export async function seedDatabase() {
         lastModifiedAt: new Date()
       },
       {
-        id: 'TCLU4567890',
         containerIlu: 'TCLU4567890',
         size: '40HC',
         type: 'GP',
@@ -757,7 +753,6 @@ export async function seedDatabase() {
         lastModifiedAt: new Date()
       },
       {
-        id: 'TCLU5678901',
         containerIlu: 'TCLU5678901',
         size: '20GP',
         type: 'GP',
@@ -800,7 +795,6 @@ export async function seedDatabase() {
         lastModifiedAt: new Date()
       },
       {
-        id: 'TCLU6789012',
         containerIlu: 'TCLU6789012',
         size: '40HC',
         type: 'GP',
@@ -843,7 +837,6 @@ export async function seedDatabase() {
         lastModifiedAt: new Date()
       },
       {
-        id: 'NTBU7890123',
         containerIlu: 'NTBU7890123',
         size: '40HC',
         type: 'GP',
@@ -886,7 +879,6 @@ export async function seedDatabase() {
         lastModifiedAt: new Date()
       },
       {
-        id: 'NTBU8901234',
         containerIlu: 'NTBU8901234',
         size: '20GP',
         type: 'GP',
@@ -929,7 +921,6 @@ export async function seedDatabase() {
         lastModifiedAt: new Date()
       },
       {
-        id: 'AUDU9012345',
         containerIlu: 'AUDU9012345',
         size: '40HC',
         type: 'GP',
@@ -977,17 +968,17 @@ export async function seedDatabase() {
     // ============================================================================
     // SEED CONTAINER IN BL RELATIONSHIPS
     // ============================================================================
-    // Sample containerInBl relationships
+    // Sample containerInBl relationships - using actual inserted container IDs
     const sampleContainerInBls = [
-      { blId: 1, containerId: 'MSKU1234567' }, // MEDU123456 - 2 containers
-      { blId: 1, containerId: 'MSKU2345678' },
-      { blId: 2, containerId: 'MSKU3456789' }, // MSCU789012 - 1 container
-      { blId: 3, containerId: 'TCLU4567890' }, // TCLU345678 - 3 containers
-      { blId: 3, containerId: 'TCLU5678901' },
-      { blId: 3, containerId: 'TCLU6789012' },
-      { blId: 4, containerId: 'NTBU7890123' }, // NTBG456789 - 2 containers
-      { blId: 4, containerId: 'NTBU8901234' },
-      { blId: 5, containerId: 'AUDU9012345' }  // AUDI567890 - 1 container
+      { blId: 1, containerId: insertedContainers[0].id }, // MEDU123456 - 2 containers (MSKU1234567)
+      { blId: 1, containerId: insertedContainers[1].id }, //                          (MSKU2345678)
+      { blId: 2, containerId: insertedContainers[2].id }, // MSCU789012 - 1 container (MSKU3456789)
+      { blId: 3, containerId: insertedContainers[3].id }, // TCLU345678 - 3 containers (TCLU4567890)
+      { blId: 3, containerId: insertedContainers[4].id }, //                          (TCLU5678901)
+      { blId: 3, containerId: insertedContainers[5].id }, //                          (TCLU6789012)
+      { blId: 4, containerId: insertedContainers[6].id }, // NTBG456789 - 2 containers (NTBU7890123)
+      { blId: 4, containerId: insertedContainers[7].id }, //                          (NTBU8901234)
+      { blId: 5, containerId: insertedContainers[8].id }  // AUDI567890 - 1 container (AUDU9012345)
     ];
     await db.insert(containerInBl).values(sampleContainerInBls);
 
