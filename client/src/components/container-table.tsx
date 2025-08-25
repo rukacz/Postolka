@@ -260,8 +260,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
     });
   };
 
-  const handleBulkNote = (note: string) => {
-    const noteType = isMedlog ? 'medlog' : 'carrier';
+  const handleBulkNote = (noteType: 'carrier' | 'medlog', note: string) => {
     const previousNotes = selectedContainers.map(id => {
       const container = containers.find(c => c.id === id);
       return {
@@ -280,7 +279,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
     });
 
     toast({
-      title: "Notes added to selected containers",
+      title: `${noteType === 'medlog' ? 'Medlog' : 'Carrier'} notes added to selected containers`,
       description: `${selectedContainers.length} containers updated`,
       action: (
         <Button variant="outline" size="sm" onClick={handleUndo}>
