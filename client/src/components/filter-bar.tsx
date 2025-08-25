@@ -22,7 +22,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
   const [showMoreFilters, setShowMoreFilters] = useState(false);
   const { hasPermission } = useAuth();
 
-  const updateFilter = (key: keyof FilterState, value: string | boolean | string[]) => {
+  const updateFilter = (key: keyof FilterState, value: string | boolean | string[] | undefined) => {
     if (typeof value === 'boolean') {
       // Boolean filters (checkboxes)
       onFiltersChange({ ...filters, [key]: value });

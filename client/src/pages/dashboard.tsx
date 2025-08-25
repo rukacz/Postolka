@@ -91,7 +91,7 @@ export default function Dashboard() {
   const currentUserGroup = user?.companyType === 'MSC' ? 'carrier' : 'medlog';
 
   // Enhanced search that includes containers and trains
-  const matchesMultiSelectFilter = (blValue: any, filterValue: string[]) => {
+  const matchesMultiSelectFilter = (blValue: any, filterValue: string[] | undefined) => {
     if (!filterValue || filterValue.length === 0 || filterValue.includes('all')) {
       return true;
     }

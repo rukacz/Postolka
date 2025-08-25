@@ -22,7 +22,7 @@ interface MultiSelectProps {
     label: string
     value: string
   }>
-  value: string[]
+  value?: string[] | undefined
   onValueChange: (value: string[]) => void
   placeholder?: string
   className?: string
@@ -30,22 +30,25 @@ interface MultiSelectProps {
 
 export function MultiSelect({
   options,
-  value,
+  value = [],
   onValueChange,
   placeholder = "Select items...",
   className
 }: MultiSelectProps) {
   const [open, setOpen] = React.useState(false)
 
+  // Ensure value is always an array
+  const safeValue = Array.isArray(value) ? value : []
+
   const handleUnselect = (item: string) => {
-    onValueChange(value.filter((i) => i !== item))
+    onValueChange(safeValue.filter((i) => i !== item))
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     const input = e.target as HTMLInputElement
     if (input.value === "") {
-      if (e.key === "Backspace" && value.length > 0) {
-        handleUnselect(value[value.length - 1])
+      if (e.key === "Backspace" && safeValue.length > 0) {
+        handleUnselect(safeValue[safeValue.length - 1])
       }
       // Close on escape
       if (e.key === "Escape") {
@@ -54,7 +57,7 @@ export function MultiSelect({
     }
   }
 
-  const selectables = options.filter((option) => !value.includes(option.value))
+  const selectables = options.filter((option) => !safeValue.includes(option.value))
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -70,8 +73,8 @@ export function MultiSelect({
           onClick={() => setOpen(!open)}
         >
           <div className="flex gap-1 flex-wrap">
-            {value.length === 0 && placeholder}
-            {value.map((item) => {
+            {safeValue.length === 0 && placeholder}
+            {safeValue.map((item) => {
               const option = options.find((option) => option.value === item)
               return (
                 <Badge
@@ -119,7 +122,7 @@ export function MultiSelect({
               <CommandItem
                 key={option.value}
                 onSelect={() => {
-                  onValueChange([...value, option.value])
+                  onValueChange([...safeValue, option.value])
                   setOpen(true)
                 }}
               >

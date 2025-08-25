@@ -261,7 +261,7 @@ export default function BLTable({ data, isLoading, currentUserGroup }: BLTablePr
                 {bl.eta ? new Date(bl.eta).toLocaleDateString('cs-CZ') : '-'}
               </TableCell>
               <TableCell className="text-center">
-                {bl.containerInBls?.length || 0}
+                {bl.containerInBls && bl.containerInBls.length > 0 ? bl.containerInBls.length : 0}
               </TableCell>
               <TableCell>
                 <TrainStatusWithDeliveryCheck 
