@@ -290,7 +290,7 @@ export async function seedDatabase() {
     // ============================================================================
     // SEED USERS
     // ============================================================================
-    // Sample users
+    // Sample users - use the actual inserted role IDs
     const sampleUsers = [
       {
         id: 1,
@@ -298,7 +298,7 @@ export async function seedDatabase() {
         password: 'password123',
         name: 'Medlog Admin',
         email: 'admin@medlog.cz',
-        roleId: 1, // Admin
+        roleId: insertedRoles[0].id, // Admin
         companyId: 10, // Medlog
         defaultCarrier: null,
         isActive: true,
@@ -311,7 +311,7 @@ export async function seedDatabase() {
         password: 'password123',
         name: 'MSC CZ Import User',
         email: 'user@msc.cz',
-        roleId: 2, // MSC
+        roleId: insertedRoles[1].id, // Medlog User
         companyId: 6, // MSC CZ
         defaultCarrier: 'MSC CZ',
         isActive: true,
@@ -324,7 +324,7 @@ export async function seedDatabase() {
         password: 'password123',
         name: 'Jan Novák',
         email: 'jan.novak@skoda-auto.cz',
-        roleId: 3, // Client
+        roleId: insertedRoles[3].id, // Client User
         companyId: 1, // ŠKODA AUTO
         defaultCarrier: null,
         isActive: true,
@@ -337,7 +337,7 @@ export async function seedDatabase() {
         password: 'password123',
         name: 'Eva Svobodová',
         email: 'eva.svobodova@tesco.com',
-        roleId: 3, // Client
+        roleId: insertedRoles[3].id, // Client User
         companyId: 2, // TESCO
         defaultCarrier: null,
         isActive: true,
@@ -350,7 +350,7 @@ export async function seedDatabase() {
         password: 'password123',
         name: 'Tomáš Dvořák',
         email: 'tomas.dvorak@ikea.com',
-        roleId: 3, // Client
+        roleId: insertedRoles[3].id, // Client User
         companyId: 3, // IKEA
         defaultCarrier: null,
         isActive: true,
@@ -363,7 +363,7 @@ export async function seedDatabase() {
         password: 'password123',
         name: 'Marie Černá',
         email: 'marie.cerna@ntb.cz',
-        roleId: 3, // Client
+        roleId: insertedRoles[3].id, // Client User
         companyId: 4, // NTB
         defaultCarrier: null,
         isActive: true,
@@ -376,7 +376,7 @@ export async function seedDatabase() {
         password: 'password123',
         name: 'Petr Procházka',
         email: 'petr.prochazka@audi.de',
-        roleId: 3, // Client
+        roleId: insertedRoles[3].id, // Client User
         companyId: 5, // AUDI
         defaultCarrier: null,
         isActive: true,

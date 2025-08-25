@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { BL, Container, Company, User } from "@shared/schema";
+import { BL, Container, Company, User, Port, City, ContainerInBl } from "@shared/schema";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,26 +19,9 @@ interface BLWithDetails extends BL {
   clientCompany?: Company;
   carrierCompany?: Company;
   picUser?: User;
-  localPortInfo?: { name: string; state: string };
-  locationCity?: { name: string; state: string };
-  // Change tracking fields from BL table
-  blNumberChange?: boolean;
-  picChange?: boolean;
-  clientChange?: boolean;
-  containerChange?: boolean;
-  directionChange?: boolean;
-  etaChange?: boolean;
-  hasDangerousChange?: boolean;
-  hasDtChange?: boolean;
-  localPortChange?: boolean;
-  medlogStatusChange?: boolean;
-  carrierStatusChange?: boolean;
-  locationChange?: boolean;
-  trainChange?: boolean;
-  medlogBulbChange?: boolean;
-  carrierBulbChange?: boolean;
-  vesselChange?: boolean;
-  voyageChange?: boolean;
+  localPortInfo?: Port;
+  locationCity?: City;
+  containerInBls?: (ContainerInBl & { container?: Container })[];
 }
 
 interface BLTableProps {
@@ -50,8 +33,8 @@ interface BLTableProps {
 // Component to display change indicators using new boolean flags
 const BLChangeIndicator = ({ bl, currentUserGroup, onClick }: { 
   bl: BLWithDetails; 
-  currentUserGroup: UserGroup; 
-  onClick: () => void 
+  currentUserGroup?: UserGroup; 
+  onClick?: () => void 
 }) => {
   // Count changes based on new boolean flags
   const changeFields = [
@@ -65,7 +48,7 @@ const BLChangeIndicator = ({ bl, currentUserGroup, onClick }: {
   const totalChanges = changeFields.filter(Boolean).length;
 
   // Determine change type based on changed fields
-  const hasTimeChanges = bl.etaChange || bl.trainChange;
+  const hasTimeChanges = bl.etaChange;
   const changeType = hasTimeChanges ? 'time' : 'other';
 
   return (
@@ -95,15 +78,15 @@ const DangerousGoodsIndicator = ({ bl }: { bl: BLWithDetails }) => {
 const TrainStatusWithDeliveryCheck = ({ bl }: { bl: BLWithDetails }) => {
   // Train only exists at container level, not BL level
   // Get containers for this BL using the junction table
-  const { data: containerInBls = [] } = useQuery({
+  const { data: containerInBls = [] } = useQuery<ContainerInBl[]>({
     queryKey: ['/api/container-in-bl'],
     enabled: !!bl.id
   });
 
   // Get containers for this specific BL
   const blContainerIds = containerInBls
-    .filter(cib => cib.blId === bl.id)
-    .map(cib => cib.containerId);
+    .filter((cib: ContainerInBl) => cib.blId === bl.id)
+    .map((cib: ContainerInBl) => cib.containerId);
 
   const { data: allContainers = [] } = useQuery<Container[]>({
     queryKey: ['/api/containers'],
@@ -224,7 +207,7 @@ export default function BLTable({ data, isLoading, currentUserGroup }: BLTablePr
           {sortedData.map((bl) => (
             <TableRow key={bl.id}>
               <TableCell>
-                <BLChangeIndicator bl={bl} />
+                <BLChangeIndicator bl={bl} currentUserGroup={currentUserGroup} onClick={() => {}} />
               </TableCell>
               <TableCell>
                 <Badge 
@@ -238,7 +221,7 @@ export default function BLTable({ data, isLoading, currentUserGroup }: BLTablePr
                 </Badge>
               </TableCell>
               <TableCell>
-                <DangerousGoodsIndicator hasDangerous={bl.hasDangerous} />
+                <DangerousGoodsIndicator bl={bl} />
               </TableCell>
               <TableCell>
                 <Link 
@@ -255,7 +238,7 @@ export default function BLTable({ data, isLoading, currentUserGroup }: BLTablePr
                 {bl.containerInBls?.[0]?.container?.location || '-'}
               </TableCell>
               <TableCell>
-                {bl.localPort?.name || '-'}
+                {bl.localPortInfo?.name || '-'}
               </TableCell>
               <TableCell>
                 {bl.eta ? new Date(bl.eta).toLocaleDateString('cs-CZ') : '-'}
@@ -265,7 +248,7 @@ export default function BLTable({ data, isLoading, currentUserGroup }: BLTablePr
               </TableCell>
               <TableCell>
                 <TrainStatusWithDeliveryCheck 
-                  containerInBls={bl.containerInBls || []} 
+                  bl={bl}
                 />
               </TableCell>
               <TableCell>
