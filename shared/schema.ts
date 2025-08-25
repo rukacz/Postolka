@@ -111,7 +111,7 @@ export const bl = pgTable("bl", {
 
 // Container table - stores detailed information about individual shipping containers
 export const container = pgTable("container", {
-  id: serial("id").primaryKey(), // Proper integer primary key
+  id: varchar("id", { length: 100 }).primaryKey(), // Container IDs are meaningful strings like MSKU1234567
   containerIlu: varchar("container_ilu", { length: 100 }).notNull(), // Container identification number
   size: varchar("size", { length: 50 }), // e.g., 20GP, 40HC
   type: varchar("type", { length: 50 }).notNull(), // e.g., GP, DV
@@ -159,7 +159,7 @@ export const container = pgTable("container", {
 export const containerInBl = pgTable("container_in_bl", {
   id: serial("id").primaryKey(),
   blId: integer("bl_id").notNull().references(() => bl.id),
-  containerId: integer("container_id").notNull().references(() => container.id), // Proper integer foreign key
+  containerId: varchar("container_id", { length: 100 }).notNull().references(() => container.id), // References varchar container.id
 });
 
 // Chat messages table - stores chat messages related to a specific BL
