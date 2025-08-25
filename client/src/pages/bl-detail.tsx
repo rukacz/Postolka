@@ -42,7 +42,7 @@ export default function BLDetailPage() {
   });
 
   const { data: containers = [], isLoading: isLoadingContainers } = useQuery<Container[]>({
-    queryKey: ['/api/containers', blNumber],
+    queryKey: ['/api/containers/bl', blNumber],
     enabled: !!blNumber,
   });
 
