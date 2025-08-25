@@ -78,16 +78,16 @@ export interface IStorage {
   // ============================================================================
   // CONTAINER METHODS
   // ============================================================================
-  getContainer(id: number): Promise<Container | undefined>;
+  getContainer(id: string): Promise<Container | undefined>;
   getContainerByIlu(containerIlu: string): Promise<Container | undefined>;
   createContainer(container: InsertContainer): Promise<Container>;
-  updateContainer(id: number, container: Partial<Container>): Promise<Container | undefined>;
+  updateContainer(id: string, container: Partial<Container>): Promise<Container | undefined>;
   getAllContainers(): Promise<Container[]>;
   getContainersByBL(blNumber: string): Promise<Container[]>;
   getContainersByStatus(medlogStatus: string, carrierStatus: string): Promise<Container[]>;
-  updateContainerNote(id: number, group: 'carrier' | 'medlog', note: string): Promise<Container | undefined>;
-  updateContainerHazardous(id: number, hazardous: boolean): Promise<Container | undefined>;
-  deleteContainer(id: number): Promise<boolean>;
+  updateContainerNote(id: string, group: 'carrier' | 'medlog', note: string): Promise<Container | undefined>;
+  updateContainerHazardous(id: string, hazardous: boolean): Promise<Container | undefined>;
+  deleteContainer(id: string): Promise<boolean>;
   
   // ============================================================================
   // CONTAINER IN BL METHODS

@@ -42,7 +42,7 @@ export default function BLDetailPage() {
   });
 
   const { data: containers = [], isLoading: isLoadingContainers } = useQuery<Container[]>({
-    queryKey: ['/api/containers', blNumber],
+    queryKey: ['/api/containers/bl', blNumber],
     enabled: !!blNumber,
   });
 
@@ -82,7 +82,7 @@ export default function BLDetailPage() {
     return false;
   };
 
-  const handleNoteChange = async (containerId: number, group: 'carrier' | 'medlog', note: string) => {
+  const handleNoteChange = async (containerId: string, group: 'carrier' | 'medlog', note: string) => {
     try {
       await apiRequest("PATCH", `/api/containers/${containerId}/note`, {
         group,
@@ -108,7 +108,7 @@ export default function BLDetailPage() {
     }
   };
 
-  const handleHazardousChange = async (containerIds: number[], hazardous: boolean) => {
+  const handleHazardousChange = async (containerIds: string[], hazardous: boolean) => {
     try {
       await apiRequest("PATCH", "/api/containers/bulk/hazardous", {
         containerIds,
