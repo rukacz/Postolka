@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocation, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { BL, Container, Company, User, Port, City, ContainerInBl } from "@shared/schema";
+import { BL, Container, Company, User, Port, City, ContainerInBl, BLWithResolvedNames } from "@shared/schema";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,7 @@ import ChangeIndicatorDot from "./change-indicator-dot";
 import { CarrierStatus, MedlogStatus, JobType, UserGroup } from "@/lib/types";
 
 // Extended BL type with company and user information
-interface BLWithDetails extends BL {
+interface BLWithDetails extends BLWithResolvedNames {
   clientCompany?: Company;
   carrierCompany?: Company;
   picUser?: User;
@@ -232,19 +232,19 @@ export default function BLTable({ data, isLoading, currentUserGroup }: BLTablePr
                 </Link>
               </TableCell>
               <TableCell className="font-medium">
-                {bl.clientCompany?.name || '-'}
+                {bl.clientName || '-'}
               </TableCell>
               <TableCell className="max-w-40 truncate">
-                {bl.containerInBls?.[0]?.container?.location || '-'}
+                {bl.locationName || '-'}
               </TableCell>
               <TableCell>
-                {bl.localPortInfo?.name || '-'}
+                {bl.localPortName || '-'}
               </TableCell>
               <TableCell>
                 {bl.eta ? new Date(bl.eta).toLocaleDateString('cs-CZ') : '-'}
               </TableCell>
               <TableCell className="text-center">
-                {bl.containerInBls && bl.containerInBls.length > 0 ? bl.containerInBls.length : 0}
+                {bl.containerCount || 0}
               </TableCell>
               <TableCell>
                 <TrainStatusWithDeliveryCheck 
@@ -258,10 +258,10 @@ export default function BLTable({ data, isLoading, currentUserGroup }: BLTablePr
                 <MedlogStatusBadge status={bl.medlogStatus as MedlogStatus} />
               </TableCell>
               <TableCell>
-                {bl.carrierCompany?.name || '-'}
+                {bl.carrierName || '-'}
               </TableCell>
               <TableCell>
-                {bl.picUser?.name || '-'}
+                {bl.picName || '-'}
               </TableCell>
               <TableCell>
                 <DropdownMenu>

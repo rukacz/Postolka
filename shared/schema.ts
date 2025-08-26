@@ -270,6 +270,7 @@ export interface BLWithResolvedNames extends BL {
   picName?: string;
   localPortName?: string;
   locationName?: string;
+  containerCount?: number;
 }
 
 // Legacy type aliases for backward compatibility during transition

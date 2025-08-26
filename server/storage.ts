@@ -11,7 +11,7 @@ import {
   type BLDetail, type BLWithResolvedNames
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, desc, asc, or, inArray } from "drizzle-orm";
+import { eq, and, desc, asc, or, inArray, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/pg-core";
 
 export interface IStorage {
@@ -336,7 +336,7 @@ export class DatabaseStorage implements IStorage {
     const clientCompany = alias(company, 'clientCompany');
     const carrierCompany = alias(company, 'carrierCompany');
     
-    // Join with related tables to resolve foreign key references
+    // First, get BL data with resolved names
     const results = await db
       .select({
         bl: bl,
@@ -375,14 +375,28 @@ export class DatabaseStorage implements IStorage {
       .leftJoin(city, eq(bl.location, city.id))
       .orderBy(desc(bl.createdAt));
 
-    // Return properly formatted BL records with resolved names
+    // Get container counts for each BL
+    const containerCounts = await db
+      .select({
+        blId: containerInBl.blId,
+        count: sql<number>`count(${containerInBl.containerId})`
+      })
+      .from(containerInBl)
+      .groupBy(containerInBl.blId);
+
+    const containerCountMap = new Map(
+      containerCounts.map(cc => [cc.blId, cc.count])
+    );
+
+    // Return properly formatted BL records with resolved names and container counts
     return results.map(result => ({
       ...result.bl,
       clientName: result.clientCompany?.name || '-',
       carrierName: result.carrierCompany?.name || '-',
       picName: result.picUser?.name || '-',
       localPortName: result.localPortData?.name || '-',
-      locationName: result.locationData?.name || '-'
+      locationName: result.locationData?.name || '-',
+      containerCount: containerCountMap.get(result.bl.id) || 0
     })) as BLWithResolvedNames[];
   }
 
