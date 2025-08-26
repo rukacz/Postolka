@@ -399,7 +399,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                   className="h-7 text-xs font-mono w-full"
                   onBlur={(e) => {
                     if (e.target.value && validateContainerNumber(e.target.value)) {
-                      selectedContainers.forEach(id => handleFieldUpdate(id, 'containerNumber', e.target.value.toUpperCase()));
+                      selectedContainers.forEach(id => handleFieldUpdate(id, 'containerIlu', e.target.value.toUpperCase()));
                       e.target.value = '';
                     }
                   }}
@@ -432,7 +432,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                     containers.find(c => c.id === id)?.isDirectTruck
                   )}
                   onCheckedChange={(checked) => {
-                    selectedContainers.forEach(id => handleFieldUpdate(id, 'directTransport', checked));
+                    selectedContainers.forEach(id => handleFieldUpdate(id, 'isDirectTruck', checked));
                   }}
                   className="scale-75"
                 />
@@ -455,7 +455,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                   className="h-7 text-xs w-full"
                   onChange={(e) => {
                     if (e.target.value) {
-                      selectedContainers.forEach(id => handleFieldUpdate(id, 'dateTime', e.target.value));
+                      selectedContainers.forEach(id => handleFieldUpdate(id, 'unloadDate', e.target.value));
                     }
                   }}
                 />
@@ -468,7 +468,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                   className="h-7 text-xs w-full"
                   onBlur={(e) => {
                     if (e.target.value) {
-                      selectedContainers.forEach(id => handleFieldUpdate(id, 'destination', e.target.value));
+                      selectedContainers.forEach(id => handleFieldUpdate(id, 'location', e.target.value));
                       e.target.value = '';
                     }
                   }}
@@ -479,7 +479,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
               {blDetail?.jobType === 'Import' && (
                 <TableHead className="h-auto p-2">
                   <Select onValueChange={(value) => {
-                    selectedContainers.forEach(id => handleFieldUpdate(id, 'customsClearance', value));
+                    selectedContainers.forEach(id => handleFieldUpdate(id, 'customs', value));
                   }}>
                     <SelectTrigger className="h-7 text-xs">
                       <SelectValue placeholder="Customs" />
