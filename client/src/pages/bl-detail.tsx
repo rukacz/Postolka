@@ -322,29 +322,47 @@ export default function BLDetailPage() {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-6">
-              <FieldWrapper fieldName="type" className="inline-block rounded px-2 py-1">
-                <span className="font-semibold text-blue-700">{blDetail?.direction || 'N/A'}</span>
-              </FieldWrapper>
-              <FieldWrapper fieldName="carrier" className="inline-block rounded px-2 py-1">
-                <span className="font-semibold">{blDetail?.carrierCompany?.name || 'MSC'}</span>
-              </FieldWrapper>
-              <FieldWrapper fieldName="podPol" className="inline-block rounded px-2 py-1">
-                <span className="text-gray-700">
-                  {blDetail?.direction === 'Import' ? 
-                    (blDetail?.localPort?.name || 'N/A') : 
-                    (blDetail?.localPort?.name || 'N/A')
-                  }
-                </span>
-              </FieldWrapper>
-              <FieldWrapper fieldName="vesselVoyage" className="inline-block rounded px-2 py-1">
-                <span className="text-gray-700">{blDetail?.vessel && blDetail?.voyage ? `${blDetail.vessel} / ${blDetail.voyage}` : 'N/A'}</span>
-              </FieldWrapper>
-              <FieldWrapper fieldName="eta" className="inline-block rounded px-2 py-1">
-                <span className="text-gray-700">{blDetail?.eta ? new Date(blDetail.eta).toLocaleDateString('cs-CZ') : 'N/A'}</span>
-              </FieldWrapper>
-              <FieldWrapper fieldName="pic" className="inline-block rounded px-2 py-1">
-                <span className="text-gray-700">{blDetail?.picUser?.name || 'Not assigned'}</span>
-              </FieldWrapper>
+              <div className={`relative ${blDetail?.directionChange ? "bg-yellow-200 border border-red-400 rounded p-1" : ""}`}>
+                {blDetail?.directionChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <FieldWrapper fieldName="type" className="inline-block rounded px-2 py-1">
+                  <span className="font-semibold text-blue-700">{blDetail?.direction || 'N/A'}</span>
+                </FieldWrapper>
+              </div>
+              <div className={`relative ${blDetail?.carrierBulbChange ? "bg-yellow-200 border border-red-400 rounded p-1" : ""}`}>
+                {blDetail?.carrierBulbChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <FieldWrapper fieldName="carrier" className="inline-block rounded px-2 py-1">
+                  <span className="font-semibold">{blDetail?.carrierCompany?.name || 'MSC'}</span>
+                </FieldWrapper>
+              </div>
+              <div className={`relative ${blDetail?.localPortChange ? "bg-yellow-200 border border-red-400 rounded p-1" : ""}`}>
+                {blDetail?.localPortChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <FieldWrapper fieldName="podPol" className="inline-block rounded px-2 py-1">
+                  <span className="text-gray-700">
+                    {blDetail?.direction === 'Import' ? 
+                      (blDetail?.localPort?.name || 'N/A') : 
+                      (blDetail?.localPort?.name || 'N/A')
+                    }
+                  </span>
+                </FieldWrapper>
+              </div>
+              <div className={`relative ${(blDetail?.vesselChange || blDetail?.voyageChange) ? "bg-yellow-200 border border-red-400 rounded p-1" : ""}`}>
+                {(blDetail?.vesselChange || blDetail?.voyageChange) && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <FieldWrapper fieldName="vesselVoyage" className="inline-block rounded px-2 py-1">
+                  <span className="text-gray-700">{blDetail?.vessel && blDetail?.voyage ? `${blDetail.vessel} / ${blDetail.voyage}` : 'N/A'}</span>
+                </FieldWrapper>
+              </div>
+              <div className={`relative ${blDetail?.etaChange ? "bg-yellow-200 border border-red-400 rounded p-1" : ""}`}>
+                {blDetail?.etaChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <FieldWrapper fieldName="eta" className="inline-block rounded px-2 py-1">
+                  <span className="text-gray-700">{blDetail?.eta ? new Date(blDetail.eta).toLocaleDateString('cs-CZ') : 'N/A'}</span>
+                </FieldWrapper>
+              </div>
+              <div className={`relative ${blDetail?.picChange ? "bg-yellow-200 border border-red-400 rounded p-1" : ""}`}>
+                {blDetail?.picChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <FieldWrapper fieldName="pic" className="inline-block rounded px-2 py-1">
+                  <span className="text-gray-700">{blDetail?.picUser?.name || 'Not assigned'}</span>
+                </FieldWrapper>
+              </div>
 
             </div>
             <div className="flex items-center gap-2">
