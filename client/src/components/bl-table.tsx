@@ -36,58 +36,20 @@ const BLChangeIndicator = ({ bl, currentUserGroup, onClick }: {
   currentUserGroup?: UserGroup; 
   onClick?: () => void 
 }) => {
-  // Get containers for this BL to count container-level changes
-  const { data: containerInBls = [] } = useQuery<ContainerInBl[]>({
-    queryKey: ['/api/container-in-bl'],
-    enabled: !!bl.id
-  });
-
-  const { data: allContainers = [] } = useQuery<Container[]>({
-    queryKey: ['/api/containers'],
-  });
-
-  // Get containers for this specific BL
-  const blContainerIds = containerInBls
-    .filter((cib: ContainerInBl) => cib.blId === bl.id)
-    .map((cib: ContainerInBl) => cib.containerId);
-  
-  const blContainers = allContainers.filter(container => 
-    blContainerIds.includes(container.id)
-  );
-
-  // Debug: Let's log what we're counting
-  console.log(`Debug BL ${bl.blNumber}:`);
-  
-  // Count only BL-specific changes (not duplicated at container level)
-  const blOnlyChangeFields = [
+  // Count changes based on BL-level boolean flags only
+  // Container-level changes are considered part of the BL containerChange flag
+  const changeFields = [
     bl.blNumberChange, bl.picChange, bl.clientChange, bl.containerChange,
-    bl.directionChange, bl.etaChange, bl.localPortChange, 
-    bl.medlogBulbChange, bl.carrierBulbChange, bl.vesselChange, bl.voyageChange
+    bl.directionChange, bl.etaChange, bl.hasDangerousChange, bl.hasDtChange,
+    bl.localPortChange, bl.medlogStatusChange, bl.carrierStatusChange,
+    bl.locationChange, bl.medlogBulbChange, bl.carrierBulbChange,
+    bl.vesselChange, bl.voyageChange
   ];
   
-  const blChanges = blOnlyChangeFields.filter(Boolean).length;
-  console.log(`- BL changes: ${blChanges} from`, blOnlyChangeFields.map((f, i) => f ? ['blNumber', 'pic', 'client', 'container', 'direction', 'eta', 'localPort', 'medlogBulb', 'carrierBulb', 'vessel', 'voyage'][i] : null).filter(Boolean));
-
-  // Count container-level changes 
-  const containerChanges = blContainers.reduce((total, container) => {
-    const containerChangeFields = [
-      container.containerIluChange, container.sizeChange, container.weightChange,
-      container.customsChange, container.hasDangerousChange, container.unloadDateChange,
-      container.isDirectTruckChange, container.medlogStatusChange, container.carrierStatusChange,
-      container.medlogNoteChange, container.carrierNoteChange, container.isSentInMipsChange,
-      container.locationChange, container.zipChange, container.trainChange,
-      container.trainDateChange, container.deliveryNotPossibleChange
-    ];
-    const count = containerChangeFields.filter(Boolean).length;
-    console.log(`- Container ${container.containerIlu}: ${count} changes from`, containerChangeFields.map((f, i) => f ? ['containerIlu', 'size', 'weight', 'customs', 'hasDangerous', 'unloadDate', 'isDirectTruck', 'medlogStatus', 'carrierStatus', 'medlogNote', 'carrierNote', 'isSentInMips', 'location', 'zip', 'train', 'trainDate', 'deliveryNotPossible'][i] : null).filter(Boolean));
-    return total + count;
-  }, 0);
-
-  const totalChanges = blChanges + containerChanges;
-  console.log(`- Total changes: ${totalChanges}`);
+  const totalChanges = changeFields.filter(Boolean).length;
 
   // Determine change type based on changed fields
-  const hasTimeChanges = bl.etaChange || blContainers.some(c => c.trainDateChange || c.unloadDateChange);
+  const hasTimeChanges = bl.etaChange;
   const changeType = hasTimeChanges ? 'time' : 'other';
 
   return (

@@ -155,21 +155,7 @@ export default function Dashboard() {
       const matchesDeliveryNotPossible = !filters.deliveryNotPossible || 
         blContainers.some(container => container.deliveryNotPossible);
 
-      // Debug logs for filters
-      if (filters.newTrain) {
-        console.log(`BL ${bl.blNumber} - New Train filter:`);
-        console.log('- blContainers:', blContainers);
-        console.log('- containers with train:', blContainers.filter(c => c.train));
-        console.log('- containers with trainChange:', blContainers.filter(c => c.trainChange));
-        console.log('- matchesNewTrain:', matchesNewTrain);
-      }
-      
-      if (filters.deliveryNotPossible) {
-        console.log(`BL ${bl.blNumber} - Delivery Not Possible filter:`);
-        console.log('- blContainers:', blContainers);
-        console.log('- containers with deliveryNotPossible:', blContainers.filter(c => c.deliveryNotPossible));
-        console.log('- matchesDeliveryNotPossible:', matchesDeliveryNotPossible);
-      }
+
 
       // Import Only Filter: Show only Import BLs
       const matchesImportOnly = !filters.importOnly || bl.direction === 'Import';
