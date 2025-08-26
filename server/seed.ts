@@ -640,7 +640,7 @@ export async function seedDatabase() {
         isSentInMips: true,
         location: 'Mladá Boleslav Terminal',
         zip: '29301',
-        train: 'Train 123',
+        train: 'MEH2531R1',
         trainDate: new Date('2025-01-25'),
         deliveryNotPossible: false,
         isActive: true,

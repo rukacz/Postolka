@@ -209,7 +209,7 @@ export default function BLTable({ data, isLoading, currentUserGroup }: BLTablePr
               <TableCell>
                 <BLChangeIndicator bl={bl} currentUserGroup={currentUserGroup} onClick={() => {}} />
               </TableCell>
-              <TableCell>
+              <TableCell className={bl.directionChange ? "bg-yellow-200" : ""}>
                 <Badge 
                   className={`text-xs ${
                     bl.direction === 'Import' 
@@ -220,10 +220,10 @@ export default function BLTable({ data, isLoading, currentUserGroup }: BLTablePr
                   {bl.direction}
                 </Badge>
               </TableCell>
-              <TableCell>
+              <TableCell className={bl.hasDangerousChange ? "bg-yellow-200" : ""}>
                 <DangerousGoodsIndicator bl={bl} />
               </TableCell>
-              <TableCell>
+              <TableCell className={bl.blNumberChange ? "bg-yellow-200" : ""}>
                 <Link 
                   to={`/bl/${bl.blNumber}`}
                   className="text-blue-600 hover:text-blue-800 underline"
@@ -231,19 +231,19 @@ export default function BLTable({ data, isLoading, currentUserGroup }: BLTablePr
                   {bl.blNumber}
                 </Link>
               </TableCell>
-              <TableCell className="font-medium">
+              <TableCell className={`font-medium ${bl.clientChange ? "bg-yellow-200" : ""}`}>
                 {bl.clientName || '-'}
               </TableCell>
-              <TableCell className="max-w-40 truncate">
+              <TableCell className={`max-w-40 truncate ${bl.locationChange ? "bg-yellow-200" : ""}`}>
                 {bl.locationName || '-'}
               </TableCell>
-              <TableCell>
+              <TableCell className={bl.localPortChange ? "bg-yellow-200" : ""}>
                 {bl.localPortName || '-'}
               </TableCell>
-              <TableCell>
+              <TableCell className={bl.etaChange ? "bg-yellow-200" : ""}>
                 {bl.eta ? new Date(bl.eta).toLocaleDateString('cs-CZ') : '-'}
               </TableCell>
-              <TableCell className="text-center">
+              <TableCell className={`text-center ${bl.containerChange ? "bg-yellow-200" : ""}`}>
                 {bl.containerCount || 0}
               </TableCell>
               <TableCell>
@@ -251,16 +251,16 @@ export default function BLTable({ data, isLoading, currentUserGroup }: BLTablePr
                   bl={bl}
                 />
               </TableCell>
-              <TableCell>
+              <TableCell className={bl.carrierStatusChange ? "bg-yellow-200" : ""}>
                 <CarrierStatusBadge status={bl.carrierStatus as CarrierStatus} />
               </TableCell>
-              <TableCell>
+              <TableCell className={bl.medlogStatusChange ? "bg-yellow-200" : ""}>
                 <MedlogStatusBadge status={bl.medlogStatus as MedlogStatus} />
               </TableCell>
-              <TableCell>
+              <TableCell className={bl.carrierBulbChange ? "bg-yellow-200" : ""}>
                 {bl.carrierName || '-'}
               </TableCell>
-              <TableCell>
+              <TableCell className={bl.picChange ? "bg-yellow-200" : ""}>
                 {bl.picName || '-'}
               </TableCell>
               <TableCell>

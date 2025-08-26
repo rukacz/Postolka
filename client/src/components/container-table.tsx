@@ -717,16 +717,16 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                   onCheckedChange={(checked) => handleSelectContainer(container.id, checked as boolean)}
                 />
               </TableCell>
-              <TableCell>
+              <TableCell className={container.hasDangerousChange ? "bg-yellow-200" : ""}>
                 {container.hasDangerous && <Flame className="w-4 h-4 text-red-500" />}
               </TableCell>
-              <TableCell className="font-mono text-sm">
+              <TableCell className={`font-mono text-sm ${container.containerIluChange ? "bg-yellow-200" : ""}`}>
                 {container.containerIlu}
               </TableCell>
-              <TableCell>
+              <TableCell className={container.sizeChange ? "bg-yellow-200" : ""}>
                 {container.size || '-'}
               </TableCell>
-              <TableCell>
+              <TableCell className={container.isDirectTruckChange ? "bg-yellow-200" : ""}>
                 {container.isDirectTruck && <Truck className="w-4 h-4 text-blue-500" />}
               </TableCell>
               <TableCell className="font-mono text-sm">
@@ -739,7 +739,7 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                   {container.trainDate ? new Date(container.trainDate).toLocaleDateString() : '-'}
                 </FieldWrapper>
               </TableCell>
-              <TableCell>
+              <TableCell className={container.unloadDateChange ? "bg-yellow-200" : ""}>
                 {container.unloadDate ? new Date(container.unloadDate).toLocaleString('en-US', {
                   month: 'short',
                   day: 'numeric',
@@ -747,30 +747,30 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                   minute: '2-digit'
                 }) : '-'}
               </TableCell>
-              <TableCell>
+              <TableCell className={container.locationChange ? "bg-yellow-200" : ""}>
                 <FieldWrapper fieldName="location">
                   {container.location || '-'}
                 </FieldWrapper>
               </TableCell>
               {blDetail?.jobType === 'Import' && (
-                <TableCell>
+                <TableCell className={container.customsChange ? "bg-yellow-200" : ""}>
                   {container.customs || '-'}
                 </TableCell>
               )}
               {blDetail?.jobType === 'Export' && (
-                <TableCell>
+                <TableCell className={container.weightChange ? "bg-yellow-200" : ""}>
                   {container.weight && (
                     <Scale className="w-4 h-4 text-gray-600" />
                   )}
                 </TableCell>
               )}
-              <TableCell>
+              <TableCell className={container.carrierStatusChange ? "bg-yellow-200" : ""}>
                 <CarrierStatusBadge status={container.carrierStatus as any} />
               </TableCell>
-              <TableCell>
+              <TableCell className={container.medlogStatusChange ? "bg-yellow-200" : ""}>
                 <MedlogStatusBadge status={container.medlogStatus as any} />
               </TableCell>
-              <TableCell className="w-48">
+              <TableCell className={`w-48 ${(container.carrierNoteChange || container.medlogNoteChange) ? "bg-yellow-200" : ""}`}>
                 <div className="space-y-1">
                   <div className="text-xs flex items-center justify-between">
                     <span className="truncate">
