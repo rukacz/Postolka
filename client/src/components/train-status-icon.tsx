@@ -7,21 +7,21 @@ interface TrainStatusIconProps {
 
 export default function TrainStatusIcon({ isScheduled, isDeliveryNotPossible = false }: TrainStatusIconProps) {
   // Logic:
-  // Red: Train exists BUT delivery not possible (train date > delivery date)
-  // Green: Train exists AND delivery possible
-  // Gray: No train scheduled
+  // Red: Any container has deliveryNotPossible=true (priority over green)
+  // Green: Any container has train data filled
+  // Gray: No train scheduled and no delivery issues
   
   let color = 'text-gray-400'; // Default: no train
   let filled = false;
   
-  if (isScheduled) {
-    if (isDeliveryNotPossible) {
-      color = 'text-red-600'; // Train exists but delivery impossible
-      filled = true;
-    } else {
-      color = 'text-green-600'; // Train exists and delivery possible
-      filled = true;
-    }
+  // Red has priority - if any container has delivery issues, show red
+  if (isDeliveryNotPossible) {
+    color = 'text-red-600';
+    filled = true;
+  } else if (isScheduled) {
+    // Green: if any container has train data and no delivery issues
+    color = 'text-green-600';
+    filled = true;
   }
 
   return (

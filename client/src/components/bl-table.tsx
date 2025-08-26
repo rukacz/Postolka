@@ -95,12 +95,12 @@ const TrainStatusWithDeliveryCheck = ({ bl }: { bl: BLWithDetails }) => {
 
   // Get containers for this BL
   const blContainers = allContainers.filter(container => 
-    blContainerIds.includes(container.containerIlu)
+    blContainerIds.includes(container.id)
   );
 
-  // Check if there are any trains scheduled at container level
+  // Check if there are any trains scheduled at container level (any container with train field filled)
   const hasTrainScheduled = blContainers.some(container => 
-    container.train && container.trainDate
+    container.train
   );
 
   // Check if delivery is not possible (backend calculates this)

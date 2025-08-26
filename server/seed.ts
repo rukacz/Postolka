@@ -640,7 +640,7 @@ export async function seedDatabase() {
         unloadDate: new Date("2025-01-25"),
         isDirectTruck: false,
         medlogStatus: "Approved",
-        carrierStatus: "Delivery planned",
+        carrierStatus: "MIPS Send",
         medlogNote: null,
         carrierNote: null,
         isSentInMips: true,
@@ -689,7 +689,7 @@ export async function seedDatabase() {
         zip: "81101",
         train: null,
         trainDate: null,
-        deliveryNotPossible: false,
+        deliveryNotPossible: true,
         isActive: true,
         // Change tracking fields
         containerIluChange: false,
