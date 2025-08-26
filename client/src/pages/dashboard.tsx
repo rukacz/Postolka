@@ -103,11 +103,11 @@ export default function Dashboard() {
     return bls.filter((bl) => {
       // Get containers for this BL using the junction table
       const blContainerIds = containerInBls
-        ?.filter(cib => cib.blId === bl.id)
-        .map(cib => cib.containerId) || [];
+        .filter((cib: any) => cib.blId === bl.id)
+        .map((cib: any) => cib.containerId) || [];
       
       const blContainers = allContainers.filter(container => 
-        blContainerIds.includes(container.containerIlu)
+        blContainerIds.includes(container.id)
       );
 
       // Get company names for search
@@ -155,6 +155,22 @@ export default function Dashboard() {
       const matchesDeliveryNotPossible = !filters.deliveryNotPossible || 
         blContainers.some(container => container.deliveryNotPossible);
 
+      // Debug logs for filters
+      if (filters.newTrain) {
+        console.log(`BL ${bl.blNumber} - New Train filter:`);
+        console.log('- blContainers:', blContainers);
+        console.log('- containers with train:', blContainers.filter(c => c.train));
+        console.log('- containers with trainChange:', blContainers.filter(c => c.trainChange));
+        console.log('- matchesNewTrain:', matchesNewTrain);
+      }
+      
+      if (filters.deliveryNotPossible) {
+        console.log(`BL ${bl.blNumber} - Delivery Not Possible filter:`);
+        console.log('- blContainers:', blContainers);
+        console.log('- containers with deliveryNotPossible:', blContainers.filter(c => c.deliveryNotPossible));
+        console.log('- matchesDeliveryNotPossible:', matchesDeliveryNotPossible);
+      }
+
       // Import Only Filter: Show only Import BLs
       const matchesImportOnly = !filters.importOnly || bl.direction === 'Import';
 
@@ -164,17 +180,17 @@ export default function Dashboard() {
       // Client Filter: Check if BL matches selected client
       const matchesClient = !filters.client || filters.client.length === 0 || 
                            filters.client.includes('all') || 
-                           filters.client.includes(bl.client);
+                           filters.client.includes(bl.client.toString());
 
       // Carrier Filter: Check if BL matches selected carrier
       const matchesCarrier = !filters.carrier || filters.carrier.length === 0 || 
                             filters.carrier.includes('all') || 
-                            filters.carrier.includes(bl.carrier);
+                            filters.carrier.includes(bl.carrier.toString());
 
       // PIC Filter: Check if BL matches selected PIC
       const matchesPic = !filters.pic || filters.pic.length === 0 || 
                         filters.pic.includes('all') || 
-                        filters.pic.includes(bl.pic);
+                        filters.pic.includes(bl.pic?.toString() || '');
 
       // Medlog Status Filter: Check if BL matches selected medlog status
       const matchesMedlogStatus = !filters.medlogStatus || filters.medlogStatus.length === 0 || 
