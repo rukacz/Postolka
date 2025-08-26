@@ -640,7 +640,7 @@ export async function seedDatabase() {
         unloadDate: new Date("2025-01-25"),
         isDirectTruck: false,
         medlogStatus: "Approved",
-        carrierStatus: "MIPS Send",
+        carrierStatus: "Delivery planned",
         medlogNote: null,
         carrierNote: null,
         isSentInMips: true,

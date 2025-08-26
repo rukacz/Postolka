@@ -147,6 +147,7 @@ export default function FilterBar({ filters, onFiltersChange, onClearFilters }: 
               { value: 'New', label: 'New' },
               { value: 'Pre-Order', label: 'Pre-Order' },
               { value: 'MIPS Send', label: 'MIPS Send' },
+              { value: 'Delivery planned', label: 'Delivery planned' },
               { value: 'Do Not Release', label: 'Do Not Release' },
               { value: 'Cancelled', label: 'Cancelled' }
             ]}

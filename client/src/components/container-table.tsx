@@ -36,7 +36,7 @@ const sizeTypeOptions = [
 ];
 
 const carrierStatusOptions = [
-  "Pre-Order", "MIPS Send", "Cancelled", "Do Not Release"
+  "Pre-Order", "MIPS Send", "Cancelled", "Do Not Release", "Delivery planned"
 ];
 
 const medlogStatusOptions = [

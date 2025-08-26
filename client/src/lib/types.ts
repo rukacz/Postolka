@@ -28,7 +28,7 @@ export interface NavigationState {
 }
 
 export type Priority = 'high' | 'medium' | 'low';
-export type CarrierStatus = 'Pre-Order' | 'MIPS Send' | 'Cancelled' | 'Do Not Release';
+export type CarrierStatus = 'Pre-Order' | 'MIPS Send' | 'Cancelled' | 'Do Not Release' | 'Delivery planned';
 export type MedlogStatus = 'New' | 'Approved' | 'Rejected' | 'Changed';
 export type BLStatus = 'Draft' | 'In Progress' | 'Delivered' | 'Issues' | 'Confirmed' | 'Attention Required';
 export type JobType = 'Import' | 'Export';
