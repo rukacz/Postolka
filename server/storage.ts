@@ -94,6 +94,7 @@ export interface IStorage {
   // ============================================================================
   // CONTAINER IN BL METHODS
   // ============================================================================
+  getAllContainerInBL(): Promise<ContainerInBl[]>;
   getContainerInBL(id: number): Promise<ContainerInBl | undefined>;
   createContainerInBL(containerInBl: InsertContainerInBl): Promise<ContainerInBl>;
   deleteContainerInBL(id: number): Promise<boolean>;
@@ -509,6 +510,10 @@ export class DatabaseStorage implements IStorage {
   // ============================================================================
   // CONTAINER IN BL METHODS
   // ============================================================================
+  async getAllContainerInBL(): Promise<ContainerInBl[]> {
+    return await db.select().from(containerInBl);
+  }
+
   async getContainerInBL(id: number): Promise<ContainerInBl | undefined> {
     const [containerInBlRecord] = await db.select().from(containerInBl).where(eq(containerInBl.id, id));
     return containerInBlRecord || undefined;

@@ -600,6 +600,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // ============================================================================
   // CONTAINER IN BL ROUTES
   // ============================================================================
+  app.get("/api/container-in-bl", async (req, res) => {
+    try {
+      const containersInBl = await storage.getAllContainerInBL();
+      res.json(containersInBl);
+    } catch (error) {
+      console.error("Error fetching all container in BL relationships:", error);
+      res.status(500).json({ message: "Failed to fetch container in BL relationships" });
+    }
+  });
+
   app.get("/api/container-in-bl/:id", async (req, res) => {
     try {
       const { id } = req.params;
