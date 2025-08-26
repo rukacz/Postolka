@@ -415,7 +415,7 @@ export async function seedDatabase() {
         carrierBulb: "Green",
         vessel: "MSC OSCAR",
         voyage: "123A",
-        blNumberChange: true,
+        blNumberChange: false,
         picChange: true,
         clientChange: false,
         containerChange: true,
