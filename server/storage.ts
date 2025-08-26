@@ -8,10 +8,11 @@ import {
   container, type Container, type InsertContainer,
   containerInBl, type ContainerInBl, type InsertContainerInBl,
   chatMessages, type ChatMessage, type InsertChatMessage,
-  type BLDetail
+  type BLDetail, type BLWithResolvedNames
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, desc, asc, or, inArray } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 
 export interface IStorage {
   // ============================================================================
@@ -70,7 +71,7 @@ export interface IStorage {
   getBLByNumber(blNumber: string): Promise<BL | undefined>;
   createBL(bl: InsertBL): Promise<BL>;
   updateBL(id: number, bl: Partial<BL>): Promise<BL | undefined>;
-  getAllBLs(): Promise<BL[]>;
+  getAllBLs(): Promise<BLWithResolvedNames[]>;
   getBLsByCarrier(carrierId: number): Promise<BL[]>;
   getBLsByClient(clientId: number): Promise<BL[]>;
   getBLsByDirection(direction: 'Import' | 'Export'): Promise<BL[]>;
@@ -330,8 +331,59 @@ export class DatabaseStorage implements IStorage {
     return updated || undefined;
   }
 
-  async getAllBLs(): Promise<BL[]> {
-    return await db.select().from(bl).orderBy(desc(bl.createdAt));
+  async getAllBLs(): Promise<BLWithResolvedNames[]> {
+    // Create table aliases for multiple joins
+    const clientCompany = alias(company, 'clientCompany');
+    const carrierCompany = alias(company, 'carrierCompany');
+    
+    // Join with related tables to resolve foreign key references
+    const results = await db
+      .select({
+        bl: bl,
+        clientCompany: {
+          id: clientCompany.id,
+          name: clientCompany.name,
+          type: clientCompany.type
+        },
+        carrierCompany: {
+          id: carrierCompany.id,
+          name: carrierCompany.name,
+          type: carrierCompany.type
+        },
+        picUser: {
+          id: user.id,
+          name: user.name,
+          username: user.username
+        },
+        localPortData: {
+          id: port.id,
+          name: port.name,
+          city: port.city,
+          country: port.country
+        },
+        locationData: {
+          id: city.id,
+          name: city.name,
+          country: city.country
+        }
+      })
+      .from(bl)
+      .leftJoin(clientCompany, eq(bl.client, clientCompany.id))
+      .leftJoin(carrierCompany, eq(bl.carrier, carrierCompany.id))
+      .leftJoin(user, eq(bl.pic, user.id))
+      .leftJoin(port, eq(bl.localPort, port.id))
+      .leftJoin(city, eq(bl.location, city.id))
+      .orderBy(desc(bl.createdAt));
+
+    // Return properly formatted BL records with resolved names
+    return results.map(result => ({
+      ...result.bl,
+      clientName: result.clientCompany?.name || '-',
+      carrierName: result.carrierCompany?.name || '-',
+      picName: result.picUser?.name || '-',
+      localPortName: result.localPortData?.name || '-',
+      locationName: result.locationData?.name || '-'
+    })) as BLWithResolvedNames[];
   }
 
   async getBLsByCarrier(carrierId: number): Promise<BL[]> {

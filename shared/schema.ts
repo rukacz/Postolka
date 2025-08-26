@@ -263,6 +263,15 @@ export interface BLWithDetails extends Omit<BL, 'localPort'> {
   unreadChatCount?: number;
 }
 
+// Extended BL type for dashboard with resolved names
+export interface BLWithResolvedNames extends BL {
+  clientName?: string;
+  carrierName?: string;
+  picName?: string;
+  localPortName?: string;
+  locationName?: string;
+}
+
 // Legacy type aliases for backward compatibility during transition
 export type BLSummary = BL;
 export type InsertBLSummary = InsertBL;
