@@ -209,59 +209,95 @@ export default function BLTable({ data, isLoading, currentUserGroup }: BLTablePr
               <TableCell>
                 <BLChangeIndicator bl={bl} currentUserGroup={currentUserGroup} onClick={() => {}} />
               </TableCell>
-              <TableCell className={bl.directionChange ? "bg-yellow-200" : ""}>
-                <Badge 
-                  className={`text-xs ${
-                    bl.direction === 'Import' 
-                      ? 'bg-blue-600 text-white' 
-                      : 'bg-green-600 text-white'
-                  }`}
-                >
-                  {bl.direction}
-                </Badge>
+              <TableCell className={bl.directionChange ? "relative" : ""}>
+                {bl.directionChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={bl.directionChange ? "border border-red-300 rounded p-1" : ""}>
+                  <Badge 
+                    className={`text-xs ${
+                      bl.direction === 'Import' 
+                        ? 'bg-blue-600 text-white' 
+                        : 'bg-green-600 text-white'
+                    }`}
+                  >
+                    {bl.direction}
+                  </Badge>
+                </div>
               </TableCell>
-              <TableCell className={bl.hasDangerousChange ? "bg-yellow-200" : ""}>
-                <DangerousGoodsIndicator bl={bl} />
+              <TableCell className={bl.hasDangerousChange ? "relative" : ""}>
+                {bl.hasDangerousChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={bl.hasDangerousChange ? "border border-red-300 rounded p-1" : ""}>
+                  <DangerousGoodsIndicator bl={bl} />
+                </div>
               </TableCell>
-              <TableCell className={bl.blNumberChange ? "bg-yellow-200" : ""}>
-                <Link 
-                  to={`/bl/${bl.blNumber}`}
-                  className="text-blue-600 hover:text-blue-800 underline"
-                >
-                  {bl.blNumber}
-                </Link>
+              <TableCell className={bl.blNumberChange ? "relative" : ""}>
+                {bl.blNumberChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={bl.blNumberChange ? "border border-red-300 rounded p-1" : ""}>
+                  <Link 
+                    to={`/bl/${bl.blNumber}`}
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
+                    {bl.blNumber}
+                  </Link>
+                </div>
               </TableCell>
-              <TableCell className={`font-medium ${bl.clientChange ? "bg-yellow-200" : ""}`}>
-                {bl.clientName || '-'}
+              <TableCell className={`font-medium ${bl.clientChange ? "relative" : ""}`}>
+                {bl.clientChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={bl.clientChange ? "border border-red-300 rounded p-1" : ""}>
+                  {bl.clientName || '-'}
+                </div>
               </TableCell>
-              <TableCell className={`max-w-40 truncate ${bl.locationChange ? "bg-yellow-200" : ""}`}>
-                {bl.locationName || '-'}
+              <TableCell className={`max-w-40 truncate ${bl.locationChange ? "relative" : ""}`}>
+                {bl.locationChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={bl.locationChange ? "border border-red-300 rounded p-1" : ""}>
+                  {bl.locationName || '-'}
+                </div>
               </TableCell>
-              <TableCell className={bl.localPortChange ? "bg-yellow-200" : ""}>
-                {bl.localPortName || '-'}
+              <TableCell className={bl.localPortChange ? "relative" : ""}>
+                {bl.localPortChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={bl.localPortChange ? "border border-red-300 rounded p-1" : ""}>
+                  {bl.localPortName || '-'}
+                </div>
               </TableCell>
-              <TableCell className={bl.etaChange ? "bg-yellow-200" : ""}>
-                {bl.eta ? new Date(bl.eta).toLocaleDateString('cs-CZ') : '-'}
+              <TableCell className={bl.etaChange ? "relative" : ""}>
+                {bl.etaChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={bl.etaChange ? "border border-red-300 rounded p-1" : ""}>
+                  {bl.eta ? new Date(bl.eta).toLocaleDateString('cs-CZ') : '-'}
+                </div>
               </TableCell>
-              <TableCell className={`text-center ${bl.containerChange ? "bg-yellow-200" : ""}`}>
-                {bl.containerCount || 0}
+              <TableCell className={`text-center ${bl.containerChange ? "relative" : ""}`}>
+                {bl.containerChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={bl.containerChange ? "border border-red-300 rounded p-1" : ""}>
+                  {bl.containerCount || 0}
+                </div>
               </TableCell>
               <TableCell>
                 <TrainStatusWithDeliveryCheck 
                   bl={bl}
                 />
               </TableCell>
-              <TableCell className={bl.carrierStatusChange ? "bg-yellow-200" : ""}>
-                <CarrierStatusBadge status={bl.carrierStatus as CarrierStatus} />
+              <TableCell className={bl.carrierStatusChange ? "relative" : ""}>
+                {bl.carrierStatusChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={bl.carrierStatusChange ? "border border-red-300 rounded p-1" : ""}>
+                  <CarrierStatusBadge status={bl.carrierStatus as CarrierStatus} />
+                </div>
               </TableCell>
-              <TableCell className={bl.medlogStatusChange ? "bg-yellow-200" : ""}>
-                <MedlogStatusBadge status={bl.medlogStatus as MedlogStatus} />
+              <TableCell className={bl.medlogStatusChange ? "relative" : ""}>
+                {bl.medlogStatusChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={bl.medlogStatusChange ? "border border-red-300 rounded p-1" : ""}>
+                  <MedlogStatusBadge status={bl.medlogStatus as MedlogStatus} />
+                </div>
               </TableCell>
-              <TableCell className={bl.carrierBulbChange ? "bg-yellow-200" : ""}>
-                {bl.carrierName || '-'}
+              <TableCell className={bl.carrierBulbChange ? "relative" : ""}>
+                {bl.carrierBulbChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={bl.carrierBulbChange ? "border border-red-300 rounded p-1" : ""}>
+                  {bl.carrierName || '-'}
+                </div>
               </TableCell>
-              <TableCell className={bl.picChange ? "bg-yellow-200" : ""}>
-                {bl.picName || '-'}
+              <TableCell className={bl.picChange ? "relative" : ""}>
+                {bl.picChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={bl.picChange ? "border border-red-300 rounded p-1" : ""}>
+                  {bl.picName || '-'}
+                </div>
               </TableCell>
               <TableCell>
                 <DropdownMenu>

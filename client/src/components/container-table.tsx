@@ -717,17 +717,29 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                   onCheckedChange={(checked) => handleSelectContainer(container.id, checked as boolean)}
                 />
               </TableCell>
-              <TableCell className={container.hasDangerousChange ? "bg-yellow-200" : ""}>
-                {container.hasDangerous && <Flame className="w-4 h-4 text-red-500" />}
+              <TableCell className={container.hasDangerousChange ? "relative" : ""}>
+                {container.hasDangerousChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={container.hasDangerousChange ? "border border-red-300 rounded p-1" : ""}>
+                  {container.hasDangerous && <Flame className="w-4 h-4 text-red-500" />}
+                </div>
               </TableCell>
-              <TableCell className={`font-mono text-sm ${container.containerIluChange ? "bg-yellow-200" : ""}`}>
-                {container.containerIlu}
+              <TableCell className={`font-mono text-sm ${container.containerIluChange ? "relative" : ""}`}>
+                {container.containerIluChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={container.containerIluChange ? "border border-red-300 rounded p-1" : ""}>
+                  {container.containerIlu}
+                </div>
               </TableCell>
-              <TableCell className={container.sizeChange ? "bg-yellow-200" : ""}>
-                {container.size || '-'}
+              <TableCell className={container.sizeChange ? "relative" : ""}>
+                {container.sizeChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={container.sizeChange ? "border border-red-300 rounded p-1" : ""}>
+                  {container.size || '-'}
+                </div>
               </TableCell>
-              <TableCell className={container.isDirectTruckChange ? "bg-yellow-200" : ""}>
-                {container.isDirectTruck && <Truck className="w-4 h-4 text-blue-500" />}
+              <TableCell className={container.isDirectTruckChange ? "relative" : ""}>
+                {container.isDirectTruckChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={container.isDirectTruckChange ? "border border-red-300 rounded p-1" : ""}>
+                  {container.isDirectTruck && <Truck className="w-4 h-4 text-blue-500" />}
+                </div>
               </TableCell>
               <TableCell className="font-mono text-sm">
                 <FieldWrapper fieldName="train">
@@ -739,86 +751,107 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                   {container.trainDate ? new Date(container.trainDate).toLocaleDateString() : '-'}
                 </FieldWrapper>
               </TableCell>
-              <TableCell className={container.unloadDateChange ? "bg-yellow-200" : ""}>
-                {container.unloadDate ? new Date(container.unloadDate).toLocaleString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                }) : '-'}
+              <TableCell className={container.unloadDateChange ? "relative" : ""}>
+                {container.unloadDateChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={container.unloadDateChange ? "border border-red-300 rounded p-1" : ""}>
+                  {container.unloadDate ? new Date(container.unloadDate).toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  }) : '-'}
+                </div>
               </TableCell>
-              <TableCell className={container.locationChange ? "bg-yellow-200" : ""}>
-                <FieldWrapper fieldName="location">
-                  {container.location || '-'}
-                </FieldWrapper>
+              <TableCell className={container.locationChange ? "relative" : ""}>
+                {container.locationChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={container.locationChange ? "border border-red-300 rounded p-1" : ""}>
+                  <FieldWrapper fieldName="location">
+                    {container.location || '-'}
+                  </FieldWrapper>
+                </div>
               </TableCell>
               {blDetail?.jobType === 'Import' && (
-                <TableCell className={container.customsChange ? "bg-yellow-200" : ""}>
-                  {container.customs || '-'}
+                <TableCell className={container.customsChange ? "relative" : ""}>
+                  {container.customsChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                  <div className={container.customsChange ? "border border-red-300 rounded p-1" : ""}>
+                    {container.customs || '-'}
+                  </div>
                 </TableCell>
               )}
               {blDetail?.jobType === 'Export' && (
-                <TableCell className={container.weightChange ? "bg-yellow-200" : ""}>
-                  {container.weight && (
-                    <Scale className="w-4 h-4 text-gray-600" />
-                  )}
+                <TableCell className={container.weightChange ? "relative" : ""}>
+                  {container.weightChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                  <div className={container.weightChange ? "border border-red-300 rounded p-1" : ""}>
+                    {container.weight && (
+                      <Scale className="w-4 h-4 text-gray-600" />
+                    )}
+                  </div>
                 </TableCell>
               )}
-              <TableCell className={container.carrierStatusChange ? "bg-yellow-200" : ""}>
-                <CarrierStatusBadge status={container.carrierStatus as any} />
+              <TableCell className={container.carrierStatusChange ? "relative" : ""}>
+                {container.carrierStatusChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={container.carrierStatusChange ? "border border-red-300 rounded p-1" : ""}>
+                  <CarrierStatusBadge status={container.carrierStatus as any} />
+                </div>
               </TableCell>
-              <TableCell className={container.medlogStatusChange ? "bg-yellow-200" : ""}>
-                <MedlogStatusBadge status={container.medlogStatus as any} />
+              <TableCell className={container.medlogStatusChange ? "relative" : ""}>
+                {container.medlogStatusChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={container.medlogStatusChange ? "border border-red-300 rounded p-1" : ""}>
+                  <MedlogStatusBadge status={container.medlogStatus as any} />
+                </div>
               </TableCell>
-              <TableCell className={`w-48 ${(container.carrierNoteChange || container.medlogNoteChange) ? "bg-yellow-200" : ""}`}>
-                <div className="space-y-1">
-                  <div className="text-xs flex items-center justify-between">
-                    <span className="truncate">
-                      Carrier: {container.carrierNote 
-                        ? container.carrierNote.length > 35 
-                          ? container.carrierNote.substring(0, 35) + '...' 
-                          : container.carrierNote
-                        : '-'
-                      }
-                    </span>
-                    {container.carrierNote && container.carrierNote.length > 35 ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setIndividualNoteModal({
-                          isOpen: true,
-                          container,
-                          noteType: 'carrier'
-                        })}
-                        className="h-5 w-5 p-0 ml-1 bg-blue-100 border-blue-300 text-blue-600 hover:bg-blue-200"
-                      >
-                        <ChevronRight className="h-3 w-3" />
-                      </Button>
-                    ) : null}
-                  </div>
-                  <div className="text-xs flex items-center justify-between">
-                    <span className="truncate">
-                      Medlog: {container.medlogNote 
-                        ? container.medlogNote.length > 35 
-                          ? container.medlogNote.substring(0, 35) + '...' 
-                          : container.medlogNote
-                        : '-'
-                      }
-                    </span>
-                    {container.medlogNote && container.medlogNote.length > 50 ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setIndividualNoteModal({
-                          isOpen: true,
-                          container,
-                          noteType: 'medlog'
-                        })}
-                        className="h-5 w-5 p-0 ml-1 bg-blue-100 border-blue-300 text-blue-600 hover:bg-blue-200"
-                      >
-                        <ChevronRight className="h-3 w-3" />
-                      </Button>
-                    ) : null}
+              <TableCell className={`w-48 ${(container.carrierNoteChange || container.medlogNoteChange) ? "relative" : ""}`}>
+                {(container.carrierNoteChange || container.medlogNoteChange) && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
+                <div className={(container.carrierNoteChange || container.medlogNoteChange) ? "border border-red-300 rounded p-1" : ""}>
+                  <div className="space-y-1">
+                    <div className="text-xs flex items-center justify-between">
+                      <span className="truncate">
+                        Carrier: {container.carrierNote 
+                          ? container.carrierNote.length > 35 
+                            ? container.carrierNote.substring(0, 35) + '...' 
+                            : container.carrierNote
+                          : '-'
+                        }
+                      </span>
+                      {container.carrierNote && container.carrierNote.length > 35 ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIndividualNoteModal({
+                            isOpen: true,
+                            container,
+                            noteType: 'carrier'
+                          })}
+                          className="h-5 w-5 p-0 ml-1 bg-blue-100 border-blue-300 text-blue-600 hover:bg-blue-200"
+                        >
+                          <ChevronRight className="h-3 w-3" />
+                        </Button>
+                      ) : null}
+                    </div>
+                    <div className="text-xs flex items-center justify-between">
+                      <span className="truncate">
+                        Medlog: {container.medlogNote 
+                          ? container.medlogNote.length > 35 
+                            ? container.medlogNote.substring(0, 35) + '...' 
+                            : container.medlogNote
+                          : '-'
+                        }
+                      </span>
+                      {container.medlogNote && container.medlogNote.length > 50 ? (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIndividualNoteModal({
+                            isOpen: true,
+                            container,
+                            noteType: 'medlog'
+                          })}
+                          className="h-5 w-5 p-0 ml-1 bg-blue-100 border-blue-300 text-blue-600 hover:bg-blue-200"
+                        >
+                          <ChevronRight className="h-3 w-3" />
+                        </Button>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
               </TableCell>
