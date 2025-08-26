@@ -79,6 +79,57 @@ const BLChangeIndicator = ({ bl, currentUserGroup, onClick }: {
 
   const totalChanges = blChanges + containerChanges;
 
+  // Debug output for specific BL
+  if (bl.blNumber === 'MEDU123456') {
+    console.log('=== MEDU123456 Change Calculation ===');
+    console.log('BL Changes:', blChanges);
+    console.log('BL Fields:', {
+      blNumberChange: bl.blNumberChange,
+      picChange: bl.picChange,
+      clientChange: bl.clientChange,
+      directionChange: bl.directionChange,
+      etaChange: bl.etaChange,
+      localPortChange: bl.localPortChange,
+      medlogBulbChange: bl.medlogBulbChange,
+      carrierBulbChange: bl.carrierBulbChange,
+      vesselChange: bl.vesselChange,
+      voyageChange: bl.voyageChange
+    });
+    
+    blContainers.forEach((container, index) => {
+      const containerFields = [
+        container.containerIluChange, container.sizeChange, container.weightChange,
+        container.customsChange, container.hasDangerousChange, container.unloadDateChange,
+        container.isDirectTruckChange, container.medlogStatusChange, container.carrierStatusChange,
+        container.medlogNoteChange, container.carrierNoteChange, container.isSentInMipsChange,
+        container.locationChange, container.zipChange
+      ];
+      const containerCount = containerFields.filter(Boolean).length;
+      
+      console.log(`Container ${index + 1} (${container.containerIlu}):`, containerCount, 'changes');
+      console.log('Container Fields:', {
+        containerIluChange: container.containerIluChange,
+        sizeChange: container.sizeChange,
+        weightChange: container.weightChange,
+        customsChange: container.customsChange,
+        hasDangerousChange: container.hasDangerousChange,
+        unloadDateChange: container.unloadDateChange,
+        isDirectTruckChange: container.isDirectTruckChange,
+        medlogStatusChange: container.medlogStatusChange,
+        carrierStatusChange: container.carrierStatusChange,
+        medlogNoteChange: container.medlogNoteChange,
+        carrierNoteChange: container.carrierNoteChange,
+        isSentInMipsChange: container.isSentInMipsChange,
+        locationChange: container.locationChange,
+        zipChange: container.zipChange
+      });
+    });
+    
+    console.log('Container Changes Total:', containerChanges);
+    console.log('TOTAL CHANGES:', totalChanges);
+    console.log('=====================================');
+  }
+
   // Determine change type based on changed fields
   const hasTimeChanges = bl.etaChange || blContainers.some(c => c.unloadDateChange);
   const changeType = hasTimeChanges ? 'time' : 'other';
