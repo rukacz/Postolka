@@ -147,11 +147,11 @@ export default function Dashboard() {
       // Only Edited Filter: Show only BLs with changes
       const matchesOnlyEdited = !filters.onlyEdited || hasChanges;
 
-      // New Train Filter: Check for train-related changes at container level
+      // New Train Filter: BL with green train (has train) AND trainChange=true
       const matchesNewTrain = !filters.newTrain || 
-        blContainers.some(container => container.trainChange);
+        blContainers.some(container => container.train && container.trainChange);
 
-      // Delivery not possible Filter: Check for delivery issues (backend calculates this)
+      // Delivery not possible Filter: BL with red train (deliveryNotPossible=true)
       const matchesDeliveryNotPossible = !filters.deliveryNotPossible || 
         blContainers.some(container => container.deliveryNotPossible);
 
