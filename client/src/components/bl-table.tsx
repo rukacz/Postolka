@@ -55,18 +55,16 @@ const BLChangeIndicator = ({ bl, currentUserGroup, onClick }: {
     blContainerIds.includes(container.id)
   );
 
-  // Count changes based on BL-level boolean flags
-  const blChangeFields = [
+  // Count changes based on BL-level boolean flags (excluding duplicates with container level)
+  const blOnlyChangeFields = [
     bl.blNumberChange, bl.picChange, bl.clientChange, bl.containerChange,
-    bl.directionChange, bl.etaChange, bl.hasDangerousChange, bl.hasDtChange,
-    bl.localPortChange, bl.medlogStatusChange, bl.carrierStatusChange,
-    bl.locationChange, bl.medlogBulbChange, bl.carrierBulbChange,
-    bl.vesselChange, bl.voyageChange
+    bl.directionChange, bl.etaChange, bl.localPortChange, 
+    bl.medlogBulbChange, bl.carrierBulbChange, bl.vesselChange, bl.voyageChange
   ];
   
-  const blChanges = blChangeFields.filter(Boolean).length;
+  const blChanges = blOnlyChangeFields.filter(Boolean).length;
 
-  // Count container-level changes
+  // Count container-level changes (these are the authoritative source for container data)
   const containerChanges = blContainers.reduce((total, container) => {
     const containerChangeFields = [
       container.containerIluChange, container.sizeChange, container.weightChange,
