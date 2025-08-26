@@ -36,8 +36,27 @@ const BLChangeIndicator = ({ bl, currentUserGroup, onClick }: {
   currentUserGroup?: UserGroup; 
   onClick?: () => void 
 }) => {
-  // Count changes based on new boolean flags
-  const changeFields = [
+  // Get containers for this BL to count container-level changes
+  const { data: containerInBls = [] } = useQuery<ContainerInBl[]>({
+    queryKey: ['/api/container-in-bl'],
+    enabled: !!bl.id
+  });
+
+  const { data: allContainers = [] } = useQuery<Container[]>({
+    queryKey: ['/api/containers'],
+  });
+
+  // Get containers for this specific BL
+  const blContainerIds = containerInBls
+    .filter((cib: ContainerInBl) => cib.blId === bl.id)
+    .map((cib: ContainerInBl) => cib.containerId);
+  
+  const blContainers = allContainers.filter(container => 
+    blContainerIds.includes(container.id)
+  );
+
+  // Count changes based on BL-level boolean flags
+  const blChangeFields = [
     bl.blNumberChange, bl.picChange, bl.clientChange, bl.containerChange,
     bl.directionChange, bl.etaChange, bl.hasDangerousChange, bl.hasDtChange,
     bl.localPortChange, bl.medlogStatusChange, bl.carrierStatusChange,
@@ -45,10 +64,25 @@ const BLChangeIndicator = ({ bl, currentUserGroup, onClick }: {
     bl.vesselChange, bl.voyageChange
   ];
   
-  const totalChanges = changeFields.filter(Boolean).length;
+  const blChanges = blChangeFields.filter(Boolean).length;
+
+  // Count container-level changes
+  const containerChanges = blContainers.reduce((total, container) => {
+    const containerChangeFields = [
+      container.containerIluChange, container.sizeChange, container.weightChange,
+      container.customsChange, container.hasDangerousChange, container.unloadDateChange,
+      container.isDirectTruckChange, container.medlogStatusChange, container.carrierStatusChange,
+      container.medlogNoteChange, container.carrierNoteChange, container.isSentInMipsChange,
+      container.locationChange, container.zipChange, container.trainChange,
+      container.trainDateChange, container.deliveryNotPossibleChange
+    ];
+    return total + containerChangeFields.filter(Boolean).length;
+  }, 0);
+
+  const totalChanges = blChanges + containerChanges;
 
   // Determine change type based on changed fields
-  const hasTimeChanges = bl.etaChange;
+  const hasTimeChanges = bl.etaChange || blContainers.some(c => c.trainDateChange || c.unloadDateChange);
   const changeType = hasTimeChanges ? 'time' : 'other';
 
   return (
