@@ -718,26 +718,26 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 />
               </TableCell>
               <TableCell className={container.hasDangerousChange ? "relative" : ""}>
-                {container.hasDangerousChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={container.hasDangerousChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={container.hasDangerousChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {container.hasDangerousChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   {container.hasDangerous && <Flame className="w-4 h-4 text-red-500" />}
                 </div>
               </TableCell>
               <TableCell className={`font-mono text-sm ${container.containerIluChange ? "relative" : ""}`}>
-                {container.containerIluChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={container.containerIluChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={container.containerIluChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {container.containerIluChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   {container.containerIlu}
                 </div>
               </TableCell>
               <TableCell className={container.sizeChange ? "relative" : ""}>
-                {container.sizeChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={container.sizeChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={container.sizeChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {container.sizeChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   {container.size || '-'}
                 </div>
               </TableCell>
               <TableCell className={container.isDirectTruckChange ? "relative" : ""}>
-                {container.isDirectTruckChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={container.isDirectTruckChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={container.isDirectTruckChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {container.isDirectTruckChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   {container.isDirectTruck && <Truck className="w-4 h-4 text-blue-500" />}
                 </div>
               </TableCell>
@@ -752,8 +752,8 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 </FieldWrapper>
               </TableCell>
               <TableCell className={container.unloadDateChange ? "relative" : ""}>
-                {container.unloadDateChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={container.unloadDateChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={container.unloadDateChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {container.unloadDateChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   {container.unloadDate ? new Date(container.unloadDate).toLocaleString('en-US', {
                     month: 'short',
                     day: 'numeric',
@@ -763,8 +763,8 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 </div>
               </TableCell>
               <TableCell className={container.locationChange ? "relative" : ""}>
-                {container.locationChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={container.locationChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={container.locationChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {container.locationChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   <FieldWrapper fieldName="location">
                     {container.location || '-'}
                   </FieldWrapper>
@@ -772,16 +772,16 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
               </TableCell>
               {blDetail?.jobType === 'Import' && (
                 <TableCell className={container.customsChange ? "relative" : ""}>
-                  {container.customsChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                  <div className={container.customsChange ? "border border-red-300 rounded p-1" : ""}>
+                  <div className={container.customsChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                    {container.customsChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                     {container.customs || '-'}
                   </div>
                 </TableCell>
               )}
               {blDetail?.jobType === 'Export' && (
                 <TableCell className={container.weightChange ? "relative" : ""}>
-                  {container.weightChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                  <div className={container.weightChange ? "border border-red-300 rounded p-1" : ""}>
+                  <div className={container.weightChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                    {container.weightChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                     {container.weight && (
                       <Scale className="w-4 h-4 text-gray-600" />
                     )}
@@ -789,20 +789,20 @@ const ContainerTable = ({ containers, userGroup, blDetail, onNoteChange, onHazar
                 </TableCell>
               )}
               <TableCell className={container.carrierStatusChange ? "relative" : ""}>
-                {container.carrierStatusChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={container.carrierStatusChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={container.carrierStatusChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {container.carrierStatusChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   <CarrierStatusBadge status={container.carrierStatus as any} />
                 </div>
               </TableCell>
               <TableCell className={container.medlogStatusChange ? "relative" : ""}>
-                {container.medlogStatusChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={container.medlogStatusChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={container.medlogStatusChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {container.medlogStatusChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   <MedlogStatusBadge status={container.medlogStatus as any} />
                 </div>
               </TableCell>
               <TableCell className={`w-48 ${(container.carrierNoteChange || container.medlogNoteChange) ? "relative" : ""}`}>
-                {(container.carrierNoteChange || container.medlogNoteChange) && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={(container.carrierNoteChange || container.medlogNoteChange) ? "border border-red-300 rounded p-1" : ""}>
+                <div className={(container.carrierNoteChange || container.medlogNoteChange) ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {(container.carrierNoteChange || container.medlogNoteChange) && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   <div className="space-y-1">
                     <div className="text-xs flex items-center justify-between">
                       <span className="truncate">

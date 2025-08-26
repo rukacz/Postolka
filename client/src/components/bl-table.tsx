@@ -210,8 +210,8 @@ export default function BLTable({ data, isLoading, currentUserGroup }: BLTablePr
                 <BLChangeIndicator bl={bl} currentUserGroup={currentUserGroup} onClick={() => {}} />
               </TableCell>
               <TableCell className={bl.directionChange ? "relative" : ""}>
-                {bl.directionChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={bl.directionChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={bl.directionChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {bl.directionChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   <Badge 
                     className={`text-xs ${
                       bl.direction === 'Import' 
@@ -224,14 +224,14 @@ export default function BLTable({ data, isLoading, currentUserGroup }: BLTablePr
                 </div>
               </TableCell>
               <TableCell className={bl.hasDangerousChange ? "relative" : ""}>
-                {bl.hasDangerousChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={bl.hasDangerousChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={bl.hasDangerousChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {bl.hasDangerousChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   <DangerousGoodsIndicator bl={bl} />
                 </div>
               </TableCell>
               <TableCell className={bl.blNumberChange ? "relative" : ""}>
-                {bl.blNumberChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={bl.blNumberChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={bl.blNumberChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {bl.blNumberChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   <Link 
                     to={`/bl/${bl.blNumber}`}
                     className="text-blue-600 hover:text-blue-800 underline"
@@ -241,32 +241,32 @@ export default function BLTable({ data, isLoading, currentUserGroup }: BLTablePr
                 </div>
               </TableCell>
               <TableCell className={`font-medium ${bl.clientChange ? "relative" : ""}`}>
-                {bl.clientChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={bl.clientChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={bl.clientChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {bl.clientChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   {bl.clientName || '-'}
                 </div>
               </TableCell>
               <TableCell className={`max-w-40 truncate ${bl.locationChange ? "relative" : ""}`}>
-                {bl.locationChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={bl.locationChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={bl.locationChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {bl.locationChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   {bl.locationName || '-'}
                 </div>
               </TableCell>
               <TableCell className={bl.localPortChange ? "relative" : ""}>
-                {bl.localPortChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={bl.localPortChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={bl.localPortChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {bl.localPortChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   {bl.localPortName || '-'}
                 </div>
               </TableCell>
               <TableCell className={bl.etaChange ? "relative" : ""}>
-                {bl.etaChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={bl.etaChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={bl.etaChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {bl.etaChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   {bl.eta ? new Date(bl.eta).toLocaleDateString('cs-CZ') : '-'}
                 </div>
               </TableCell>
               <TableCell className={`text-center ${bl.containerChange ? "relative" : ""}`}>
-                {bl.containerChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={bl.containerChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={bl.containerChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {bl.containerChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   {bl.containerCount || 0}
                 </div>
               </TableCell>
@@ -276,26 +276,26 @@ export default function BLTable({ data, isLoading, currentUserGroup }: BLTablePr
                 />
               </TableCell>
               <TableCell className={bl.carrierStatusChange ? "relative" : ""}>
-                {bl.carrierStatusChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={bl.carrierStatusChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={bl.carrierStatusChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {bl.carrierStatusChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   <CarrierStatusBadge status={bl.carrierStatus as CarrierStatus} />
                 </div>
               </TableCell>
               <TableCell className={bl.medlogStatusChange ? "relative" : ""}>
-                {bl.medlogStatusChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={bl.medlogStatusChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={bl.medlogStatusChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {bl.medlogStatusChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   <MedlogStatusBadge status={bl.medlogStatus as MedlogStatus} />
                 </div>
               </TableCell>
               <TableCell className={bl.carrierBulbChange ? "relative" : ""}>
-                {bl.carrierBulbChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={bl.carrierBulbChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={bl.carrierBulbChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {bl.carrierBulbChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   {bl.carrierName || '-'}
                 </div>
               </TableCell>
               <TableCell className={bl.picChange ? "relative" : ""}>
-                {bl.picChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
-                <div className={bl.picChange ? "border border-red-300 rounded p-1" : ""}>
+                <div className={bl.picChange ? "bg-yellow-200 border border-red-400 rounded p-1 relative" : ""}>
+                  {bl.picChange && <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></div>}
                   {bl.picName || '-'}
                 </div>
               </TableCell>
